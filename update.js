@@ -19,8 +19,8 @@ define(function(require, exports, module) {
         var plugin = new Plugin("Ajax.org", main.consumes);
         // var emit   = plugin.getEmitter();
         
-        const HOST = options.host || "localhost";
-        const PORT = options.port || "8282";
+        var HOST = options.host || "localhost";
+        var PORT = options.port || "8282";
         
         var loaded = false;
         function load(){
