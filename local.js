@@ -100,7 +100,7 @@ define(function(require, exports, module) {
             tabs.on("focus", function(e){
                 win.title = e.page.title + " - Cloud9 IDE";
             });
-            tabs.on("page.destroy", function(e){
+            tabs.on("pageDestroy", function(e){
                 if (e.last)
                     win.title = "Cloud9 IDE";
             });
