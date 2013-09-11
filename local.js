@@ -26,7 +26,7 @@ define(function(require, exports, module) {
         Note: On Mac, you should Register the File Types Your App Supports in the node-webkit.app/Contents/Info.plist.
 
         ISSUES:
-        - First opened tab does not get the focus (errors, no loading)
+        - First opened pane does not get the focus (errors, no loading)
         - Window doesn't get focus
         - After opening ace docs the UI becomes slow
     */
