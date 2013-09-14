@@ -1,7 +1,7 @@
 /*global requireNode*/
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "plugin", "menus", "tabManager", "settings", "preferences", 
+        "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs"
     ];
     main.provides = ["local"];
@@ -33,7 +33,7 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         var c9       = imports.c9;
-        var Plugin   = imports.plugin;
+        var Plugin   = imports.Plugin;
         var settings = imports.settings;
         var menus    = imports.menus;
         var tabs     = imports.tabManager;

@@ -1,10 +1,10 @@
 define(function(require, exports, module) {
-    main.consumes = ["plugin"];
+    main.consumes = ["Plugin"];
     main.provides = ["clipboard-provider"];
     return main;
 
     function main(options, imports, register) {
-        var Plugin   = imports.plugin;
+        var Plugin   = imports.Plugin;
         
         /***** Initialization *****/
         
