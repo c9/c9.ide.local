@@ -1,12 +1,12 @@
 /*global requireNode*/
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Plugin", "fs", "util", "proc"];
+    main.consumes = ["c9", "plugin", "fs", "util", "proc"];
     main.provides = ["local.update"];
     return main;
 
     function main(options, imports, register) {
         var c9       = imports.c9;
-        var Plugin   = imports.Plugin;
+        var Plugin   = imports.plugin;
         // var settings = imports.settings;
         var util     = imports.util  ;
         var fs       = imports.fs;
@@ -214,7 +214,7 @@ define(function(require, exports, module) {
         /**
          * Draws the file tree
          * @event afterfilesave Fires after a file is saved
-         * @param {Object} e
+         *   object:
          *     node     {XMLNode} description
          *     oldpath  {String} description
          **/
