@@ -1,6 +1,6 @@
 /*global requireNode*/
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Plugin", "nodeapi", "fs", "util", "proc"];
+    main.consumes = ["c9", "Plugin", "fs", "util", "proc"];
     main.provides = ["local.update"];
     return main;
 
@@ -11,8 +11,9 @@ define(function(require, exports, module) {
         var util     = imports.util  ;
         var fs       = imports.fs;
         var proc     = imports.proc;
-        var http     = imports.nodeapi.http;
-        var path     = imports.nodeapi.path;
+        
+        var http     = require("http");
+        var path     = require("path");
 
         /***** Initialization *****/
         
