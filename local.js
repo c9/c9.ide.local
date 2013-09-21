@@ -1,7 +1,7 @@
 /*global requireNode*/
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "plugin", "menus", "tabs", "settings", "preferences", 
+        "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs"
     ];
     main.provides = ["local"];
@@ -26,17 +26,17 @@ define(function(require, exports, module) {
         Note: On Mac, you should Register the File Types Your App Supports in the node-webkit.app/Contents/Info.plist.
 
         ISSUES:
-        - First opened tab does not get the focus (errors, no loading)
+        - First opened pane does not get the focus (errors, no loading)
         - Window doesn't get focus
         - After opening ace docs the UI becomes slow
     */
 
     function main(options, imports, register) {
         var c9       = imports.c9;
-        var Plugin   = imports.plugin;
+        var Plugin   = imports.Plugin;
         var settings = imports.settings;
         var menus    = imports.menus;
-        var tabs     = imports.tabs;
+        var tabs     = imports.tabManager;
         var fs       = imports.fs;
         var prefs    = imports.preferences;
         var ui       = imports.ui;
@@ -98,9 +98,9 @@ define(function(require, exports, module) {
 
             // Tabs
             tabs.on("focus", function(e){
-                win.title = e.page.title + " - Cloud9 IDE";
+                win.title = e.tab.title + " - Cloud9 IDE";
             });
-            tabs.on("page.destroy", function(e){
+            tabs.on("tabDestroy", function(e){
                 if (e.last)
                     win.title = "Cloud9 IDE";
             });
@@ -236,7 +236,7 @@ define(function(require, exports, module) {
         /**
          * Draws the file tree
          * @event afterfilesave Fires after a file is saved
-         *   object:
+         * @param {Object} e
          *     node     {XMLNode} description
          *     oldpath  {String} description
          **/
