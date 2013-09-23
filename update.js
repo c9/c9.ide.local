@@ -7,13 +7,13 @@ define(function(require, exports, module) {
     function main(options, imports, register) {
         var c9       = imports.c9;
         var Plugin   = imports.Plugin;
-        // var settings = imports.settings;
-        var util     = imports.util  ;
+        var util     = imports.util;
         var fs       = imports.fs;
         var proc     = imports.proc;
         
         var http     = require("http");
         var path     = require("path");
+        var dirname  = path.dirname;
 
         /***** Initialization *****/
         
@@ -112,7 +112,7 @@ define(function(require, exports, module) {
             fs.rmdir("~/.c9/updates/updatepackage", { recursive: true }, function(){
                 proc.execFile("tar", {
                     args : ["-zxf", target],
-                    cwd  : fs.getParentPath(target)
+                    cwd  : dirname(target)
                 }, function(err, stdout, stderr){
                     if (err) {
                         fs.unlink(target, function(){});
