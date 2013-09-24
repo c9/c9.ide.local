@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     main.consumes = ["Plugin"];
-    main.provides = ["clipboard-provider"];
+    main.provides = ["clipboard.provider"];
     return main;
 
     function main(options, imports, register) {
@@ -109,7 +109,7 @@ define(function(require, exports, module) {
         });
         
         register(null, {
-            "clipboard-provider": plugin
+            "clipboard.provider": plugin
         });
     }
 });
