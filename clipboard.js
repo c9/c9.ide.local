@@ -48,18 +48,16 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function clear(callback){
+        function clear(){
             clipboard.clear();
-            callback();
         }
         
-        function set(type, data, callback){
+        function set(type, data){
             clipboard.set(data, "text");
-            callback();
         }
         
-        function get(type, callback){
-            callback(null, clipboard.get("text"));
+        function get(type){
+            return clipboard.get("text");
         }
         
         /***** Lifecycle *****/
