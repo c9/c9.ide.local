@@ -1,13 +1,16 @@
 /*global requireNode*/
 define(function(require, exports, module) {
-    main.consumes = ["c9", "Plugin", "fs", "util", "proc"];
+    main.consumes = [
+        "c9", "Plugin", "fs", "util", "proc", "dialog.alert", "dialog.confirm"
+    ];
     main.provides = ["local.update"];
     return main;
 
     function main(options, imports, register) {
         var c9       = imports.c9;
         var Plugin   = imports.Plugin;
-        var util     = imports.util;
+        var confirm  = imports["dialog.confirm"].show;
+        var alert    = imports["dialog.alert"].show;
         var fs       = imports.fs;
         var proc     = imports.proc;
         
@@ -86,7 +89,7 @@ define(function(require, exports, module) {
                                 args : [url, minP, "--no-check-certificate"],
                             }, function(err2, stdout, stderr){
                                 if (err2) {
-                                    util.alert(
+                                    alert(
                                         "Unable to download update",
                                         "Got errors while attempting to download update to Cloud9 IDE",
                                         "I tried to download using curl and wget. See the browser's log for more info. "
@@ -144,7 +147,7 @@ define(function(require, exports, module) {
         }
         
         function showUpdatePopup(date){
-            util.confirm("Cloud9 IDE needs to be updated", 
+            confirm("Cloud9 IDE needs to be updated", 
                 "Update Available", 
                 "There is an update available of Cloud9 IDE. "
                     + "Click OK to restart and update Cloud9 IDE.", 
