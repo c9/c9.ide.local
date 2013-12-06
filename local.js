@@ -91,6 +91,12 @@ define(function(require, exports, module) {
                 }
             }), 2000000, plugin);
 
+            menus.addItemByPath("Window/Developer Tools", new apf.item({
+                onclick : function(){
+                    win.showDevTools();
+                }
+            }), 2000000, plugin);
+
             // Event to open additional files (I hope)
             app.on('open', function(path) {
                 console.log('Opening: ' + path);
