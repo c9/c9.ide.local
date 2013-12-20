@@ -160,12 +160,34 @@ define(function(require, exports, module) {
         
         //@TODO needs to be platform specific
         function getC9Path(){
-            return "~/Applications/cloud9.app/Contents/Resources/app.nw/bin/c9";
+            return options.path + "/bin/c9";
         }
         
         function update(date){
             var script = path.join(getC9Path(), "../../scripts/checkforupdates.sh");
-            proc.spawn(script, {}, function(err, child){
+            
+            var path = options.path;
+            var appRoot, appPath;
+            
+            if (c9.platform == "linux") {
+                // @todo
+                return alert("Unsupported Platform");
+            }
+            else if (c9.platform == "windows") {
+                // @todo
+                return alert("Unsupported Platform");
+            }
+            else if (c9.platform == "darwin") {
+                if (path.indexOf("Contents/Resources") == -1)
+                    return; // Running in dev mode
+                
+                appPath = path;
+                appRoot = path.substr(0, path.lastIndexOf("/"));
+            }
+            
+            proc.spawn(script, {
+                args: [appRoot, appPath]
+            }, function(err, child){
                 if (err) return console.error(err);
                 
                 child.stdout.on("data", function(chunk){
