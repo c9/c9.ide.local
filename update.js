@@ -35,8 +35,8 @@ define(function(require, exports, module) {
             // At startup check for updates
             checkForUpdates();
             
-            // Then check for updates once every 6 hours
-            setInterval(checkForUpdates, 60 * 60 * 6 * 1000);
+            // Then check for updates once every 15 minutes
+            setInterval(checkForUpdates, 60 * 15 * 1000);
         }
         
         /***** Methods *****/
@@ -67,11 +67,11 @@ define(function(require, exports, module) {
                 return;
             
             fs.exists("~/.c9/updates/" + date, function(exists){
-                var url    = "http://" + HOST + ":" + PORT + "/update/" + date + ".tar.gz";
-                var target = c9.home + "/.c9/updates/" + date + ".tar.gz";
+                var url    = "http://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
+                var target = c9.home + "/.c9/updates/" + date;
                 
                 if (exists)
-                    return decompress(date, target);
+                    return copy(date, target);
                 
                 fs.mkdir("~/.c9/updates", function(){
                     proc.execFile("curl", {
@@ -96,20 +96,20 @@ define(function(require, exports, module) {
                                     return;
                                 }
                                 
-                                decompress(date, target);
+                                copy(date, target);
                             });
                             return;
                         }
-                        decompress(date, target);
+                        copy(date, target);
                     });
                 });
             });
         }
         
-        function decompress(date, target){
+        function copy(date, target){
             fs.rmdir("~/.c9/updates/updatepackage", { recursive: true }, function(){
-                proc.execFile("tar", {
-                    args : ["-zxf", target],
+                proc.execFile("cp", {
+                    args : [target, "updatepackage"],
                     cwd  : dirname(target)
                 }, function(err, stdout, stderr){
                     if (err) {
@@ -186,7 +186,7 @@ define(function(require, exports, module) {
             }
             
             proc.spawn(script, {
-                args: [appRoot, appPath]
+                args: [appRoot, appPath, date]
             }, function(err, child){
                 if (err) return console.error(err);
                 
