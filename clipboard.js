@@ -1,3 +1,4 @@
+/*global nativeRequire*/
 define(function(require, exports, module) {
     main.consumes = ["Plugin"];
     main.provides = ["clipboard.provider"];
@@ -19,7 +20,7 @@ define(function(require, exports, module) {
             loaded = true;
             
             // Get System Clipbaord
-            clipboard = require('nw.gui').Clipboard.get();
+            clipboard = nativeRequire('nw.gui').Clipboard.get();
             
             // Node-webkit doesn't provide events, falling back to the browser's
             

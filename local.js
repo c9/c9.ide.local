@@ -1,4 +1,4 @@
-/*global requireNode*/
+/*global nativeRequire*/
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
@@ -42,10 +42,7 @@ define(function(require, exports, module) {
         var ui       = imports.ui;
 
         // Some require magic to get nw.gui
-        var oldRequire = window.require; 
-        window.require = requireNode;
-        var nw  = window.require("nw.gui"); 
-        window.require = oldRequire;
+        var nw  = nativeRequire("nw.gui"); 
         
         // Ref to window
         var win      = nw.Window.get();

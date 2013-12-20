@@ -1,7 +1,8 @@
-/*global requireNode*/
+/*global nativeRequire*/
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "Plugin", "fs", "util", "proc", "dialog.alert", "dialog.confirm"
+        "c9", "Plugin", "fs", "util", "proc", "dialog.alert", "dialog.confirm",
+        "http"
     ];
     main.provides = ["local.update"];
     return main;
@@ -13,8 +14,8 @@ define(function(require, exports, module) {
         var alert    = imports["dialog.alert"].show;
         var fs       = imports.fs;
         var proc     = imports.proc;
+        var http     = imports.http;
         
-        var http     = require("http");
         var path     = require("path");
         var dirname  = path.dirname;
 
@@ -41,19 +42,13 @@ define(function(require, exports, module) {
         /***** Methods *****/
         
         function checkForUpdates(){
-            http.get({
-                host : HOST,
-                port : PORT,
-                path : "/update"
-            }, function(res){
-                res.on("data", function(date){
-                    isNewer(date, function(err, newer){
-                        if (err) return;
-                        
-                    
-                        if (newer)
-                            downloadLatest(date);
-                    });
+            var url = "http://" + HOST + ":" + PORT + "/update";
+            http.request(url, {}, function(err, date, res){
+                isNewer(date, function(err, newer){
+                    if (err) return;
+                
+                    if (newer)
+                        downloadLatest(date);
                 });
             });
         }
@@ -141,7 +136,11 @@ define(function(require, exports, module) {
             mainlogo.target    = "";
             mainlogo.innerHTML = "Update";
             
-            mainlogo.addEventListener("click", function(){
+            mainlogo.addEventListener("mousedown", function(e){
+                e.stopPropagation();
+            });
+            
+            mainlogo.addEventListener("click", function(e){
                 showUpdatePopup(date);
             });
         }
