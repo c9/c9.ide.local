@@ -16,8 +16,8 @@ define(function(require, exports, module) {
         var proc     = imports.proc;
         var http     = imports.http;
         
-        var path     = require("path");
-        var dirname  = path.dirname;
+        var join     = require("path").join;
+        var dirname  = require("path").dirname;
 
         /***** Initialization *****/
         
@@ -71,7 +71,7 @@ define(function(require, exports, module) {
                 var target = c9.home + "/.c9/updates/" + date;
                 
                 if (exists)
-                    return copy(date, target);
+                    return decompress(date, target);
                 
                 fs.mkdir("~/.c9/updates", function(){
                     proc.execFile("curl", {
@@ -96,20 +96,20 @@ define(function(require, exports, module) {
                                     return;
                                 }
                                 
-                                copy(date, target);
+                                decompress(date, target);
                             });
                             return;
                         }
-                        copy(date, target);
+                        decompress(date, target);
                     });
                 });
             });
         }
         
-        function copy(date, target){
-            fs.rmdir("~/.c9/updates/updatepackage", { recursive: true }, function(){
-                proc.execFile("cp", {
-                    args : [target, "updatepackage"],
+        function decompress(date, target){
+            fs.rmdir("~/.c9/updates/app.nw", { recursive: true }, function(){
+                proc.execFile("tar", {
+                    args : ["-zxf", target],
                     cwd  : dirname(target)
                 }, function(err, stdout, stderr){
                     if (err) {
@@ -117,9 +117,9 @@ define(function(require, exports, module) {
                         return;
                     }
                 
-                    fs.writeFile("~/.c9/updates/updatepackage/version", date, function(){
+                    // fs.writeFile("~/.c9/updates/app.nw/version", date, function(){
                         flagUpdate(date);
-                    });
+                    // });
                 });
             });
         }
@@ -164,7 +164,7 @@ define(function(require, exports, module) {
         }
         
         function update(date){
-            var script = path.join(getC9Path(), "../../scripts/checkforupdates.sh");
+            var script = join(getC9Path(), "../../scripts/checkforupdates.sh");
             
             var path = options.path;
             var appRoot, appPath;
@@ -185,8 +185,8 @@ define(function(require, exports, module) {
                 appRoot = path.substr(0, path.lastIndexOf("/"));
             }
             
-            proc.spawn(script, {
-                args: [appRoot, appPath, date]
+            proc.spawn("bash", {
+                args: [script, appRoot, appPath, date]
             }, function(err, child){
                 if (err) return console.error(err);
                 
