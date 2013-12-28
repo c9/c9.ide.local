@@ -21,30 +21,6 @@ define(function(require, exports, module) {
             
             // Get System Clipbaord
             clipboard = nativeRequire('nw.gui').Clipboard.get();
-            
-            // Node-webkit doesn't provide events, falling back to the browser's
-            
-            // Listen to cut event
-            document.addEventListener("cut", function(e){
-                if (emit("cut", { clipboardData: e.clipboardData }) === false)
-                    return;
-                
-                e.preventDefault();
-            });
-            // Listen to copy event
-            document.addEventListener("copy", function(e){
-                if (emit("copy", { clipboardData: e.clipboardData }) === false)
-                    return;
-                
-                e.preventDefault();
-            });
-            // Listen to paste event
-            document.addEventListener("paste", function(e){
-                if (emit("paste", { clipboardData: e.clipboardData }) === false)
-                    return;
-                
-                e.preventDefault();
-            });
         }
         
         /***** Methods *****/
