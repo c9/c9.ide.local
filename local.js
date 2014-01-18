@@ -131,9 +131,9 @@ define(function(require, exports, module) {
             
             // Drag&Drop upload
             upload.on("upload.drop", function(e){
-                var files = e.batch.entries;
+                var files = e.entries;
                 if (files.length == 1 && files[0].isDirectory) {
-                    favs.addFavorite(files[0].fullPath);
+                    favs.addFavorite(e.files[0].path);
                     return false;
                 }
             })
