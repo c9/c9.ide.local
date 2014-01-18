@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
-        "ui", "proc", "fs"
+        "ui", "proc", "fs", "tree.favorites", "upload"
     ];
     main.provides = ["local"];
     return main;
@@ -38,6 +38,8 @@ define(function(require, exports, module) {
         var menus    = imports.menus;
         var tabs     = imports.tabManager;
         var fs       = imports.fs;
+        var upload   = imports.upload;
+        var favs     = imports["tree.favorites"];
         var prefs    = imports.preferences;
         var ui       = imports.ui;
 
@@ -126,6 +128,15 @@ define(function(require, exports, module) {
                 if (nativeTitle !== settings.getBool("user/local/@nativeTitle"))
                     switchNativeTitle(!nativeTitle);
             }, plugin);
+            
+            // Drag&Drop upload
+            upload.on("upload.drop", function(e){
+                var files = e.batch.entries;
+                if (files.length == 1 && files[0].isDirectory) {
+                    favs.addFavorite(files[0].fullPath);
+                    return false;
+                }
+            })
 
             // Preferences
             prefs.add({
