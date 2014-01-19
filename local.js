@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
-        "ui", "proc", "fs", "tree.favorites", "upload"
+        "ui", "proc", "fs", "tree.favorites", "upload", "navigate"
     ];
     main.provides = ["local"];
     return main;
@@ -37,7 +37,7 @@ define(function(require, exports, module) {
         var settings = imports.settings;
         var menus    = imports.menus;
         var tabs     = imports.tabManager;
-        var fs       = imports.fs;
+        var navigate = imports.navigate;
         var upload   = imports.upload;
         var favs     = imports["tree.favorites"];
         var find     = imports.find;
@@ -141,12 +141,18 @@ define(function(require, exports, module) {
             
             // limit filelist to favorites  
             find.on("fileList", function(options) {
-                if (options.startPaths) return;
+                if (options.path == "/" && !options.startPaths) 
+                    return;
                 var paths = favs.getFavoritePaths();
                 if (!paths.length)
                     return false;
                 options.startPaths = paths;
             });
+            
+            // Make sure the file list is updated when a favorite is added
+            var update = navigate.markDirty.bind(null, null, 2000);
+            favs.on("favoriteRemove", update);
+            favs.on("favoriteAdd", update);
 
             // Preferences
             prefs.add({
