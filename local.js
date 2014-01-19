@@ -138,15 +138,20 @@ define(function(require, exports, module) {
                     return false;
                 }
             });
-            
+
             // limit filelist to favorites  
             find.on("fileList", function(options) {
-                if (options.path == "/" && !options.startPaths) 
-                    return;
-                var paths = favs.getFavoritePaths();
-                if (!paths.length)
-                    return false;
-                options.startPaths = paths;
+                if (options.path == "/" && !options.startPaths) {
+                    var paths = favs.getFavoritePaths();
+                    if (!paths.length)
+                        return false;
+                    
+                    options.startPaths = paths.filter(function(p){
+                        return !paths.some(function(n){
+                            return p != n && p.substr(0, n.length) == n;
+                        });
+                    });
+                }
             });
             
             // Make sure the file list is updated when a favorite is added
