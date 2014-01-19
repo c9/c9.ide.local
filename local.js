@@ -40,6 +40,7 @@ define(function(require, exports, module) {
         var fs       = imports.fs;
         var upload   = imports.upload;
         var favs     = imports["tree.favorites"];
+        var find     = imports.find;
         var prefs    = imports.preferences;
         var ui       = imports.ui;
 
@@ -136,7 +137,16 @@ define(function(require, exports, module) {
                     favs.addFavorite(e.files[0].path);
                     return false;
                 }
-            })
+            });
+            
+            // limit filelist to favorites  
+            find.on("fileList", function(options) {
+                if (options.startPaths) return;
+                var paths = favs.getFavoritePaths();
+                if (!paths.length)
+                    return false;
+                options.startPaths = paths;
+            });
 
             // Preferences
             prefs.add({
