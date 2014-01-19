@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
-        "ui", "proc", "fs", "tree.favorites", "upload", "navigate"
+        "ui", "proc", "fs", "tree.favorites", "upload", "navigate", "find"
     ];
     main.provides = ["local"];
     return main;
@@ -153,6 +153,9 @@ define(function(require, exports, module) {
             var update = navigate.markDirty.bind(null, null, 2000);
             favs.on("favoriteRemove", update);
             favs.on("favoriteAdd", update);
+            
+            // Load file list
+            navigate.markDirty(null, null, 0);
 
             // Preferences
             prefs.add({
