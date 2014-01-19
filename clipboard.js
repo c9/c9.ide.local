@@ -30,11 +30,17 @@ define(function(require, exports, module) {
         }
         
         function set(type, data){
-            clipboard.set(data, "text");
+            if (supported(type))
+                clipboard.set(data, "text");
         }
         
         function get(type){
-            return clipboard.get("text");
+            if (supported(type))
+                return clipboard.get("text");
+        }
+        
+        function supported(type) {
+            return /text($|\/)/.test(type);
         }
         
         /***** Lifecycle *****/
