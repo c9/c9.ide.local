@@ -160,7 +160,7 @@ define(function(require, exports, module) {
             favs.on("favoriteAdd", update);
             
             // Load file list
-            navigate.markDirty(null, null, 0);
+            navigate.markDirty(null, 0);
 
             // Preferences
             prefs.add({
