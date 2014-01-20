@@ -131,8 +131,15 @@ define(function(require, exports, module) {
             // Drag&Drop upload
             upload.on("upload.drop", function(e){
                 var files = e.entries;
-                if (files.length == 1 && files[0].isDirectory) {
+                if (e.type == "tree" && files.length == 1 && files[0].isDirectory) {
                     favs.addFavorite(e.files[0].path);
+                    return false;
+                }
+                else if (e.type == "tab") {
+                    for (var i = 0; i < files.length; i++) {
+                        if (!files[i].isDirectory)
+                            tabs.openFile(e.files[i].path, true, function(){});
+                    }
                     return false;
                 }
             });
