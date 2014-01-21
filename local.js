@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
-        "ui", "proc", "fs", "tree.favorites", "upload"
+        "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert"
     ];
     main.provides = ["local"];
     return main;
@@ -33,6 +33,7 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         var c9       = imports.c9;
+        var fs       = imports.fs;
         var Plugin   = imports.Plugin;
         var settings = imports.settings;
         var menus    = imports.menus;
@@ -41,6 +42,7 @@ define(function(require, exports, module) {
         var favs     = imports["tree.favorites"];
         var prefs    = imports.preferences;
         var ui       = imports.ui;
+        var alert    = imports["dialog.alert"].show;
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -96,8 +98,17 @@ define(function(require, exports, module) {
             }), 2000000, plugin);
 
             // Event to open additional files (I hope)
-            app.on('open', function(path) {
-                console.log('Opening: ' + path);
+            app.on("open", function(path) {
+                fs.stat(path, function(err, stat){
+                    if (err) return alert("Invalid File",
+                        "Could not open file: " + path,
+                        "Please check the path and try again");
+                    
+                    if (~stat.mime.indexOf("directory"))
+                        favs.addFavorite(path);
+                    else
+                        tabs.openFile(path, true, function(){});
+                });
             });
 
             // Tabs
