@@ -2,7 +2,8 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
-        "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert"
+        "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
+        "commands"
     ];
     main.provides = ["local"];
     return main;
@@ -37,6 +38,7 @@ define(function(require, exports, module) {
         var Plugin   = imports.Plugin;
         var settings = imports.settings;
         var menus    = imports.menus;
+        var commands = imports.commands;
         var tabs     = imports.tabManager;
         var upload   = imports.upload;
         var favs     = imports["tree.favorites"];
@@ -63,6 +65,20 @@ define(function(require, exports, module) {
         var plugin = new Plugin("Ajax.org", main.consumes);
         // var emit   = plugin.getEmitter();
         
+        var overrides = [
+            [ "newfile", {"mac": "Command-N", "win": "Ctrl-N" } ],
+            [ "newfiletemplate", {"mac": "Command-Shift-N", "win": "Ctrl-Shift-N" } ],
+            [ "closeallbutme", {"mac": "Command-Ctrl-W", "win": "Ctrl-Alt-W" } ],
+            [ "closealltabs", {"mac": "Command-Shift-W", "win": "Ctrl-Shift-W" } ],
+            [ "closetab", {"mac": "Command-W", "win": "Ctrl-W" } ],
+            [ "closepane", {"mac": "Ctrl-Option-W", "win": "Ctrl-Option-W" } ],
+            [ "nextpane", {"mac": "Command-ESC", "win": "Ctrl-ESC" } ],
+            [ "previouspane", {"mac": "Command-Shift-ESC", "win": "Ctrl-Shift-ESC" } ],
+            [ "openterminal", {"mac": "Command-T", "win": "Alt-T" } ],
+            [ "gototableft", {"mac": "Command-Shift-[", "win": "Ctrl-Alt-[" } ],
+            [ "gototabright", {"mac": "Command-Shift-]", "win": "Ctrl-Alt-]" } ]
+        ];
+        
         var loaded = false;
         function load(){
             if (loaded) return false;
@@ -82,6 +98,11 @@ define(function(require, exports, module) {
                     }
                     tabs.openFile(argv.shift(), function(){});
                 }
+                
+                // Set commands
+                overrides.forEach(function(item){
+                    commands.setDefault(item[0], item[1]);
+                });
             }, plugin);
 
             // Menu item to quit Cloud9 IDE
