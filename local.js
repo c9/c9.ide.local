@@ -176,9 +176,8 @@ define(function(require, exports, module) {
 
                 nativeTitle = settings.getBool("user/local/@nativeTitle");
                 setNativeTitle(!nativeTitle);
-<<<<<<< HEAD
                 
-                if (settings.getBool("user/local/window/@minized"))
+                if (settings.getBool("user/local/window/@minimized"))
                     win.minimize();
                 if (settings.getBool("user/local/window/@maximized"))
                     win.maximize();
@@ -196,10 +195,8 @@ define(function(require, exports, module) {
                     size = size.split(":");
                     win.resizeTo(size[0], size[1]);
                 }
-            }, plugin)
-=======
             }, plugin);
->>>>>>> 6fb1c0c4a63fe8e57ce19e6ffa258afee6f6477d
+
             settings.on("user/local", function(){
                 if (!!tray !== settings.getBool("user/local/@tray"))
                     toggleTray(!tray);
@@ -242,13 +239,12 @@ define(function(require, exports, module) {
                }
             }, plugin);
             
-<<<<<<< HEAD
             // Window
             win.on("minimize", function(){
-                settings.set("user/local/window/@minized", true);
+                settings.set("user/local/window/@minimized", true);
             });
             win.on("restore", function(){
-                settings.set("user/local/window/@minized", false);
+                settings.set("user/local/window/@minimized", false);
             });
             win.on("maximize", function(){
                 settings.set("user/local/window/@maximized", true);
@@ -262,13 +258,12 @@ define(function(require, exports, module) {
             win.on("resize", handler);
             win.on("enter-fullscreen", handler);
             win.on("leave-fullscreen", handler);
-=======
+
             // Focus when opening new files
             bridge.on("message", function(e) {
                 if (e.message.type === "open")
                     focusWindow();
             });
->>>>>>> 6fb1c0c4a63fe8e57ce19e6ffa258afee6f6477d
         }
         
         /***** Methods *****/
