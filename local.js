@@ -2,7 +2,8 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
-        "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert"
+        "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
+        "bridge"
     ];
     main.provides = ["local"];
     return main;
@@ -42,6 +43,7 @@ define(function(require, exports, module) {
         var prefs    = imports.preferences;
         var ui       = imports.ui;
         var alert    = imports["dialog.alert"].show;
+        var bridge   = imports.bridge;
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -129,7 +131,7 @@ define(function(require, exports, module) {
 
                 nativeTitle = settings.getBool("user/local/@nativeTitle");
                 setNativeTitle(!nativeTitle);
-            }, plugin)
+            }, plugin);
             settings.on("user/local", function(){
                 if (!!tray !== settings.getBool("user/local/@tray"))
                     toggleTray(!tray);
@@ -171,6 +173,12 @@ define(function(require, exports, module) {
                    }
                }
             }, plugin);
+            
+            // Focus when opening new files
+            bridge.on("message", function(e) {
+                if (e.message.type === "open")
+                    focusWindow();
+            });
         }
         
         /***** Methods *****/
