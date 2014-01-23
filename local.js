@@ -3,7 +3,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
-        "commands"
+        "commands", "bridge"
     ];
     main.provides = ["local"];
     return main;
@@ -28,7 +28,6 @@ define(function(require, exports, module) {
 
         ISSUES:
         - First opened pane does not get the focus (errors, no loading)
-        - Window doesn't get focus
         - After opening ace docs the UI becomes slow
     */
 
@@ -45,6 +44,7 @@ define(function(require, exports, module) {
         var prefs    = imports.preferences;
         var ui       = imports.ui;
         var alert    = imports["dialog.alert"].show;
+        var bridge   = imports.bridge;
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -86,8 +86,7 @@ define(function(require, exports, module) {
             
             // When the UI is loaded, show the window
             c9.on("ready", function(){
-                win.show();
-                win.focus();
+                focusWindow();
 
                 // Parse argv
                 var argv = app.argv.slice(0);
@@ -177,6 +176,7 @@ define(function(require, exports, module) {
 
                 nativeTitle = settings.getBool("user/local/@nativeTitle");
                 setNativeTitle(!nativeTitle);
+<<<<<<< HEAD
                 
                 if (settings.getBool("user/local/window/@minized"))
                     win.minimize();
@@ -197,6 +197,9 @@ define(function(require, exports, module) {
                     win.resizeTo(size[0], size[1]);
                 }
             }, plugin)
+=======
+            }, plugin);
+>>>>>>> 6fb1c0c4a63fe8e57ce19e6ffa258afee6f6477d
             settings.on("user/local", function(){
                 if (!!tray !== settings.getBool("user/local/@tray"))
                     toggleTray(!tray);
@@ -239,6 +242,7 @@ define(function(require, exports, module) {
                }
             }, plugin);
             
+<<<<<<< HEAD
             // Window
             win.on("minimize", function(){
                 settings.set("user/local/window/@minized", true);
@@ -258,6 +262,13 @@ define(function(require, exports, module) {
             win.on("resize", handler);
             win.on("enter-fullscreen", handler);
             win.on("leave-fullscreen", handler);
+=======
+            // Focus when opening new files
+            bridge.on("message", function(e) {
+                if (e.message.type === "open")
+                    focusWindow();
+            });
+>>>>>>> 6fb1c0c4a63fe8e57ce19e6ffa258afee6f6477d
         }
         
         /***** Methods *****/
@@ -335,12 +346,13 @@ define(function(require, exports, module) {
         }
         
         function focusWindow(){
+            // To support all platforms, we need to call both show and focus
+            win.show();
             win.focus();
         }
         
         function installMode(){
-            win.show();
-            win.focus();
+            focusWindow();
         }
         
         /***** Lifecycle *****/
