@@ -152,6 +152,25 @@ define(function(require, exports, module) {
 
                 nativeTitle = settings.getBool("user/local/@nativeTitle");
                 setNativeTitle(!nativeTitle);
+                
+                if (settings.getBool("user/local/window/@minized"))
+                    win.minimize();
+                if (settings.getBool("user/local/window/@maximized"))
+                    win.maximize();
+                if (settings.getBool("user/local/window/@fullscreen"))
+                    win.enterFullscreen();
+                    
+                var pos  = settings.get("user/local/window/@position");
+                if (pos) {
+                    pos = pos.split(":");
+                    win.moveTo(pos[0], pos[1]);
+                }
+                    
+                var size = settings.get("user/local/window/@size");
+                if (size) {
+                    size = size.split(":");
+                    win.resizeTo(size[0], size[1]);
+                }
             }, plugin)
             settings.on("user/local", function(){
                 if (!!tray !== settings.getBool("user/local/@tray"))
@@ -194,9 +213,38 @@ define(function(require, exports, module) {
                    }
                }
             }, plugin);
+            
+            // Window
+            var handler = storeWindowSettings.bind(null, false);
+            win.on("minimize", handler);
+            win.on("restore", handler);
+            win.on("maximize", handler);
+            win.on("unmaximize", handler);
+            win.on("move", handler);
+            win.on("resize", handler);
+            win.on("enter-fullscreen", handler);
+            win.on("leave-fullscreen", handler);
         }
         
         /***** Methods *****/
+        
+        var timer;
+        function storeWindowSettings(force){
+            if (!force) {
+                clearTimeout(timer);
+                timer = setTimeout(storeWindowSettings.bind(null, true), 1000);
+                return;
+            }
+            
+            settings.set("user/local/window/@minized", true);
+            settings.set("user/local/window/@minized", false);
+            settings.set("user/local/window/@maximized", true);
+            settings.set("user/local/window/@maximized", false);
+            settings.set("user/local/window/@position", win.x + ":" + win.y);
+            settings.set("user/local/window/@size", win.width + ":" + win.height);
+            settings.set("user/local/window/@fullscreen", true);
+            settings.set("user/local/window/@fullscreen", false);
+        }
 
         function toggleTray(to){
             if (to) {
