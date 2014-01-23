@@ -106,17 +106,42 @@ define(function(require, exports, module) {
             }, plugin);
 
             // Menu item to quit Cloud9 IDE
-            menus.addItemByPath("File/Quit Cloud9 IDE", new apf.item({
+            menus.addItemByPath("File/Quit Cloud9 IDE", new ui.item({
                 onclick : function(){
                     app.quit();
                 }
             }), 2000000, plugin);
 
-            menus.addItemByPath("Window/Developer Tools", new apf.item({
+            menus.addItemByPath("Window/Developer Tools", new ui.item({
                 onclick : function(){
                     win.showDevTools();
                 }
             }), 2000000, plugin);
+            
+            menus.addItemByPath("View/~", new ui.divider(), 800, plugin);
+            
+            var itemFullscreen = 
+              menus.addItemByPath("View/Enter Full Screen", new ui.item({
+                isAvailable: function(){
+                    itemFullscreen.setAttribute("caption", 
+                        win.isFullscreen 
+                            ? "Leave Full Screen" 
+                            : "Enter Full Screen");
+                    return true;
+                },
+                command: "toggleFullscreen"
+            }), 900, plugin);
+            
+            commands.addCommand({
+                name    : "toggleFullscreen",
+                exec    : function() {
+                    setTimeout(function(){
+                        win.isFullscreen 
+                            ? win.leaveFullscreen()
+                            : win.enterFullscreen(); 
+                    }, 100);
+                }
+            }, plugin);
 
             // Event to open additional files (I hope)
             app.on("open", function(path) {
@@ -215,11 +240,20 @@ define(function(require, exports, module) {
             }, plugin);
             
             // Window
+            win.on("minimize", function(){
+                settings.set("user/local/window/@minized", true);
+            });
+            win.on("restore", function(){
+                settings.set("user/local/window/@minized", false);
+            });
+            win.on("maximize", function(){
+                settings.set("user/local/window/@maximized", true);
+            });
+            win.on("unmaximize", function(){
+                settings.set("user/local/window/@maximized", false);
+            });
+            
             var handler = storeWindowSettings.bind(null, false);
-            win.on("minimize", handler);
-            win.on("restore", handler);
-            win.on("maximize", handler);
-            win.on("unmaximize", handler);
             win.on("move", handler);
             win.on("resize", handler);
             win.on("enter-fullscreen", handler);
@@ -236,14 +270,9 @@ define(function(require, exports, module) {
                 return;
             }
             
-            settings.set("user/local/window/@minized", true);
-            settings.set("user/local/window/@minized", false);
-            settings.set("user/local/window/@maximized", true);
-            settings.set("user/local/window/@maximized", false);
             settings.set("user/local/window/@position", win.x + ":" + win.y);
             settings.set("user/local/window/@size", win.width + ":" + win.height);
-            settings.set("user/local/window/@fullscreen", true);
-            settings.set("user/local/window/@fullscreen", false);
+            settings.set("user/local/window/@fullscreen", win.isFullscreen);
         }
 
         function toggleTray(to){
