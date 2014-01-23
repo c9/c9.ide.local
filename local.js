@@ -27,7 +27,6 @@ define(function(require, exports, module) {
 
         ISSUES:
         - First opened pane does not get the focus (errors, no loading)
-        - Window doesn't get focus
         - After opening ace docs the UI becomes slow
     */
 
@@ -70,8 +69,7 @@ define(function(require, exports, module) {
             
             // When the UI is loaded, show the window
             c9.on("ready", function(){
-                win.show();
-                win.focus();
+                focusWindow();
 
                 // Parse argv
                 var argv = app.argv.slice(0);
@@ -237,12 +235,13 @@ define(function(require, exports, module) {
         }
         
         function focusWindow(){
+            // To support all platforms, we need to call both show and focus
+            win.show();
             win.focus();
         }
         
         function installMode(){
-            win.show();
-            win.focus();
+            focusWindow();
         }
         
         /***** Lifecycle *****/
