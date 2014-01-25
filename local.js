@@ -177,24 +177,25 @@ define(function(require, exports, module) {
                 nativeTitle = settings.getBool("user/local/@nativeTitle");
                 setNativeTitle(!nativeTitle);
                 
-                if (settings.getBool("user/local/window/@minimized"))
-                    win.minimize();
-                if (settings.getBool("user/local/window/@maximized"))
-                    win.maximize();
-                if (settings.getBool("user/local/window/@fullscreen"))
-                    win.enterFullscreen();
+                // these are restored before loading the plugins
+                // if (settings.getBool("user/local/window/@minimized"))
+                //     win.minimize();
+                // if (settings.getBool("user/local/window/@maximized"))
+                //     win.maximize();
+                // if (settings.getBool("user/local/window/@fullscreen"))
+                //     win.enterFullscreen();
                     
-                var pos  = settings.get("user/local/window/@position");
-                if (pos) {
-                    pos = pos.split(":");
-                    win.moveTo(pos[0], pos[1]);
-                }
+                // var pos  = settings.get("user/local/window/@position");
+                // if (pos) {
+                //     pos = pos.split(":");
+                //     win.moveTo(pos[0], pos[1]);
+                // }
                     
-                var size = settings.get("user/local/window/@size");
-                if (size) {
-                    size = size.split(":");
-                    win.resizeTo(size[0], size[1]);
-                }
+                // var size = settings.get("user/local/window/@size");
+                // if (size) {
+                //     size = size.split(":");
+                //     win.resizeTo(size[0], size[1]);
+                // }
             }, plugin);
 
             settings.on("user/local", function(){
