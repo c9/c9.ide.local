@@ -86,7 +86,7 @@ define(function(require, exports, module) {
             
             // When the UI is loaded, show the window
             c9.on("ready", function(){
-                focusWindow();
+                // focusWindow();
 
                 // Parse argv
                 var argv = app.argv.slice(0);
