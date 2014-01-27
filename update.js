@@ -86,7 +86,7 @@ define(function(require, exports, module) {
                                 if (err2) {
                                     alert(
                                         "Unable to download update",
-                                        "Got errors while attempting to download update to Cloud9 IDE",
+                                        "Got errors while attempting to download update to Cloud9",
                                         "I tried to download using curl and wget. See the browser's log for more info. "
                                             + "Contact support@c9.io to help your resolve this issue."
                                     );
@@ -131,7 +131,7 @@ define(function(require, exports, module) {
             var mainlogo = document.querySelector(".c9-mbar-round .mainlogo");
             mainlogo.className += " update";
             
-            mainlogo.title     = "Update Cloud9 IDE to a newer version";
+            mainlogo.title     = "Update Cloud9 to a newer version";
             mainlogo.href      = "javascript:void(0)";
             mainlogo.target    = "";
             mainlogo.innerHTML = "Update";
@@ -146,10 +146,10 @@ define(function(require, exports, module) {
         }
         
         function showUpdatePopup(date){
-            confirm("Cloud9 IDE needs to be updated", 
+            confirm("Cloud9 needs to be updated", 
                 "Update Available", 
-                "There is an update available of Cloud9 IDE. "
-                    + "Click OK to restart and update Cloud9 IDE.", 
+                "There is an update available of Cloud9. "
+                    + "Click OK to restart and update Cloud9.", 
                 function(){
                     update(date);
                 }, 

@@ -104,8 +104,8 @@ define(function(require, exports, module) {
                 });
             }, plugin);
 
-            // Menu item to quit Cloud9 IDE
-            menus.addItemByPath("File/Quit Cloud9 IDE", new ui.item({
+            // Menu item to quit Cloud9
+            menus.addItemByPath("File/Quit Cloud9", new ui.item({
                 onclick : function(){
                     app.quit();
                 }
@@ -158,11 +158,11 @@ define(function(require, exports, module) {
 
             // Tabs
             tabs.on("focus", function(e){
-                win.title = e.tab.title + " - Cloud9 IDE";
+                win.title = e.tab.title + " - Cloud9";
             });
             tabs.on("tabDestroy", function(e){
                 if (e.last)
-                    win.title = "Cloud9 IDE";
+                    win.title = "Cloud9";
             });
 
             // Settings
