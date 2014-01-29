@@ -3,7 +3,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
-        "commands", "bridge"
+        "commands", "bridge", "dialog.question"
     ];
     main.provides = ["local"];
     return main;
@@ -31,6 +31,7 @@ define(function(require, exports, module) {
         var prefs    = imports.preferences;
         var ui       = imports.ui;
         var alert    = imports["dialog.alert"].show;
+        var question = imports["dialog.question"];
         var bridge   = imports.bridge;
 
         // Some require magic to get nw.gui
@@ -122,7 +123,9 @@ define(function(require, exports, module) {
                 name    : "exit",
                 bindKey : { mac: "Command-Q", win: "Alt-F4" },
                 exec    : function() {
-                    process.exit();
+                    // process.exit();
+                    // win.close();
+                    win.emit("close", "quit");
                 }
             }, plugin);
             
@@ -149,6 +152,44 @@ define(function(require, exports, module) {
                     else
                         tabs.openFile(path, true, function(){});
                 });
+            });
+            
+            // Deal with user reopening app
+            app.on("reopen", function(){
+                win.show();
+            });
+            
+            // Deal with closing
+            win.on("close", function(quit){
+                if (quit) {
+                    if (window.onbeforeunload) {
+                        var message = window.onbeforeunload();
+                        if (message) {
+                            question.show("Quit Cloud9?",
+                                "Are you sure you want to exit Cloud9?",
+                                "Cloud9 will preserve your entire state. "
+                                    + "Even unsaved files or changes will still "
+                                    + "be available the next time you start cloud9.",
+                                function(){ // yes
+                                    settings.set("user/general/@confirmexit", 
+                                        !question.dontAsk);
+                                    
+                                    win.close(true);
+                                },
+                                function(){ // no
+                                    settings.set("user/general/@confirmexit", 
+                                        !question.dontAsk);
+                                }, {
+                                    showDontAsk: true
+                                });
+                            return;
+                        }
+                    }
+                    win.close(true);
+                }
+                else {
+                    win.hide();
+                }
             });
 
             // Tabs
