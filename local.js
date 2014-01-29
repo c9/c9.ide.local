@@ -9,22 +9,9 @@ define(function(require, exports, module) {
     return main;
 
     /*
-        * Add argv support
-            https://github.com/rogerwang/node-webkit/wiki/Handling-files-and-arguments
-            https://github.com/rogerwang/node-webkit/wiki/App
         / Add title bar replacement (buttons + drag)
         - Add real menus
             https://github.com/rogerwang/node-webkit/wiki/Menu
-        * Add Tray Support
-            https://github.com/rogerwang/node-webkit/wiki/Tray
-        - Add Clipboard support
-            https://github.com/rogerwang/node-webkit/wiki/Clipboard
-        - Preserve window state
-            https://github.com/rogerwang/node-webkit/wiki/Preserve-window-state-between-sessions
-        - Preview:
-            nwdisable (since 0.5.0) is used to disable Node support in the iframe and make it a Normal frame (see Security)
-            nwfaketop (since 0.5.1) is used to trap the navigation and the access (such as window.top, window.parent) in this iframe.
-        Note: On Mac, you should Register the File Types Your App Supports in the node-webkit.app/Contents/Info.plist.
 
         ISSUES:
         - First opened pane does not get the focus (errors, no loading)
@@ -130,6 +117,14 @@ define(function(require, exports, module) {
                 },
                 command: "toggleFullscreen"
             }), 900, plugin);
+            
+            commands.addCommand({
+                name    : "exit",
+                bindKey : { mac: "Command-Q", win: "Alt-F4" },
+                exec    : function() {
+                    process.exit();
+                }
+            }, plugin);
             
             commands.addCommand({
                 name    : "toggleFullscreen",
