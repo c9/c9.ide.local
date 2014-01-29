@@ -54,17 +54,17 @@ define(function(require, exports, module) {
         // var emit   = plugin.getEmitter();
         
         var overrides = [
-            [ "newfile", {"mac": "Command-N", "win": "Ctrl-N" } ],
-            [ "newfiletemplate", {"mac": "Command-Shift-N", "win": "Ctrl-Shift-N" } ],
-            [ "closeallbutme", {"mac": "Command-Ctrl-W", "win": "Ctrl-Alt-W" } ],
-            [ "closealltabs", {"mac": "Command-Shift-W", "win": "Ctrl-Shift-W" } ],
-            [ "closetab", {"mac": "Command-W", "win": "Ctrl-W" } ],
-            [ "closepane", {"mac": "Ctrl-Option-W", "win": "Ctrl-Option-W" } ],
-            [ "nextpane", {"mac": "Command-ESC", "win": "Ctrl-ESC" } ],
-            [ "previouspane", {"mac": "Command-Shift-ESC", "win": "Ctrl-Shift-ESC" } ],
-            [ "openterminal", {"mac": "Command-T", "win": "Alt-T" } ],
-            [ "gototableft", {"mac": "Command-Shift-[", "win": "Ctrl-Alt-[" } ],
-            [ "gototabright", {"mac": "Command-Shift-]", "win": "Ctrl-Alt-]" } ]
+            [ "newfile", {"mac": "Command-N|Ctrl-N", "win": "Ctrl-N" } ],
+            [ "newfiletemplate", {"mac": "Command-Shift-N|Ctrl-Shift-N", "win": "Ctrl-Shift-N" } ],
+            [ "closeallbutme", {"mac": "Command-Option-W|Option-Ctrl-W", "win": "Ctrl-Alt-W" } ],
+            [ "closealltabs", {"mac": "Command-Shift-W|Option-Shift-W", "win": "Ctrl-Shift-W" } ],
+            [ "closetab", {"mac": "Command-W|Option-W", "win": "Ctrl-W" } ],
+            [ "closepane", {"mac": "Command-Ctrl-W", "win": "Ctrl-Option-W" } ],
+            [ "nextpane", {"mac": "Command-ESC|Option-ESC", "win": "Ctrl-ESC" } ],
+            [ "previouspane", {"mac": "Command-Shift-ESC|Option-Shift-ESC", "win": "Ctrl-Shift-ESC" } ],
+            [ "openterminal", {"mac": "Command-T|Option-T", "win": "Alt-T" } ],
+            [ "gototableft", {"mac": "Command-Shift-[|Command-[", "win": "Ctrl-Alt-[" } ],
+            [ "gototabright", {"mac": "Command-Shift-]|Command-]", "win": "Ctrl-Alt-]" } ]
         ];
         
         var loaded = false;
