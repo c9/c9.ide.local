@@ -182,6 +182,7 @@ define(function(require, exports, module) {
                                 }, {
                                     showDontAsk: true
                                 });
+                            focusWindow();
                             return;
                         }
                     }
