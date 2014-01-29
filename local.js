@@ -176,26 +176,6 @@ define(function(require, exports, module) {
 
                 nativeTitle = settings.getBool("user/local/@nativeTitle");
                 setNativeTitle(!nativeTitle);
-                
-                // these are restored before loading the plugins
-                // if (settings.getBool("user/local/window/@minimized"))
-                //     win.minimize();
-                // if (settings.getBool("user/local/window/@maximized"))
-                //     win.maximize();
-                // if (settings.getBool("user/local/window/@fullscreen"))
-                //     win.enterFullscreen();
-                    
-                // var pos  = settings.get("user/local/window/@position");
-                // if (pos) {
-                //     pos = pos.split(":");
-                //     win.moveTo(pos[0], pos[1]);
-                // }
-                    
-                // var size = settings.get("user/local/window/@size");
-                // if (size) {
-                //     size = size.split(":");
-                //     win.resizeTo(size[0], size[1]);
-                // }
             }, plugin);
 
             settings.on("user/local", function(){
@@ -212,7 +192,7 @@ define(function(require, exports, module) {
                     favs.addFavorite(e.files[0].path);
                     return false;
                 }
-                else if (e.type == "tab") {
+                else { //if (e.type == "tab") 
                     for (var i = 0; i < files.length; i++) {
                         if (!files[i].isDirectory)
                             tabs.openFile(e.files[i].path, true, function(){});
