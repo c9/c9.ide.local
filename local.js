@@ -216,7 +216,7 @@ define(function(require, exports, module) {
             // Settings
             settings.on("read", function(){
                 settings.setDefaults("user/local", [
-                    ["tray", "true"],
+                    ["tray", "false"],
                     ["nativeTitle", "true"]
                 ]);
                 if (settings.getBool("user/local/@tray"))
