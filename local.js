@@ -182,12 +182,14 @@ define(function(require, exports, module) {
                                 function(){ // yes
                                     settings.set("user/general/@confirmexit", 
                                         !question.dontAsk);
+                                    settings.save(true, true);
                                     
                                     win.close(true);
                                 },
                                 function(){ // no
                                     settings.set("user/general/@confirmexit", 
                                         !question.dontAsk);
+                                    settings.save(true, true);
                                 }, {
                                     showDontAsk: true
                                 });
