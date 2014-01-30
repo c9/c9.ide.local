@@ -123,9 +123,18 @@ define(function(require, exports, module) {
                 name    : "exit",
                 bindKey : { mac: "Command-Q", win: "Alt-F4" },
                 exec    : function() {
-                    // process.exit();
-                    // win.close();
                     win.emit("close", "quit");
+                }
+            }, plugin);
+            
+            commands.addCommand({
+                name    : "fallback",
+                bindKey : { mac: "Command-W", win: "Ctrl-F4" },
+                isAvailable : function(){
+                    return true;
+                },
+                exec    : function() {
+                    // Do nothing
                 }
             }, plugin);
             
