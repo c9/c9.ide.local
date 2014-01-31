@@ -3,7 +3,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
-        "commands", "bridge", "dialog.question"
+        "commands", "bridge", "dialog.question", "openfiles"
     ];
     main.provides = ["local"];
     return main;
@@ -19,20 +19,21 @@ define(function(require, exports, module) {
     */
 
     function main(options, imports, register) {
-        var c9       = imports.c9;
-        var fs       = imports.fs;
-        var Plugin   = imports.Plugin;
-        var settings = imports.settings;
-        var menus    = imports.menus;
-        var commands = imports.commands;
-        var tabs     = imports.tabManager;
-        var upload   = imports.upload;
-        var favs     = imports["tree.favorites"];
-        var prefs    = imports.preferences;
-        var ui       = imports.ui;
-        var alert    = imports["dialog.alert"].show;
-        var question = imports["dialog.question"];
-        var bridge   = imports.bridge;
+        var c9        = imports.c9;
+        var fs        = imports.fs;
+        var Plugin    = imports.Plugin;
+        var settings  = imports.settings;
+        var menus     = imports.menus;
+        var commands  = imports.commands;
+        var openfiles = imports.openfiles;
+        var tabs      = imports.tabManager;
+        var upload    = imports.upload;
+        var favs      = imports["tree.favorites"];
+        var prefs     = imports.preferences;
+        var ui        = imports.ui;
+        var alert     = imports["dialog.alert"].show;
+        var question  = imports["dialog.question"];
+        var bridge    = imports.bridge;
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -238,7 +239,7 @@ define(function(require, exports, module) {
                 var files = e.entries;
                 if (e.type == "tree" && files.length == 1 && files[0].isDirectory) {
                     favs.addFavorite(e.files[0].path);
-                    settings.set("state/openfiles/@hidetree", false);
+                    openfiles.showTree();
                     return false;
                 }
                 else { //if (e.type == "tab") 
