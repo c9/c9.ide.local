@@ -238,6 +238,7 @@ define(function(require, exports, module) {
                 var files = e.entries;
                 if (e.type == "tree" && files.length == 1 && files[0].isDirectory) {
                     favs.addFavorite(e.files[0].path);
+                    settings.set("state/openfiles/@hidetree", false);
                     return false;
                 }
                 else { //if (e.type == "tab") 
