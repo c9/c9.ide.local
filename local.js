@@ -45,9 +45,6 @@ define(function(require, exports, module) {
         var MenuItem = nw.MenuItem;
         var Tray     = nw.Tray;
         var tray, nativeTitle;
-        
-        if (c9.debug)
-            win.showDevTools();
             
         /***** Initialization *****/
         
