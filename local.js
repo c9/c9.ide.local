@@ -235,10 +235,13 @@ define(function(require, exports, module) {
             // Drag&Drop upload
             upload.on("upload.drop", function(e){
                 var files = e.entries;
-                if (e.type == "tree" && files.length == 1 && files[0].isDirectory) {
+                if (e.path.isTree && files.length == 1 && files[0].isDirectory) {
                     favs.addFavorite(e.files[0].path);
                     openfiles.showTree();
                     return false;
+                }
+                else if (typeof e.path == "string") {
+                    // Do nothing
                 }
                 else { //if (e.type == "tab") 
                     for (var i = 0; i < files.length; i++) {
@@ -248,14 +251,6 @@ define(function(require, exports, module) {
                     return false;
                 }
             });
-            favs.on("favoriteAdd", function(){
-                dragdrop.treeAsPane = false;
-            });
-            favs.on("favoriteRemove", function(){
-                if (!favs.favorites.length)
-                    dragdrop.treeAsPane = true;
-            });
-            dragdrop.treeAsPane = !favs.favorites.length;
             
             // Preferences
             prefs.add({
