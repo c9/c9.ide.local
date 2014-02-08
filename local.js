@@ -3,7 +3,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
-        "commands", "bridge", "dialog.question", "openfiles"
+        "commands", "bridge", "dialog.question", "openfiles", "dragdrop"
     ];
     main.provides = ["local"];
     return main;
@@ -25,6 +25,7 @@ define(function(require, exports, module) {
         var settings  = imports.settings;
         var menus     = imports.menus;
         var commands  = imports.commands;
+        var dragdrop  = imports.dragdrop;
         var openfiles = imports.openfiles;
         var tabs      = imports.tabManager;
         var upload    = imports.upload;
@@ -247,7 +248,15 @@ define(function(require, exports, module) {
                     return false;
                 }
             });
-
+            favs.on("favoriteAdd", function(){
+                dragdrop.treeAsPane = false;
+            });
+            favs.on("favoriteRemove", function(){
+                if (!favs.favorites.length)
+                    dragdrop.treeAsPane = true;
+            });
+            dragdrop.treeAsPane = !favs.favorites.length;
+            
             // Preferences
             prefs.add({
                "General" : {
