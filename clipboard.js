@@ -13,30 +13,26 @@ define(function(require, exports, module) {
         var emit   = plugin.getEmitter();
         
         var clipboard;
-        
-        var loaded = false;
-        function load(){
-            if (loaded) return false;
-            loaded = true;
-            
+        function getClipboard() {
+            if (clipboard) return clipboard;
             // Get System Clipbaord
-            clipboard = nativeRequire('nw.gui').Clipboard.get();
+            return clipboard = nativeRequire('nw.gui').Clipboard.get();
         }
         
         /***** Methods *****/
         
         function clear(){
-            clipboard.clear();
+            getClipboard().clear();
         }
         
         function set(type, data){
             if (supported(type))
-                clipboard.set(data, "text");
+                getClipboard().set(data, "text");
         }
         
         function get(type){
             if (supported(type))
-                return clipboard.get("text");
+                return getClipboard().get("text");
         }
         
         function supported(type) {
@@ -46,7 +42,7 @@ define(function(require, exports, module) {
         /***** Lifecycle *****/
         
         plugin.on("load", function(){
-            load();
+            
         });
         plugin.on("enable", function(){
             
@@ -55,7 +51,7 @@ define(function(require, exports, module) {
             
         });
         plugin.on("unload", function(){
-            loaded = false;
+            clipboard = false;
         });
         
         /***** Register and define API *****/
