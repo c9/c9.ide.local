@@ -3,7 +3,8 @@ define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
-        "commands", "bridge", "dialog.question", "openfiles", "dragdrop"
+        "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
+        "tree"
     ];
     main.provides = ["local"];
     return main;
@@ -30,6 +31,7 @@ define(function(require, exports, module) {
         var tabs      = imports.tabManager;
         var upload    = imports.upload;
         var favs      = imports["tree.favorites"];
+        var tree      = imports.tree;
         var prefs     = imports.preferences;
         var ui        = imports.ui;
         var alert     = imports["dialog.alert"].show;
@@ -147,6 +149,22 @@ define(function(require, exports, module) {
                     }, 100);
                 }
             }, plugin);
+            
+            tree.getElement("mnuCtxTree", function(mnuCtxTree){
+                ui.insertByIndex(mnuCtxTree, new ui.item({
+                    match   : "folder|file",
+                    caption : process.platform == "darwin"
+                        ? "Reveal in Finder"
+                        : "Show item in Explorer",
+                    onclick : function() {
+                        var path = tree.selected;
+                        if (!path) return;
+                        if (process.platform == "win32")
+                            path = path.substr(1).replace(/\//g, "\\");
+                        nw.Shell.showItemInFolder(path);
+                    }
+                }), 1020, plugin);
+            });
 
             // Event to open additional files (I hope)
             app.on("open", function(path) {
