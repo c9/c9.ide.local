@@ -252,9 +252,15 @@ define(function(require, exports, module) {
             
             // Drag&Drop upload
             upload.on("upload.drop", function(e){
+                function transformPath(path) {
+                    if (process.platform == "win32")
+                        path = "/" + path.replace(/\\/g, "/");
+                    return path;
+                }
                 var files = e.entries;
                 if (e.path.isTree && files.length == 1 && files[0].isDirectory) {
-                    favs.addFavorite(e.files[0].path);
+                    var path = e.files[0].path;
+                    favs.addFavorite(transformPath(path));
                     openfiles.showTree();
                     return false;
                 }
@@ -264,7 +270,7 @@ define(function(require, exports, module) {
                 else { //if (e.type == "tab") 
                     for (var i = 0; i < files.length; i++) {
                         if (!files[i].isDirectory)
-                            tabs.openFile(e.files[i].path, true, function(){});
+                            tabs.openFile(transformPath(e.files[i].path), true);
                     }
                     return false;
                 }
