@@ -253,7 +253,7 @@ define(function(require, exports, module) {
             // Drag&Drop upload
             upload.on("upload.drop", function(e){
                 function transformPath(path) {
-                    if (process.platform == "win32")
+                    if (c9.platform == "win32")
                         path = "/" + path.replace(/\\/g, "/");
                     return path;
                 }
