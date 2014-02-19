@@ -24,8 +24,10 @@ define(function(require, exports, module) {
         var plugin = new Plugin("Ajax.org", main.consumes);
         // var emit   = plugin.getEmitter();
         
-        var HOST = options.host || "localhost";
-        var PORT = options.port || "8282";
+        var HOST        = options.host || "localhost";
+        var PORT        = options.port || "8282";
+        var BASH        = options.bashBin || "bash";
+        var installPath = options.installPath.replace(/^~/, c9.home);
         
         var loaded = false;
         function load(){
@@ -54,7 +56,7 @@ define(function(require, exports, module) {
         }
         
         function isNewer(date, callback){
-            fs.readFile("~/.c9/version", function(err, currentDate){
+            fs.readFile(installPath + "/version", function(err, currentDate){
                 if (!currentDate) currentDate = 0;
                 
                 var newer = parseInt(currentDate, 10) < parseInt(date, 10);
@@ -66,19 +68,20 @@ define(function(require, exports, module) {
             if (!c9.has(c9.NETWORK))
                 return;
             
-            fs.exists("~/.c9/updates/" + date, function(exists){
+            fs.exists(installPath + "/updates/" + date, function(exists){
                 var url    = "http://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
-                var target = c9.home + "/.c9/updates/" + date;
+                var target = installPath + "/updates/" + date;
                 
-                if (exists)
+                if (exists) {
                     return decompress(date, target);
+                }
                 
-                fs.mkdir("~/.c9/updates", function(){
+                fs.mkdir(installPath + "/updates", function(){
                     proc.execFile("curl", {
                         args : [url, "-o", target, "--post301", "--post302"],
                     }, function(err1, stdout, stderr){
                         if (err1) {
-                            var minP = "-P" + c9.home + "~/.c9/updates";
+                            var minP = "-P" + installPath + "/updates";
                             
                             proc.execFile("wget", {
                                 args : [url, minP, "--no-check-certificate"],
@@ -107,7 +110,7 @@ define(function(require, exports, module) {
         }
         
         function decompress(date, target){
-            fs.rmdir("~/.c9/updates/app.nw", { recursive: true }, function(){
+            fs.rmdir(installPath + "/updates/app.nw", { recursive: true }, function(){
                 proc.execFile("tar", {
                     args : ["-zxf", target],
                     cwd  : dirname(target)
@@ -117,7 +120,7 @@ define(function(require, exports, module) {
                         return;
                     }
                 
-                    // fs.writeFile("~/.c9/updates/app.nw/version", date, function(){
+                    // fs.writeFile(installPath + "/updates/app.nw/version", date, function(){
                         flagUpdate(date);
                     // });
                 });
@@ -173,24 +176,28 @@ define(function(require, exports, module) {
                 // @todo
                 return alert("Unsupported Platform");
             }
-            else if (c9.platform == "windows") {
-                // @todo
-                return alert("Unsupported Platform");
+            else if (c9.platform == "win32") {
+                appPath = path;
+                appRoot = path.substr(0, path.lastIndexOf("/"));
             }
             else if (c9.platform == "darwin") {
                 if (path.indexOf("Contents/Resources") == -1)
-                    return; // Running in dev mode
+                    path = "/Applications/Cloud9.app/Contents/Resources/app.nw";
                 
                 appPath = path;
                 appRoot = path.substr(0, path.lastIndexOf("/"));
             }
             
-            proc.spawn("bash", {
-                args: [script, appRoot, appPath, date]
+            proc.spawn(BASH, {
+                args: [script, appRoot, appPath, installPath, date]
             }, function(err, child){
                 if (err) return console.error(err);
                 
                 child.stdout.on("data", function(chunk){
+                    console.log(chunk);
+                });
+                
+                child.stderr.on("data", function(chunk){
                     console.log(chunk);
                 });
                 
