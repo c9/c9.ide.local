@@ -4,7 +4,7 @@ define(function(require, exports, module) {
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
-        "tree"
+        "tree", "layout"
     ];
     main.provides = ["local"];
     return main;
@@ -32,6 +32,7 @@ define(function(require, exports, module) {
         var upload    = imports.upload;
         var favs      = imports["tree.favorites"];
         var tree      = imports.tree;
+        var layout    = imports.layout;
         var prefs     = imports.preferences;
         var ui        = imports.ui;
         var alert     = imports["dialog.alert"].show;
@@ -47,7 +48,7 @@ define(function(require, exports, module) {
         var Menu     = nw.Menu;
         var MenuItem = nw.MenuItem;
         var Tray     = nw.Tray;
-        var tray, nativeTitle;
+        var tray, nativeTitle, title;
             
         /***** Initialization *****/
         
@@ -224,10 +225,15 @@ define(function(require, exports, module) {
             // Tabs
             tabs.on("focus", function(e){
                 win.title = e.tab.title + " - Cloud9";
+                if (title)
+                    title.innerHTML = win.title;
             });
             tabs.on("tabDestroy", function(e){
-                if (e.last)
+                if (e.last) {
                     win.title = "Cloud9";
+                    if (title)
+                        title.innerHTML = win.title;
+                }
             });
 
             // Settings
@@ -371,28 +377,84 @@ define(function(require, exports, module) {
 
         function setNativeTitle(on){
             var div = document.body.appendChild(document.createElement("div"));
-            div.style.position = "absolute";
+            div.style.position = "fixed";
             div.style.left = 0;
             div.style.right = 0;
             div.style.top = 0;
-            div.style.height ="1px";
+            div.style.bottom = 0;
             div.style.zIndex = 10000000;
+            div.style.pointerEvents = "none";
+            div.style.border = "1px solid rgb(19,19,19)";
+            div.style.borderRadius = "3px";
+            div.style.borderBottom = "0px";
+            div.style.boxShadow = "1px 0 0 rgba(255, 255, 255, 0.06) inset, 0 1px 0 rgba(255, 255, 255, 0.1) inset";
+            
+            // Move elements down to make room for the title bar
+            layout.getElement("root").setAttribute("anchors", "23 0 0 0");
+            document.querySelector(".right .panelsbar").style.top = "49px";
+            document.querySelector(".c9-mbar-round").style.display = "none";
+            document.querySelector(".c9-mbar-logo").style.paddingTop = "0";
+            document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingRight = "16px";
+            
+            var logobar = layout.getElement("logobar");
+            logobar.setHeight(27);
+            logobar.$ext.style.maxHeight = "27px";
+            
+            var titlebar = document.body.appendChild(document.createElement("div"));
+            titlebar.style.position = "fixed";
+            titlebar.style.left = 0;
+            titlebar.style.right = 0;
+            titlebar.style.top = 0;
+            titlebar.style.height = "23px";
+            titlebar.style.zIndex = 1000000;
+            titlebar.style.background = "#252525";
+            titlebar.style.color = "#ccc";
+            titlebar.style.cursor = "default";
+            titlebar.style.boxSizing = "border-box";
+            titlebar.style.fontFamily = "Lucida Grande";
+            titlebar.style.fontSize = "13px";
+            titlebar.style.textAlign = "center";
+            titlebar.style.textShadow = "0 1px black"
+            titlebar.style.borderRadius = "3px 3px 0 0";
+            titlebar.style.webkitUserSelect  = "none";
+            titlebar.style.overflow  = "hidden";
 
+            // Caption
+            title = titlebar.appendChild(document.createElement("div"));
+            title.style.padding = "4px 0 0 34px";
+            title.style.height = "100%";
+            title.style.display = "inline-block";
+            title.style.background = "url(" + options.staticPrefix + "/images/winc9.png) no-repeat 0 1px";
+            
+            // Maximize
+            var maxbtn = titlebar.appendChild(document.createElement("div"));
+            maxbtn.style.position = "absolute";
+            maxbtn.style.right = "5px";
+            maxbtn.style.top = "5px";
+            maxbtn.style.width = "14px";
+            maxbtn.style.height = "15px";
+            maxbtn.style.background = "url(" + options.staticPrefix + "/images/winmax.png) no-repeat 0 0";
+            
+            // document.body.style.webkitAppRegion = "no-drag";
+            titlebar.style.webkitAppRegion = "drag";
+            
+            // @todo full screen mode
+            // @todo blur mode
+            // @todo max button
+            // @todo left buttons
+            // @todo gradient over bg
+            // Move title to index.html
+            
             if (on) {
-                div.style.background = "white";
-                div.style.opacity = 0.1;
-
                 var menubar = document.querySelector(".c9-menu-bar");
                 menubar.style.backgroundPosition = "0 -4px";
                 menubar.style.webkitUserSelect   = "none";
-                menubar.style.webkitAppRegion    = "drag";
+                // menubar.style.webkitAppRegion    = "drag";
                 // document.querySelector(".c9-mbar-round").style.background = ""; //new picture
 
-                ui.insertCss(".c9-menu-bar .c9-menu-btn { -webkit-app-region: no-drag; }", plugin);
+                // ui.insertCss(".c9-menu-bar .c9-menu-btn { -webkit-app-region: no-drag; }", plugin);
             }
             else {
-                div.style.background = "black";
-                div.style.opacity = 0.3;
             }
         }
         
