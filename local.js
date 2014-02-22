@@ -10,7 +10,14 @@ define(function(require, exports, module) {
     return main;
 
     /*
-        / Add title bar replacement (buttons + drag)
+        - Add title bar replacement (buttons + drag)
+            * full screen mode
+            * gradient over bg
+            * blur mode
+            - max button
+            - left buttons
+            - Move title to index.html
+            - Fix right panel bar position
         - Add real menus
             https://github.com/rogerwang/node-webkit/wiki/Menu
 
@@ -48,7 +55,7 @@ define(function(require, exports, module) {
         var Menu     = nw.Menu;
         var MenuItem = nw.MenuItem;
         var Tray     = nw.Tray;
-        var tray, nativeTitle, title;
+        var tray, nativeTitle, title, titlebar;
             
         /***** Initialization *****/
         
@@ -376,18 +383,10 @@ define(function(require, exports, module) {
         }
 
         function setNativeTitle(on){
+            ui.insertCss(require("text!./local.less"), options.staticPrefix, plugin);
+            
             var div = document.body.appendChild(document.createElement("div"));
-            div.style.position = "fixed";
-            div.style.left = 0;
-            div.style.right = 0;
-            div.style.top = 0;
-            div.style.bottom = 0;
-            div.style.zIndex = 10000000;
-            div.style.pointerEvents = "none";
-            div.style.border = "1px solid rgb(19,19,19)";
-            div.style.borderRadius = "3px";
-            div.style.borderBottom = "0px";
-            div.style.boxShadow = "1px 0 0 rgba(255, 255, 255, 0.06) inset, 0 1px 0 rgba(255, 255, 255, 0.1) inset";
+            div.className = "window-border";
             
             // Move elements down to make room for the title bar
             layout.getElement("root").setAttribute("anchors", "23 0 0 0");
@@ -400,50 +399,52 @@ define(function(require, exports, module) {
             logobar.setHeight(27);
             logobar.$ext.style.maxHeight = "27px";
             
-            var titlebar = document.body.appendChild(document.createElement("div"));
-            titlebar.style.position = "fixed";
-            titlebar.style.left = 0;
-            titlebar.style.right = 0;
-            titlebar.style.top = 0;
-            titlebar.style.height = "23px";
-            titlebar.style.zIndex = 1000000;
-            titlebar.style.background = "#252525";
-            titlebar.style.color = "#ccc";
-            titlebar.style.cursor = "default";
-            titlebar.style.boxSizing = "border-box";
-            titlebar.style.fontFamily = "Lucida Grande";
-            titlebar.style.fontSize = "13px";
-            titlebar.style.textAlign = "center";
-            titlebar.style.textShadow = "0 1px black"
-            titlebar.style.borderRadius = "3px 3px 0 0";
-            titlebar.style.webkitUserSelect  = "none";
-            titlebar.style.overflow  = "hidden";
+            titlebar = document.body.appendChild(document.createElement("div"));
+            titlebar.className = "window-titlebar " + c9.platform;
 
             // Caption
             title = titlebar.appendChild(document.createElement("div"));
-            title.style.padding = "4px 0 0 34px";
-            title.style.height = "100%";
-            title.style.display = "inline-block";
-            title.style.background = "url(" + options.staticPrefix + "/images/winc9.png) no-repeat 0 1px";
+            title.className = "caption";
             
             // Maximize
+            var fullscreenbtn = titlebar.appendChild(document.createElement("div"));
+            fullscreenbtn.className = "fullscreen";
+            fullscreenbtn.addEventListener("click", function(){
+                win.enterFullscreen();
+            });
+            
+            // Buttons
+            var closebtn = titlebar.appendChild(document.createElement("div"));
+            closebtn.className = "closebtn";
+            closebtn.addEventListener("click", function(){
+                win.close();
+            });
+            var minbtn = titlebar.appendChild(document.createElement("div"));
+            minbtn.className = "minbtn";
+            minbtn.addEventListener("click", function(){
+                win.minimize();
+            });
             var maxbtn = titlebar.appendChild(document.createElement("div"));
-            maxbtn.style.position = "absolute";
-            maxbtn.style.right = "5px";
-            maxbtn.style.top = "5px";
-            maxbtn.style.width = "14px";
-            maxbtn.style.height = "15px";
-            maxbtn.style.background = "url(" + options.staticPrefix + "/images/winmax.png) no-repeat 0 0";
+            maxbtn.className = "maxbtn";
+            maxbtn.addEventListener("click", function(){
+                win.maximize();
+            });
             
-            // document.body.style.webkitAppRegion = "no-drag";
-            titlebar.style.webkitAppRegion = "drag";
-            
-            // @todo full screen mode
-            // @todo blur mode
-            // @todo max button
-            // @todo left buttons
-            // @todo gradient over bg
-            // Move title to index.html
+            win.on("blur", function(){
+                titlebar.className = titlebar.className.replace(/ focus/g, "");
+            });
+            win.on("focus", function(){
+                titlebar.className += " focus";
+            });
+
+            win.on("leave-fullscreen", function(){
+                layout.getElement("root").setAttribute("anchors", "23 0 0 0");
+                    titlebar.style.display = "block";
+            });
+            win.on("enter-fullscreen", function(){
+                layout.getElement("root").setAttribute("anchors", "0 0 0 0");
+                titlebar.style.display = "none";
+            });
             
             if (on) {
                 var menubar = document.querySelector(".c9-menu-bar");
