@@ -430,8 +430,12 @@ define(function(require, exports, module) {
             var maxbtn = titlebar.appendChild(document.createElement("div"));
             maxbtn.className = "maxbtn";
             maxbtn.addEventListener("click", function(){
-                win.maximize();
+                isMaximized
+                    ? win.unmaximize()
+                    : win.maximize();
             });
+            
+            var isMaximized;
             
             win.on("blur", function(){
                 titlebar.className = titlebar.className.replace(/ focus/g, "");
@@ -441,9 +445,11 @@ define(function(require, exports, module) {
             });
             win.on("maximize", function(){
                 titlebar.className += " maximized";
+                isMaximized = true;
             });
             win.on("unmaximize", function(){
                 titlebar.className = titlebar.className.replace(/ maximized/g, "");
+                isMaximized = false;
             });
 
             win.on("leave-fullscreen", function(){
