@@ -14,8 +14,8 @@ define(function(require, exports, module) {
             * full screen mode
             * gradient over bg
             * blur mode
-            - max button
-            - left buttons
+            * max button
+            * left buttons
             - Move title to index.html
             - Fix right panel bar position
         - Add real menus
@@ -385,12 +385,15 @@ define(function(require, exports, module) {
         function setNativeTitle(on){
             ui.insertCss(require("text!./local.less"), options.staticPrefix, plugin);
             
+            var platform = c9.platform
+            var titleHeight = platform == "win32" ? 27 : 23;
+            
             var div = document.body.appendChild(document.createElement("div"));
             div.className = "window-border";
             
             // Move elements down to make room for the title bar
-            layout.getElement("root").setAttribute("anchors", "23 0 0 0");
-            document.querySelector(".right .panelsbar").style.top = "49px";
+            layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
+            document.querySelector(".right .panelsbar").style.top = (titleHeight + 26) + "px";
             document.querySelector(".c9-mbar-round").style.display = "none";
             document.querySelector(".c9-mbar-logo").style.paddingTop = "0";
             document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingRight = "16px";
@@ -400,7 +403,7 @@ define(function(require, exports, module) {
             logobar.$ext.style.maxHeight = "27px";
             
             titlebar = document.body.appendChild(document.createElement("div"));
-            titlebar.className = "window-titlebar " + c9.platform;
+            titlebar.className = "window-titlebar " + platform;
 
             // Caption
             title = titlebar.appendChild(document.createElement("div"));
@@ -436,9 +439,15 @@ define(function(require, exports, module) {
             win.on("focus", function(){
                 titlebar.className += " focus";
             });
+            win.on("maximize", function(){
+                titlebar.className += " maximized";
+            });
+            win.on("unmaximize", function(){
+                titlebar.className = titlebar.className.replace(/ maximized/g, "");
+            });
 
             win.on("leave-fullscreen", function(){
-                layout.getElement("root").setAttribute("anchors", "23 0 0 0");
+                layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
                     titlebar.style.display = "block";
             });
             win.on("enter-fullscreen", function(){
