@@ -7,6 +7,8 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         var Plugin = imports.Plugin;
+        var plugin = new Plugin("Ajax.org", main.consumes);
+        var emit = plugin.getEmitter();
         var api = imports.api;
         var fs = imports.fs;
         
@@ -18,11 +20,7 @@ define(function(require, exports, module) {
         var user = options.user;
         var project = options.project;
         var installPath = options.installPath;
-        
-        /***** Initialization *****/
-        
-        var plugin = new Plugin("Ajax.org", main.consumes);
-        
+
         var loaded = false;
         function load(){
             if (loaded) return false;
@@ -39,8 +37,11 @@ define(function(require, exports, module) {
                     return;
                 }
                 
+                var oldUser = user;
                 user = _user;
-                fs.writeFile(installPath + "/user.json", JSON.stringify(user, null, 2), "utf8", function(err) {
+                emit("change", { oldUser: oldUser, user: user, workspace: project });
+                
+                fs.writeFile(installPath + "/profile.settings", JSON.stringify(user, null, 2), "utf8", function(err) {
                     if (err) console.error(err);      
                 });
             });
@@ -85,7 +86,20 @@ define(function(require, exports, module) {
              * Return the active workspace.
              * @return {Object} The currently active workspace
              */
-            getWorkspace : getWorkspace
+            getWorkspace : getWorkspace,
+            
+            _events: [
+                /**
+                 * Fired when the user information changes.
+                 * 
+                 * @param {Object} [oldUser]
+                 * @param {Object} [oldWorkspace]
+                 * @param {Object} user
+                 * @param {Object} workspace
+                 * @event change
+                 */
+                "change"
+            ]
         });
         
         register(null, {
