@@ -253,7 +253,8 @@ define(function(require, exports, module) {
             /**
              * 
              */
-            checkForUpdates : checkForUpdates
+            checkForUpdates : checkForUpdates,
+            restart: restart,
         });
         
         register(null, {
