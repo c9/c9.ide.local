@@ -26,14 +26,18 @@ define(function(require, exports, module) {
             if (loaded) return false;
             loaded = true;
             
+            // HACK: avoid circular dependency
+            setTimeout(function() {
+                assert(window.app["dialog.alert"], "Can't find dialog.alert");
+            });
+            
             // We'll always fetch the latest account, including any
             // special info like saucelabs keys, and store it to disk
             api.user.get("", function(err, _user) {
                 if (err) {
-                    // the user was logged in before so ignore the error
-                    if (user.id !== ANONYMOUS) return;
-                    // TODO show error dialog
-                    alert("Error");
+                    // If the user wasn't logged in before, panic
+                    if (user.id === ANONYMOUS)
+                        authError();
                     return;
                 }
                 
@@ -49,11 +53,28 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function getUser(){
+        function authError() {
+            window.app["dialog.alert"].show(
+                "Authentication failed",
+                "Could not authorize your copy of Cloud9 Desktop",
+                "Please make sure you have an internet connection when you first run Cloud9 Desktop. "
+                + "This way we can authorize your copy and enable cloud connectivity features.",
+                function() {
+                    // TODO: just quit?
+                    setTimeout(function() {
+                        loaded = false;
+                        load();
+                    }, 30000);
+                }
+            );
+            return;
+        }
+        
+        function getUser() {
             return user;
         }
         
-        function getWorkspace(){
+        function getWorkspace() {
             return project;
         }
         
