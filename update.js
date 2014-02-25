@@ -121,7 +121,7 @@ define(function(require, exports, module) {
                     }
                 
                     // fs.writeFile(installPath + "/updates/app.nw/version", date, function(){
-                        flagUpdate(date);
+                        update(date);
                     // });
                 });
             });
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
                 "There is an update available of Cloud9. "
                     + "Click OK to restart and update Cloud9.", 
                 function(){
-                    update(date);
+                    restart();
                 }, 
                 function(){
                     // Do nothing
@@ -207,7 +207,8 @@ define(function(require, exports, module) {
                         // @todo cleanup
                     }
                     else {
-                        restart();
+                        // restart();
+                        flagUpdate(date)
                     }
                 });
             });
