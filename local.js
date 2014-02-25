@@ -10,14 +10,6 @@ define(function(require, exports, module) {
     return main;
 
     /*
-        - Add title bar replacement (buttons + drag)
-            * full screen mode
-            * gradient over bg
-            * blur mode
-            * max button
-            * left buttons
-            - Move title to index.html
-            - Fix right panel bar position
         - Add real menus
             https://github.com/rogerwang/node-webkit/wiki/Menu
 
@@ -230,7 +222,7 @@ define(function(require, exports, module) {
             });
 
             // Tabs
-            tabs.on("focus", function(e){
+            tabs.on("focusSync", function(e){
                 win.title = e.tab.title + " - Cloud9";
                 if (title)
                     title.innerHTML = win.title;
@@ -393,10 +385,13 @@ define(function(require, exports, module) {
             
             // Move elements down to make room for the title bar
             layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
-            document.querySelector(".right .panelsbar").style.top = (titleHeight + 26) + "px";
             document.querySelector(".c9-mbar-round").style.display = "none";
             document.querySelector(".c9-mbar-logo").style.paddingTop = "0";
             document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingRight = "16px";
+            
+            var rightBar = document.querySelector(".right .panelsbar");
+            rightBar.style.top = "-1px";
+            rightBar.style.position = "absolute";
             
             var logobar = layout.getElement("logobar");
             logobar.setHeight(27);
