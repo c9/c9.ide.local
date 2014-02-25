@@ -4,7 +4,7 @@ define(function(require, exports, module) {
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
-        "tree", "layout"
+        "tree", "layout", "dialog.error"
     ];
     main.provides = ["local"];
     return main;
@@ -37,6 +37,7 @@ define(function(require, exports, module) {
         var alert     = imports["dialog.alert"].show;
         var question  = imports["dialog.question"];
         var bridge    = imports.bridge;
+        var error     = imports["dialog.error"];
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -380,6 +381,8 @@ define(function(require, exports, module) {
             var platform = c9.platform
             var titleHeight = platform == "win32" ? 27 : 23;
             
+            error.top = titleHeight + 1;
+            
             var div = document.body.appendChild(document.createElement("div"));
             div.className = "window-border";
             
@@ -456,17 +459,9 @@ define(function(require, exports, module) {
                 titlebar.style.display = "none";
             });
             
-            if (on) {
-                var menubar = document.querySelector(".c9-menu-bar");
-                menubar.style.backgroundPosition = "0 -4px";
-                menubar.style.webkitUserSelect   = "none";
-                // menubar.style.webkitAppRegion    = "drag";
-                // document.querySelector(".c9-mbar-round").style.background = ""; //new picture
-
-                // ui.insertCss(".c9-menu-bar .c9-menu-btn { -webkit-app-region: no-drag; }", plugin);
-            }
-            else {
-            }
+            var menubar = document.querySelector(".c9-menu-bar");
+            menubar.style.backgroundPosition = "0 -4px";
+            menubar.style.webkitUserSelect   = "none";
         }
         
         function focusWindow(){
