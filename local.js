@@ -193,6 +193,9 @@ define(function(require, exports, module) {
             // Deal with closing
             win.on("close", function(quit){
                 if (quit || process.platform == "win32") {
+                    // Save All State
+                    c9.beforequit();
+                    
                     if (window.onbeforeunload) {
                         var message = window.onbeforeunload();
                         if (message) {
