@@ -432,7 +432,7 @@ define(function(require, exports, module) {
             var maxbtn = titlebar.appendChild(document.createElement("div"));
             maxbtn.className = "maxbtn";
             maxbtn.addEventListener("click", function(){
-                isMaximized
+                isMaximized && !apf.isMac
                     ? win.unmaximize()
                     : win.maximize();
             });
@@ -458,13 +458,18 @@ define(function(require, exports, module) {
             var lastScreen = util.extend({}, screen);
             win.on("move", function(x, y){
                 clearTimeout(timer);
-                timer = setTimeout(function(){
-                    var s = lastScreen;
-                    lastScreen = util.extend({}, screen);
-                    if (!util.isEqual(s, lastScreen))
-                        validateWindowGeometry(true);
-                }, 500);
+                timer = setTimeout(checkScreen, 500);
             });
+            
+            // Temporary Hack - need resolution event
+            setInterval(checkScreen, 2000);
+            
+            function checkScreen(){
+                var s = lastScreen;
+                lastScreen = util.extend({}, screen);
+                if (!util.isEqual(s, lastScreen))
+                    validateWindowGeometry(true);
+            }
 
             win.on("leave-fullscreen", function(){
                 layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
@@ -507,12 +512,14 @@ define(function(require, exports, module) {
             var left = win.x;
             var top  = win.y;
             
-            if (left > screen.width + screen.availLeft) {
+            var isLTZero = left < 0 || top < 0;
+            
+            if (left < 0 || left > screen.width + screen.availLeft) {
                 left = Math.max(0, screen.width + screen.availLeft - width) / 2;
                 changedPos = true;
             }
             
-            if (top > screen.height + screen.availTop) {
+            if (top < 0 || top > screen.height + screen.availTop) {
                 top = Math.max(0, screen.height + screen.availTop - height) / 2;
                 changedPos = true;
             }
@@ -521,7 +528,7 @@ define(function(require, exports, module) {
                 changedSize = true;
             }
             
-            if (changedPos && !fitInScreen)
+            if (changedPos && (!fitInScreen || isLTZero))
                 win.moveTo(left, top);
             
             if (changedSize)
