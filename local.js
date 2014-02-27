@@ -4,7 +4,7 @@ define(function(require, exports, module) {
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
-        "tree", "layout", "dialog.error"
+        "tree", "layout", "dialog.error", "util"
     ];
     main.provides = ["local"];
     return main;
@@ -26,6 +26,7 @@ define(function(require, exports, module) {
         var menus     = imports.menus;
         var commands  = imports.commands;
         var dragdrop  = imports.dragdrop;
+        var util      = imports.util;
         var openfiles = imports.openfiles;
         var tabs      = imports.tabManager;
         var upload    = imports.upload;
@@ -92,6 +93,9 @@ define(function(require, exports, module) {
                 overrides.forEach(function(item){
                     commands.setDefault(item[0], item[1]);
                 });
+                
+                // Check Window Location
+                validateWindowGeometry();
             }, plugin);
 
             // Menu item to quit Cloud9
@@ -449,6 +453,18 @@ define(function(require, exports, module) {
                 titlebar.className = titlebar.className.replace(/ maximized/g, "");
                 isMaximized = false;
             });
+            
+            var timer;
+            var lastScreen = util.extend({}, screen);
+            win.on("move", function(x, y){
+                clearTimeout(timer);
+                timer = setTimeout(function(){
+                    var s = lastScreen;
+                    lastScreen = util.extend({}, screen);
+                    if (!util.isEqual(s, lastScreen))
+                        validateWindowGeometry(true);
+                }, 500);
+            });
 
             win.on("leave-fullscreen", function(){
                 layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
@@ -468,6 +484,48 @@ define(function(require, exports, module) {
             // To support all platforms, we need to call both show and focus
             win.show();
             win.focus();
+        }
+        
+        function validateWindowGeometry(fitInScreen){
+            // Check if Window Position is In view
+            var changedSize;
+            var changedPos;
+            
+            var width  = win.width;
+            var height = win.height;
+            
+            if (width > screen.width) {
+                width = screen.width;
+                changedSize = true;
+            }
+            
+            if (height > screen.height) {
+                height = screen.height;
+                changedSize = true;
+            }
+            
+            var left = win.x;
+            var top  = win.y;
+            
+            if (left > screen.width + screen.availLeft) {
+                left = Math.max(0, screen.width + screen.availLeft - width) / 2;
+                changedPos = true;
+            }
+            
+            if (top > screen.height + screen.availTop) {
+                top = Math.max(0, screen.height + screen.availTop - height) / 2;
+                changedPos = true;
+            }
+            else if (fitInScreen && top + height > screen.height + screen.availTop) {
+                height = screen.height - top + screen.availTop;
+                changedSize = true;
+            }
+            
+            if (changedPos && !fitInScreen)
+                win.moveTo(left, top);
+            
+            if (changedSize)
+                win.resizeTo(width, height);
         }
         
         function installMode(){
