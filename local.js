@@ -310,16 +310,16 @@ define(function(require, exports, module) {
             
             // Window
             win.on("minimize", function(){
-                settings.set("user/local/window/@minimized", true);
+                settings.set("state/local/window/@minimized", true);
             });
             win.on("restore", function(){
-                settings.set("user/local/window/@minimized", false);
+                settings.set("state/local/window/@minimized", false);
             });
             win.on("maximize", function(){
-                settings.set("user/local/window/@maximized", true);
+                settings.set("state/local/window/@maximized", true);
             });
             win.on("unmaximize", function(){
-                settings.set("user/local/window/@maximized", false);
+                settings.set("state/local/window/@maximized", false);
             });
             
             var handler = storeWindowSettings.bind(null, false);
@@ -345,9 +345,9 @@ define(function(require, exports, module) {
                 return;
             }
             
-            settings.set("user/local/window/@position", win.x + ":" + win.y);
-            settings.set("user/local/window/@size", win.width + ":" + win.height);
-            settings.set("user/local/window/@fullscreen", win.isFullscreen);
+            settings.set("state/local/window/@position", win.x + ":" + win.y);
+            settings.set("state/local/window/@size", win.width + ":" + win.height);
+            settings.set("state/local/window/@fullscreen", win.isFullscreen);
         }
 
         function toggleTray(to){
@@ -399,9 +399,8 @@ define(function(require, exports, module) {
             document.querySelector(".c9-mbar-logo").style.paddingTop = "0";
             document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingRight = "16px";
             
-            var rightBar = document.querySelector(".right .panelsbar");
-            rightBar.style.top = "-1px";
-            rightBar.style.position = "absolute";
+            ui.setStyleRule(".right .panelsbar", "top", "-1px");
+            ui.setStyleRule(".right .panelsbar", "position", "absolute");
             
             var logobar = layout.getElement("logobar");
             logobar.setHeight(menus.minimized ? 8 : 27);
