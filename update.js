@@ -57,7 +57,7 @@ define(function(require, exports, module) {
         }
         
         function isNewer(date, callback){
-            fs.readFile(installPath + "/version", function(err, currentDate){
+            fs.readFile(options.path + "/version", function(err, currentDate){
                 if (!currentDate) currentDate = 0;
                 
                 var newer = parseInt(currentDate, 10) < parseInt(date, 10);
