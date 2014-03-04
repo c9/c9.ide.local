@@ -18,6 +18,7 @@ define(function(require, exports, module) {
         
         var join     = require("path").join;
         var dirname  = require("path").dirname;
+        var basename = require("path").basename;
 
         /***** Initialization *****/
         
@@ -112,7 +113,7 @@ define(function(require, exports, module) {
         function decompress(date, target){
             fs.rmdir(installPath + "/updates/app.nw", { recursive: true }, function(){
                 proc.execFile("tar", {
-                    args : ["-zxf", target],
+                    args : ["-zxf", basename(target)],
                     cwd  : dirname(target)
                 }, function(err, stdout, stderr){
                     if (err) {
@@ -177,6 +178,11 @@ define(function(require, exports, module) {
                 return alert("Unsupported Platform");
             }
             else if (c9.platform == "win32") {
+                var toCygwinPath = function(winPath) {
+                    return winPath.replace(/(\w):/, "/$1").replace(/\//g, "/");
+                }
+                script = toCygwinPath(script);
+                path = toCygwinPath(path);
                 appPath = path;
                 appRoot = path.substr(0, path.lastIndexOf("/"));
             }
