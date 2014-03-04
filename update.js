@@ -179,7 +179,7 @@ define(function(require, exports, module) {
             }
             else if (c9.platform == "win32") {
                 var toCygwinPath = function(winPath) {
-                    return winPath.replace(/(\w):/, "/$1").replace(/\//g, "/");
+                    return winPath.replace(/(\w):/, "/$1").replace(/\\/g, "/");
                 }
                 script = toCygwinPath(script);
                 path = toCygwinPath(path);
