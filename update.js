@@ -172,6 +172,7 @@ define(function(require, exports, module) {
             
             var path = options.path;
             var appRoot, appPath;
+            var updateRoot = installPath;
             
             if (c9.platform == "linux") {
                 // @todo
@@ -183,6 +184,7 @@ define(function(require, exports, module) {
                 }
                 script = toCygwinPath(script);
                 path = toCygwinPath(path);
+                updateRoot = toCygwinPath(updateRoot);
                 appPath = path;
                 appRoot = path.substr(0, path.lastIndexOf("/"));
             }
@@ -195,7 +197,7 @@ define(function(require, exports, module) {
             }
             
             proc.spawn(BASH, {
-                args: [script, appRoot, appPath, installPath, date]
+                args: [script, appRoot, appPath, updateRoot, date]
             }, function(err, child){
                 if (err) return console.error(err);
                 
@@ -214,22 +216,24 @@ define(function(require, exports, module) {
                     }
                     else {
                         // restart();
-                        flagUpdate(date)
+                        flagUpdate(date);
                     }
                 });
             });
         }
         
         function restart(){
-            proc.spawn(getC9Path(), {
-                args     : ["restart"],
-                detached : true
-            }, function(err, process){
-                if (err) return;
+            nativeRequire('nw.gui').Window.get().reloadIgnoringCache(); 
+            // todo this doesn't work
+            // proc.spawn(getC9Path(), {
+            //     args     : ["restart"],
+            //     detached : true
+            // }, function(err, process){
+            //     if (err) return;
 
-                // required so the parent can exit
-                process.unref();
-            });
+            //     // required so the parent can exit
+            //     process.unref();
+            // });
         }
 
         /***** Lifecycle *****/
@@ -261,7 +265,14 @@ define(function(require, exports, module) {
              * 
              */
             checkForUpdates : checkForUpdates,
+            /**
+             * 
+             */
             restart: restart,
+            /**
+             * @ignore
+             */
+            update: update
         });
         
         register(null, {
