@@ -439,7 +439,7 @@ define(function(require, exports, module) {
                     : win.maximize();
             });
             
-            var isMaximized;
+            var isMaximized = settings.get("state/local/window/@maximized");
             
             win.on("blur", function(){
                 titlebar.className = titlebar.className.replace(/ focus/g, "");
@@ -494,6 +494,8 @@ define(function(require, exports, module) {
         }
         
         function validateWindowGeometry(fitInScreen){
+			if (settings.get("state/local/window/@maximized"))
+				return;
             // Check if Window Position is In view
             var changedSize;
             var changedPos;
