@@ -182,7 +182,7 @@ define(function(require, exports, module) {
                 var toCygwinPath = function(winPath) {
                     return winPath.replace(/(\w):/, "/$1").replace(/\\/g, "/");
                 }
-                script = toCygwinPath(script);
+                // script = toCygwinPath(script);
                 path = toCygwinPath(path);
                 updateRoot = toCygwinPath(updateRoot);
                 appPath = path;
@@ -196,28 +196,34 @@ define(function(require, exports, module) {
                 appRoot = path.substr(0, path.lastIndexOf("/"));
             }
             
-            proc.spawn(BASH, {
-                args: [script, appRoot, appPath, updateRoot, date]
-            }, function(err, child){
-                if (err) return console.error(err);
-                
-                child.stdout.on("data", function(chunk){
-                    console.log(chunk);
+            fs.readFile(script, "utf8",function(e, scriptContent) {
+                var args = [script, appRoot, appPath, updateRoot, date];
+                scriptContent = scriptContent.replace(/\$(\d)/g, function(_, i){
+                    return args[i];
                 });
-                
-                child.stderr.on("data", function(chunk){
-                    console.log(chunk);
-                });
-                
-                child.on("exit", function(code){
-                    if (code !== 0) {
-                        console.log("Update Failed.");
-                        // @todo cleanup
-                    }
-                    else {
-                        // restart();
-                        flagUpdate(date);
-                    }
+                proc.spawn(BASH, {
+                    args: ["-c", scriptContent]
+                }, function(err, child){
+                    if (err) return console.error(err);
+                    
+                    child.stdout.on("data", function(chunk){
+                        console.log(chunk);
+                    });
+                    
+                    child.stderr.on("data", function(chunk){
+                        console.log(chunk);
+                    });
+                    
+                    child.on("exit", function(code){
+                        if (code !== 0) {
+                            console.log("Update Failed.");
+                            // @todo cleanup
+                        }
+                        else {
+                            // restart();
+                            flagUpdate(date);
+                        }
+                    });
                 });
             });
         }
