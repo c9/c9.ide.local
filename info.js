@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
-    main.consumes = ["Plugin", "api", "fs"];
+    main.consumes = ["Plugin", "api", "fs", "auth"];
     main.provides = ["info"];
     return main;
 
@@ -11,6 +11,7 @@ define(function(require, exports, module) {
         var emit = plugin.getEmitter();
         var api = imports.api;
         var fs = imports.fs;
+        var auth = imports.auth;
         
         var ANONYMOUS = -1;
         
@@ -22,7 +23,7 @@ define(function(require, exports, module) {
         var installPath = options.installPath;
 
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
@@ -31,8 +32,8 @@ define(function(require, exports, module) {
                 assert(window.app["dialog.alert"], "Can't find dialog.alert");
             });
             
-            // We'll always fetch the latest account, including any
-            // special info like saucelabs keys, and store it to disk
+            // We'll always fetch the latest account, to get any
+            // special info like saucelabs keys & beta access, and store it to disk
             api.user.get("", function(err, _user) {
                 if (err) {
                     // If the user wasn't logged in before, panic
@@ -40,6 +41,8 @@ define(function(require, exports, module) {
                         authError();
                     return;
                 }
+                if ("alpha" in _user && (!user.alpha && !user.beta))
+                    return authError("Please log in with a registered beta trial account.");
                 
                 var oldUser = user;
                 user = _user;
@@ -53,18 +56,20 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function authError() {
+        function authError(message) {
+            message = message || "Please make sure you have an internet "
+                + "connection when you first run Cloud9 Desktop. This way we "
+                + "can authorize your copy and enable cloud connectivity "
+                + "features.";
+            auth.logout();
             window.app["dialog.alert"].show(
                 "Authentication failed",
-                "Could not authorize your copy of Cloud9 Desktop",
-                "Please make sure you have an internet connection when you first run Cloud9 Desktop. "
-                + "This way we can authorize your copy and enable cloud connectivity features.",
+                "Could not authorize your copy of Cloud9 Desktop.",
+                message,
                 function() {
                     // TODO: just quit?
-                    setTimeout(function() {
-                        loaded = false;
-                        load();
-                    }, 30000);
+                    loaded = false;
+                    load();
                 }
             );
             return;
