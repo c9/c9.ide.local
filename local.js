@@ -4,7 +4,7 @@ define(function(require, exports, module) {
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
-        "tree", "layout", "dialog.error", "util"
+        "tree", "layout", "dialog.error", "util", "openPath"
     ];
     main.provides = ["local"];
     return main;
@@ -26,6 +26,7 @@ define(function(require, exports, module) {
         var menus     = imports.menus;
         var commands  = imports.commands;
         var dragdrop  = imports.dragdrop;
+        var openPath  = imports.openPath;
         var util      = imports.util;
         var openfiles = imports.openfiles;
         var tabs      = imports.tabManager;
@@ -78,16 +79,6 @@ define(function(require, exports, module) {
             // When the UI is loaded, show the window
             c9.on("ready", function(){
                 // focusWindow();
-
-                // Parse argv
-                var argv = app.argv.slice(0);
-                while (argv.length) {
-                    if (argv[0].charAt(0) == "-") {
-                        argv.shift(); argv.shift();
-                        continue;
-                    }
-                    tabs.openFile(argv.shift(), function(){});
-                }
                 
                 // Set commands
                 overrides.forEach(function(item){
@@ -96,6 +87,18 @@ define(function(require, exports, module) {
                 
                 // Check Window Location
                 validateWindowGeometry();
+            }, plugin);
+            
+            tabs.on("ready", function(){
+                // Parse argv
+                var argv = app.argv.slice(0);
+                while (argv.length) {
+                    if (argv[0].charAt(0) == "-") {
+                        argv.shift(); argv.shift();
+                        continue;
+                    }
+                    openPath.open(argv.shift());
+                }
             }, plugin);
 
             // Menu item to quit Cloud9
