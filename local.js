@@ -175,17 +175,11 @@ define(function(require, exports, module) {
             });
 
             // Event to open additional files (I hope)
-            app.on("open", function(path) {
-                fs.stat(path, function(err, stat){
-                    if (err) return alert("Invalid File",
-                        "Could not open file: " + path,
-                        "Please check the path and try again");
-                    
-                    if (~stat.mime.indexOf("directory"))
-                        favs.addFavorite(path);
-                    else
-                        tabs.openFile(path, true, function(){});
-                });
+            app.on("open", function(cmdLine) {
+                var argv = cmdLine.match(/(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|((?:[^ \\]|\\.)+))/g)
+                    .map(function(x) { return x.replace(/^["']|["']$/g, ""); });
+                openPath.open(argv.pop());
+                focusWindow();
             });
             
             // Deal with user reopening app
@@ -497,8 +491,8 @@ define(function(require, exports, module) {
         }
         
         function validateWindowGeometry(fitInScreen){
-			if (settings.get("state/local/window/@maximized"))
-				return;
+            if (settings.get("state/local/window/@maximized"))
+                return;
             // Check if Window Position is In view
             var changedSize;
             var changedPos;
