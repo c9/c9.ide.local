@@ -34,7 +34,7 @@ define(function(require, exports, module) {
             
             // We'll always fetch the latest account, to get any
             // special info like saucelabs keys & beta access, and store it to disk
-            api.user.get("", function(err, _user) {
+            api.user.get("", { noLogin: user.id !== ANONYMOUS }, function(err, _user) {
                 if (err) {
                     // If the user wasn't logged in before, panic
                     if (user.id === ANONYMOUS)
