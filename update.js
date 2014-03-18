@@ -132,17 +132,9 @@ define(function(require, exports, module) {
             if (typeof document === "undefined")
                 return;
             
-            var mainlogo = document.querySelector(".c9-mbar-round .mainlogo");
+            var mainlogo = document.querySelector(".window-titlebar");
             mainlogo.className += " update";
-            
             mainlogo.title     = "Update Cloud9 to a newer version";
-            mainlogo.href      = "javascript:void(0)";
-            mainlogo.target    = "";
-            mainlogo.innerHTML = "Update";
-            
-            mainlogo.addEventListener("mousedown", function(e){
-                e.stopPropagation();
-            });
             
             mainlogo.addEventListener("click", function(e){
                 showUpdatePopup(date);

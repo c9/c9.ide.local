@@ -46,6 +46,10 @@
     height : 20px;
     content: "";
 }
+.window-titlebar.update.win32:after{
+    background-image: url("@{image-path}/winc9update.png");
+    cursor: pointer;
+}
 
 .window-titlebar.focus{
     .gradient(~"linear-gradient(top, rgb(61, 61, 61) 0%, rgb(37,37,37) 100%);");
@@ -58,6 +62,10 @@
     background: url("@{image-path}/winc9.png") no-repeat 0 1px;
     cursor: default;
     -webkit-font-smoothing: subpixel-antialiased;
+}
+.window-titlebar.update .caption{
+    background-image: url("@{image-path}/winc9update.png");
+    cursor: pointer;
 }
 .window-titlebar.win32 .caption{
     background: transparent;
