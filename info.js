@@ -41,7 +41,7 @@ define(function(require, exports, module) {
                         authError();
                     return;
                 }
-                if ("alpha" in _user && (!user.alpha && !user.beta))
+                if ("alpha" in _user && (!_user.alpha && !_user.beta))
                     return authError("Please log in with a registered beta trial account.");
                 
                 var oldUser = user;
