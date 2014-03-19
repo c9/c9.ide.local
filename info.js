@@ -32,6 +32,12 @@ define(function(require, exports, module) {
                 assert(window.app["dialog.alert"], "Can't find dialog.alert");
             });
             
+            login();
+        }
+        
+        /***** Methods *****/
+        
+        function login(callback){
             // We'll always fetch the latest account, to get any
             // special info like saucelabs keys & beta access, and store it to disk
             api.user.get("", { noLogin: user.id !== ANONYMOUS }, function(err, _user) {
@@ -48,13 +54,14 @@ define(function(require, exports, module) {
                 user = _user;
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
-                fs.writeFile(installPath + "/profile.settings", JSON.stringify(user, null, 2), "utf8", function(err) {
-                    if (err) console.error(err);      
+                fs.writeFile(installPath + "/profile.settings", 
+                  JSON.stringify(user, null, 2), "utf8", function(err) {
+                    if (err) console.error(err);
+                    
+                    callback && callback(err, user, project);
                 });
             });
         }
-        
-        /***** Methods *****/
         
         function authError(message) {
             message = message || "Please make sure you have an internet "
@@ -129,7 +136,12 @@ define(function(require, exports, module) {
                  * @event change
                  */
                 "change"
-            ]
+            ],
+            
+            /**
+             * 
+             */
+            login: login
         });
         
         register(null, {
