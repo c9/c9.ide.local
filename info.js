@@ -75,12 +75,16 @@ define(function(require, exports, module) {
             return;
         }
         
-        function getUser() {
-            return user;
+        function getUser(callback) {
+            if (!callback) return user;
+            if (user) return callback(null, user);
+            plugin.once("change", function(e){ callback(null, e.user); });
         }
         
-        function getWorkspace() {
-            return project;
+        function getWorkspace(callback) {
+            if (!callback) return project;
+            if (project) return callback(null, user);
+            plugin.once("change", function(e){ callback(null, e.workspace); });
         }
         
         /***** Lifecycle *****/
