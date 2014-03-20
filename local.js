@@ -102,7 +102,8 @@ define(function(require, exports, module) {
             }, plugin);
 
             // Menu item to quit Cloud9
-            menus.addItemByPath("File/Quit Cloud9", new ui.item({
+            menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
+            menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({
                 onclick : function(){
                     app.quit();
                 }
