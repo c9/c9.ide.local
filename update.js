@@ -181,6 +181,7 @@ define(function(require, exports, module) {
                 appRoot = path.substr(0, path.lastIndexOf("/"));
             }
             else if (c9.platform == "darwin") {
+                // Set a default path during development
                 if (path.indexOf("Contents/Resources") == -1)
                     path = "/Applications/Cloud9.app/Contents/Resources/app.nw";
                 
