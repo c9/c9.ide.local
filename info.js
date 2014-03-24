@@ -32,38 +32,52 @@ define(function(require, exports, module) {
                 assert(window.app["dialog.alert"], "Can't find dialog.alert");
             });
             
+            auth.on("logout", function() {
+                fs.unlink(installPath + "/profile.settings", function() {});
+            });
+            auth.on("login", login);
+            auth.on("relogin", login);
+            
             login();
         }
         
         /***** Methods *****/
         
-        function login(callback){
+        function login(allowPrompt, callback) {
+            if (typeof allowPrompt === "function")
+                return login(false, allowPrompt);
+            
             // We'll always fetch the latest account, to get any
             // special info like saucelabs keys & beta access, and store it to disk
-            api.user.get("", { noLogin: user.id !== ANONYMOUS }, function(err, _user) {
+            api.user.get("", { noLogin: !allowPrompt && user.id !== ANONYMOUS },
+            function(err, _user) {
                 if (err) {
                     // If the user wasn't logged in before, panic
                     if (user.id === ANONYMOUS)
-                        authError();
-                    return;
+                        return authError(null, callback);
+                    return callback && callback(err);
                 }
                 if ("alpha" in _user && (!_user.alpha && !_user.beta))
-                    return authError("Please log in with a registered beta trial account.");
+                    return authError("Please log in with a registered beta trial account.", callback);
                 
                 var oldUser = user;
                 user = _user;
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
-                fs.writeFile(installPath + "/profile.settings", 
-                  JSON.stringify(user, null, 2), "utf8", function(err) {
-                    if (err) console.error(err);
-                    
-                    callback && callback(err, user, project);
-                });
+                fs.writeFile(
+                    installPath + "/profile.settings",
+                    JSON.stringify(user, null, 2),
+                    "utf8",
+                    function(err) {
+                        if (err) console.error(err);
+                        
+                        callback && callback(err, user, project);
+                    }
+                );
             });
         }
         
-        function authError(message) {
+        function authError(message, callback) {
             message = message || "Please make sure you have an internet "
                 + "connection when you first run Cloud9 Desktop. This way we "
                 + "can authorize your copy and enable cloud connectivity "
@@ -75,8 +89,7 @@ define(function(require, exports, module) {
                 message,
                 function() {
                     // TODO: just quit?
-                    loaded = false;
-                    load();
+                    login(true, callback);
                 }
             );
             return;
@@ -139,7 +152,10 @@ define(function(require, exports, module) {
             ],
             
             /**
+             * Login 
              * 
+             * @param allowPrompt  Allow showing a login prompt
+             * @param callback
              */
             login: login
         });
