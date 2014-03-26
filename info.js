@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
-    main.consumes = ["Plugin", "api", "fs", "auth"];
+    main.consumes = ["Plugin", "api", "fs", "auth", "http"];
     main.provides = ["info"];
     return main;
 
@@ -12,6 +12,7 @@ define(function(require, exports, module) {
         var api = imports.api;
         var fs = imports.fs;
         var auth = imports.auth;
+        var http = imports.http;
         
         var ANONYMOUS = -1;
         
@@ -46,6 +47,8 @@ define(function(require, exports, module) {
         function login(allowPrompt, callback) {
             if (typeof allowPrompt === "function")
                 return login(false, allowPrompt);
+            if (!callback)
+                callback = function() {};
             
             // We'll always fetch the latest account, to get any
             // special info like saucelabs keys & beta access, and store it to disk
@@ -53,9 +56,15 @@ define(function(require, exports, module) {
             function(err, _user) {
                 if (err) {
                     // If the user wasn't logged in before, panic
-                    if (user.id === ANONYMOUS)
-                        return authError(null, callback);
-                    return callback && callback(err);
+                    if (user.id === ANONYMOUS) {
+                        debugger;
+                        return canHasInternets(function(online) {
+                            if (!online)
+                                return callback(); // allow this one to slip
+                            authError(null, callback);
+                        });
+                    }
+                    return callback(err);
                 }
                 if ("alpha" in _user && (!_user.alpha && !_user.beta))
                     return authError("Please log in with a registered beta trial account.", callback);
@@ -71,7 +80,7 @@ define(function(require, exports, module) {
                     function(err) {
                         if (err) console.error(err);
                         
-                        callback && callback(err, user, project);
+                        callback(err, user, project);
                     }
                 );
             });
@@ -89,10 +98,17 @@ define(function(require, exports, module) {
                 message,
                 function() {
                     // TODO: just quit?
+                    auth.logout();
                     login(true, callback);
                 }
             );
             return;
+        }
+        
+        function canHasInternets(callback) {
+            http.request("http://google.com", function(err, data) {
+                callback(!err);
+            });
         }
         
         function getUser(callback) {
