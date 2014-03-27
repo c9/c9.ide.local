@@ -57,7 +57,6 @@ define(function(require, exports, module) {
                 if (err) {
                     // If the user wasn't logged in before, panic
                     if (user.id === ANONYMOUS) {
-                        debugger;
                         return canHasInternets(function(online) {
                             if (!online)
                                 return callback(); // allow this one to slip
