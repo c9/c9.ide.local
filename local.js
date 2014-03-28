@@ -127,7 +127,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({
                 selector : "closeAllWindowsQuit:",
                 key      : "q"
-            }), 2000000, plugin);
+            }), 2000100, plugin);
 
             menus.addItemByPath("Window/Developer Tools", new ui.item({
                 onclick : function(){
