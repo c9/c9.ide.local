@@ -1,4 +1,4 @@
-/*global nativeRequire*/
+/*global nativeRequire nwDispatcher*/
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
@@ -101,12 +101,32 @@ define(function(require, exports, module) {
                 }
             }, plugin);
 
-            // Menu item to quit Cloud9
+            // Update Toolbar
+            var barTools = layout.getElement("barTools");
+            barTools.$ext.style.marginLeft = "-10px";
+            barTools.$ext.firstElementChild.style.display = "none";
+
+            // Menu items
+            var appName = "Cloud9";
+            
+            menus.addItemByPath("Cloud9/~", new ui.divider(), 900, plugin);
+            menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringFWithFixup("IDS_HIDE_APP_MAC", appName), new ui.item({
+                selector : "hide:",
+                key      : "h"
+            }), 1000, plugin);
+            menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringFWithFixup("IDS_HIDE_OTHERS_MAC", appName), new ui.item({
+                selector  : "hideOtherApplications:",
+                key       : "h",
+                modifiers : "cmd-alt"
+            }), 1100, plugin);
+            menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringWithFixup("IDS_SHOW_ALL_MAC"), new ui.item({
+                selector: "unhideAllApplications:"
+            }), 1200, plugin);
+            
             menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
             menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({
-                onclick : function(){
-                    app.quit();
-                }
+                selector : "closeAllWindowsQuit:",
+                key      : "q"
             }), 2000000, plugin);
 
             menus.addItemByPath("Window/Developer Tools", new ui.item({

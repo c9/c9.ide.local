@@ -107,6 +107,8 @@ define(function(require, exports, module) {
                         decompress(date, target);
                     });
                 });
+                
+                return false;
             });
         }
         
@@ -125,6 +127,8 @@ define(function(require, exports, module) {
                         update(date);
                     // });
                 });
+                
+                return false;
             });
         }
         
