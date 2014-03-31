@@ -39,10 +39,10 @@ define(function(require, exports, module) {
             loaded = true;
 
             // At startup check for updates
-            checkForUpdates();
+            // checkForUpdates();
             
             // Then check for updates once every 15 minutes
-            setInterval(checkForUpdates, 60 * 15 * 1000);
+            // setInterval(checkForUpdates, 60 * 15 * 1000);
         }
         
         /***** Methods *****/

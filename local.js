@@ -178,22 +178,14 @@ define(function(require, exports, module) {
                 }), 1020, plugin);
             });
 
-            // Event to open additional files (I hope)
-            app.on("open", function(cmdLine) {
-                var argv = cmdLine.match(/(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|((?:[^ \\]|\\.)+))/g)
-                    .map(function(x) { return x.replace(/^["']|["']$/g, ""); });
-                openPath.open(argv.pop());
-                focusWindow();
-            });
-            
-            // Deal with user reopening app
+            // Deal with user reopening app on osx
             app.on("reopen", function(){
                 win.show();
             });
             
             // Deal with closing
             win.on("close", function(quit){
-                if (quit || process.platform == "win32") {
+                if (quit || process.platform !== "darwin") {
                     // Save All State
                     c9.beforequit();
                     
@@ -445,7 +437,7 @@ define(function(require, exports, module) {
         function setNativeTitle(on){
             ui.insertCss(require("text!./local.less"), options.staticPrefix, plugin);
             
-            var platform = c9.platform
+            var platform = process.platform; // c9.platform is remote os platform so we use process instead
             var titleHeight = platform == "win32" ? 27 : 23;
             
             error.top = titleHeight + 1;
@@ -603,6 +595,11 @@ define(function(require, exports, module) {
             focusWindow();
         }
         
+        function open(path) {
+            openPath.open(path);
+            focusWindow();
+        }
+        
         /***** Lifecycle *****/
         
         plugin.on("load", function(){
@@ -638,7 +635,12 @@ define(function(require, exports, module) {
             /**
              * 
              */
-            installMode : installMode
+            installMode : installMode,
+            
+            /**
+             * 
+             */
+            open: open
         });
         
         register(null, {
