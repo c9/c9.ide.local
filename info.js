@@ -97,7 +97,6 @@ define(function(require, exports, module) {
                     body: { uid: user.id, version: c9.version }
                 },
                 function(err, response) {
-                    debugger;
                     // ignore err; no-internet handling passed above
                     if (err)
                         return console.warn(err);
