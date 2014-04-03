@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
-    main.consumes = ["Plugin", "api", "fs", "auth", "http"];
+    main.consumes = ["Plugin", "api", "fs", "auth", "http", "c9"];
     main.provides = ["info"];
     return main;
 
@@ -13,6 +13,7 @@ define(function(require, exports, module) {
         var fs = imports.fs;
         var auth = imports.auth;
         var http = imports.http;
+        var c9 = imports.c9;
         
         var ANONYMOUS = -1;
         
@@ -34,7 +35,10 @@ define(function(require, exports, module) {
             });
             
             auth.on("logout", function() {
-                fs.unlink(installPath + "/profile.settings", function() {});
+                fs.exists(function(exists) {
+                    if (exists)
+                        fs.unlink(installPath + "/profile.settings", function() {});
+                });
             });
             auth.on("login", login);
             auth.on("relogin", login);
@@ -63,10 +67,11 @@ define(function(require, exports, module) {
                             authError(null, callback);
                         });
                     }
+                    authorizeCopy();
                     return callback(err);
                 }
-                if ("alpha" in _user && (!_user.alpha && !_user.beta))
-                    return authError("Please log in with a registered beta trial account.", callback);
+                
+                authorizeCopy();
                 
                 var oldUser = user;
                 user = _user;
@@ -83,6 +88,23 @@ define(function(require, exports, module) {
                     }
                 );
             });
+        }
+        
+        function authorizeCopy() {
+            api.users.post(
+                "authorize_desktop",
+                {
+                    body: { uid: user.id, version: c9.version }
+                },
+                function(err, response) {
+                    debugger;
+                    // ignore err; no-internet handling passed above
+                    if (err)
+                        return console.warn(err);
+                    if (response && response.reason)
+                        return authError(response.reason);
+                }
+            );
         }
         
         function authError(message, callback) {
