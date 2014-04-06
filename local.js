@@ -395,7 +395,7 @@ define(function(require, exports, module) {
             layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
             document.querySelector(".c9-mbar-round").style.display = "none";
             document.querySelector(".c9-mbar-logo").style.paddingTop = "0";
-            document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingRight = "16px";
+            // document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingRight = "16px";
             
             ui.setStyleRule(".right .panelsbar", "top", "-1px");
             ui.setStyleRule(".right .panelsbar", "position", "absolute");
