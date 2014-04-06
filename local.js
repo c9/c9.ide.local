@@ -393,16 +393,6 @@ define(function(require, exports, module) {
             
             // Move elements down to make room for the title bar
             layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
-            document.querySelector(".c9-mbar-round").style.display = "none";
-            document.querySelector(".c9-mbar-logo").style.paddingTop = "0";
-            // document.querySelector(".c9-menu-bar .c9-mbar-cont").style.paddingRight = "16px";
-            
-            ui.setStyleRule(".right .panelsbar", "top", "-1px");
-            ui.setStyleRule(".right .panelsbar", "position", "absolute");
-            
-            var logobar = layout.getElement("logobar");
-            logobar.setHeight(menus.minimized ? 8 : 27);
-            logobar.$ext.style.maxHeight = "27px";
             
             titlebar = document.body.appendChild(document.createElement("div"));
             titlebar.className = "window-titlebar " + platform;
