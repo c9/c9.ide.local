@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "fs", "util", "proc", "dialog.alert", "dialog.confirm",
-        "http", "menus", "ui"
+        "http", "layout"
     ];
     main.provides = ["local.update"];
     return main;
@@ -13,10 +13,9 @@ define(function(require, exports, module) {
         var confirm  = imports["dialog.confirm"].show;
         var alert    = imports["dialog.alert"].show;
         var fs       = imports.fs;
-        var ui       = imports.ui;
         var proc     = imports.proc;
         var http     = imports.http;
-        var menus    = imports.menus;
+        var layout   = imports.layout;
         
         var join     = require("path").join;
         var dirname  = require("path").dirname;
@@ -134,16 +133,9 @@ define(function(require, exports, module) {
             if (typeof document === "undefined")
                 return;
             
-            var c9btn = document.querySelector(".c9btn");
-            c9btn.className += " update";
-            c9btn.title     = "Update Cloud9 to a newer version";
-            
-            menus.addItemByPath("Cloud9/Update Cloud9", new ui.item({
-                "class" : "update",
-                onclick : function(){
-                    showUpdatePopup(date);
-                }
-            }), 120, plugin);
+            layout.flagUpdate(function(){
+                showUpdatePopup(date);
+            });
         }
         
         function showUpdatePopup(date){
