@@ -106,6 +106,8 @@ define(function(require, exports, module) {
                         }
                         decompress(date, target);
                     });
+                    
+                    return false;
                 });
                 
                 return false;

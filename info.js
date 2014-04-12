@@ -35,7 +35,7 @@ define(function(require, exports, module) {
             });
             
             auth.on("logout", function() {
-                fs.exists(function(exists) {
+                fs.exists(installPath + "/profile.settings", function(exists) {
                     if (exists)
                         fs.unlink(installPath + "/profile.settings", function() {});
                 });
