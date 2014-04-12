@@ -166,6 +166,7 @@ define(function(require, exports, module) {
         }
         
         function update(date){
+            // Use the update script from the new package
             var script = join(getC9Path(), "../../scripts/checkforupdates.sh");
             
             var path = options.path;
@@ -196,7 +197,8 @@ define(function(require, exports, module) {
             }
             
             fs.readFile(script, "utf8",function(e, scriptContent) {
-                var args = [script, appRoot, appPath, updateRoot, date];
+                var url  = "http://" + HOST + ":" + PORT + "/nw/" + c9.platform + "/"
+                var args = [script, appRoot, appPath, updateRoot, date, url];
                 scriptContent = scriptContent.replace(/\$(\d)/g, function(_, i){
                     return args[i];
                 });
