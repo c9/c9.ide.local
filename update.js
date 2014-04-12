@@ -85,7 +85,7 @@ define(function(require, exports, module) {
                             var minP = "-P" + installPath + "/updates";
                             
                             proc.execFile("wget", {
-                                args : [url, minP, "--no-check-certificate"],
+                                args : [url, minP],
                             }, function(err2, stdout, stderr){
                                 if (err2) {
                                     alert(
