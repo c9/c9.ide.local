@@ -230,17 +230,17 @@ define(function(require, exports, module) {
         }
         
         function restart(){
-            nativeRequire('nw.gui').Window.get().reloadIgnoringCache(); 
+            // nativeRequire('nw.gui').Window.get().reloadIgnoringCache(); 
             // todo this doesn't work
-            // proc.spawn(getC9Path(), {
-            //     args     : ["restart"],
-            //     detached : true
-            // }, function(err, process){
-            //     if (err) return;
+            proc.spawn(getC9Path(), {
+                args     : ["restart"],
+                detached : true
+            }, function(err, process){
+                if (err) return;
 
-            //     // required so the parent can exit
-            //     process.unref();
-            // });
+                // required so the parent can exit
+                process.unref();
+            });
         }
 
         /***** Lifecycle *****/
