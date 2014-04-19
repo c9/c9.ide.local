@@ -4,7 +4,7 @@ define(function(require, exports, module) {
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
-        "tree", "layout", "dialog.error", "util", "openPath"
+        "tree", "layout", "dialog.error", "util", "openPath", "preview"
     ];
     main.provides = ["local"];
     return main;
@@ -34,6 +34,7 @@ define(function(require, exports, module) {
         var favs      = imports["tree.favorites"];
         var tree      = imports.tree;
         var layout    = imports.layout;
+        var preview   = imports.preview;
         var prefs     = imports.preferences;
         var ui        = imports.ui;
         var alert     = imports["dialog.alert"].show;
@@ -286,6 +287,43 @@ define(function(require, exports, module) {
                     return false;
                 }
             });
+            
+            // Preview
+            preview.settingsMenu.append(new MenuItem({ 
+                caption: "Show Dev Tools", 
+                onclick: function(){
+                    var previewTab = tabs.focussedTab;
+                    
+                    var session = previewTab.document.getSession();
+                    if (!session.devtools) {
+                        var iframe = session.iframe;
+                        session.devtools = new ui.vsplitbox({
+                            htmlNode: iframe.parentNode,
+                            anchors: "0 0 0 0",
+                            splitter: true,
+                            childNodes: [
+                                new ui.bar({ height: "50%" }),
+                                new ui.bar()
+                            ]
+                        });
+                        
+                        // Reparent Iframe
+                        session.devtools.firstChild.$ext.appendChild(iframe);
+                        
+                        // Create dev tools iframe
+                        session.deviframe = session.devtools.lastChild.$ext
+                            .appendChild(document.createElement("iframe"));
+                        session.deviframe.style.width = "100%";
+                        session.deviframe.style.height = "100%";
+                        session.deviframe.style.border = "0";
+                    }
+                    
+                    win.showDevTools(iframe, true);
+                    win.on("devtools-opened", function(url) {
+                        session.deviframe.src = url;
+                    });
+                } 
+            }));
             
             // Preferences
             prefs.add({
