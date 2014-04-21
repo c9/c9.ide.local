@@ -59,58 +59,47 @@ define(function(require, exports, module) {
                     server.openWindow();
                 }
             }, plugin);
-             var c = 1000;
+            
+            var c = 1000;
                 
             menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
             
-            menus.addItemByPath("Cloud9/New Window To Current Project", new ui.item({
+            menus.addItemByPath("Cloud9/New Window", new ui.item({
                 value: "",
                 command: "newWindow"
             }), c += 100, plugin);
-            menus.addItemByPath("Cloud9/New Project", new ui.item({
-                value: "",
-                command: "newProject"
+            
+            menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
+                "onprop.visible" : function(e){
+                    if (e.value) {
+                        // projects menu
+                        var recentWindows = server.windowManager.getRecentWindows();
+                        
+                        menus.remove("Cloud9/Recent Windows/");
+                        recentWindows.forEach(function (x) {
+                            menus.addItemByPath("Cloud9/Recent Windows/"
+                                + x.name.replace(/[/]/, "\u2044"), new ui.item({value : x}), c += 100, plugin);
+                        });
+                    }
+                },
+                "onitemclick" : function(e) {
+                    var options = e.relatedNode.value;
+                    server.openWindow(options);
+                }
             }), c += 100, plugin);
             
-            
-            menus.addItemByPath("Cloud9/Save As Project", new ui.item({
-                value: "",
-                command: "saveProject"
-            }), c += 100, plugin);
-            menus.addItemByPath("Cloud9/Close Project", new ui.item({
-                value: "",
-                command: "closeProject"
-            }), c += 100, plugin);
-            
-            var projectsPos = c += 100;
-            menus.addItemByPath("Cloud9/Projects/", new ui.menu({}), projectsPos, plugin);
+            menus.addItemByPath("Cloud9/C9.io Projects/", new ui.menu({}), c += 100, plugin);
             menus.addItemByPath("Cloud9/Projects/~", new ui.divider(), c += 100, plugin);
             
-            listProjects(function(err, projects) {
+            server.listC9Projects(info.getUser(), function(err, projects) {
                 var c = 0;
-                if (menus.get("Cloud9/Projects").menu)
-                    menus.remove("Cloud9/Projects");
-                menus.addItemByPath("Cloud9/Projects/", new ui.menu({}), projectsPos, plugin);
-            
-                // projects menu
-                var localProjects = ["localProject1", "localProject2"];
-                
-                localProjects && localProjects.forEach(function (x) {
-                    menus.addItemByPath("Cloud9/Projects/" + x.replace(/[/]/, " "), new ui.item({
-                        value   : x,
-                        onclick : function(e) {
-                            open(this.value);
-                        }
-                    }), c += 100, plugin);
-                });
-                
-                menus.addItemByPath("Cloud9/Projects/~", new ui.divider(), c += 100, plugin);
+                menus.remove("Cloud9/C9.io Projects/");
                 
                 projects && projects.forEach(function (x) {
-                    menus.addItemByPath("Cloud9/Projects/" + x.replace(/[/]/, " "), new ui.item({
+                    menus.addItemByPath("Cloud9/C9.io Projects/" + x.name.replace(/[/]/, "\u2044"), new ui.item({
                         value   : x,
                         onclick : function(e) {
-                            open(this.value);
+                            server.openWindow(this.value);
                         }
                     }), c += 100, plugin);
                 });
@@ -119,72 +108,7 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        // remote projects
-        function loadData(url, callback) {
-            win.cookies.getAll({domain: "c9.io"}, function(cookies){
-                var request = nativeRequire("request");
-                var jar = request.jar();
-                cookies.forEach(function(c){   
-                   jar.add(request.cookie(c.name + "=" + c.value));
-                });
-                request({
-                    url: url,
-                    followRedirect: true,
-                    jar: jar
-                }, function(error, response, body) {
-                    callback(error, body);
-                });
-            });
-        }
         
-        // TODO add proper api to c9 server
-        function listProjects(callback){
-            var user = info.getUser();
-            if (!user)
-                return callback(null, []);
-            var url = "https://c9.io/" + user.name;
-            loadData(url, function(err, result) {
-                if (err) return callback(err);
-                var names = Object.create(null);
-                try {
-                    JSON.parse(result.match(/projects:\s*(.*),/)[1]).forEach(function(x){
-                        var projectName = (x.owner_username || user.name) + "/" + x.name;
-                        names[projectName] = 1;
-                    });
-                } catch(e) {
-                    console.error(e);
-                }
-                
-                callback(err, Object.keys(names));
-            });
-        }
-        
-        function getWorkspaceConfig(projectName, callback) {
-            var url = "https://ide.c9.io/" + projectName;
-            loadData(url, function(err, result) {
-                var plugins = JSON.parse(result.match(/plugins\s*=\s*(\[[\s\S]*?]);\n/)[1]);
-                callback(err, {
-                    url: url,
-                    plugins: plugins,
-                    raw: result
-                });
-            });
-        }
-        
-        function open(projectName) {
-            if (!global.id)
-                global.id = 0;
-                
-            server.openWindow({
-                remoteWorkspace: projectName
-            }, function(window) {
-                getWorkspaceConfig(projectName, function(err, config) {
-                    window.setBasePath(config.url);
-                    window.plugins = config.plugins;
-                    window.readConfig();
-                });
-            });
-        }
         
         /***** Lifecycle *****/
         
