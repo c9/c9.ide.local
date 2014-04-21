@@ -297,8 +297,8 @@ define(function(require, exports, module) {
                     var previewTab = tabs.focussedTab;
                     
                     var session = previewTab.document.getSession();
+                    var iframe = session.iframe;
                     if (!session.devtools) {
-                        var iframe = session.iframe;
                         session.devtools = new ui.vsplitbox({
                             htmlNode: iframe.parentNode,
                             anchors: "0 0 0 0",
