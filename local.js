@@ -266,7 +266,7 @@ define(function(require, exports, module) {
                 var files = e.entries;
                 if (e.path.isTree && files.length == 1 && files[0].isDirectory) {
                     var path = e.files[0].path;
-                    favs.addFavorite(transformPath(path));
+                    favs.addFavorite(c9.toInternalPath(path));
                     openfiles.showTree();
                     return false;
                 }
@@ -280,6 +280,23 @@ define(function(require, exports, module) {
                     }
                     return false;
                 }
+            });
+            
+            tree.on("draw", function(){
+                // todo click event from tree isn't fired for empty tree
+                tree.tree.container.addEventListener("click", function() {
+                    if (favs.favorites.length || tree.tree.provider.visibleItems.length)
+                        return;
+                    var input = document.createElement("input");
+                    input.type = "file";
+                    input.nwdirectory = true;
+                    input.onchange = function() {
+                        var path = input.files[0].path;
+                        favs.addFavorite(c9.toInternalPath(path));
+                        openfiles.showTree();
+                    };
+                    input.click();
+                });
             });
             
             // Preview

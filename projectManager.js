@@ -1,18 +1,21 @@
 /*global nativeRequire*/
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "Plugin", "info", "menus", "ui", "commands"
+        "c9", "Plugin", "info", "menus", "ui", "commands",
+        "tabManager", "tree.favorites"
     ];
     main.provides = ["projectManager"];
     return main;
 
     function main(options, imports, register) {
-        var c9        = imports.c9;
-        var Plugin    = imports.Plugin;
-        var info      = imports.info;
-        var menus     = imports.menus;
-        var ui        = imports.ui;
-        var commands  = imports.commands;
+        var c9         = imports.c9;
+        var Plugin     = imports.Plugin;
+        var info       = imports.info;
+        var menus      = imports.menus;
+        var ui         = imports.ui;
+        var commands   = imports.commands;
+        var tabManager = imports.tabManager;
+        var favs       = imports["tree.favorites"];
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -40,24 +43,21 @@ define(function(require, exports, module) {
             }, plugin);
             
             commands.addCommand({
-                name: "newProject",
-                exec: function () {
-                    server.openWindow();
+                name: "closeEmptyWindow",
+                bindKey: {win: "ctrl-w", mac: "cmd-w"},
+                exec: function () { win.close(); },
+                isAvailable: function() {
+                    return tabManager.getTabs().filter(function(t) {
+                        return t.pane.visible;
+                    }).length;
                 }
             }, plugin);
             
             commands.addCommand({
-                name: "saveProject",
-                exec: function () {
-                    server.openWindow();
-                }
-            }, plugin);
-            
-            commands.addCommand({
-                name: "closeProject",
-                exec: function () {
-                    server.openWindow();
-                }
+                name: "closeWindow",
+                // on windows this works by default
+                bindKey: {win: "alt-F4", mac: ""},
+                exec: function () { win.close(); },
             }, plugin);
             
             var c = 1000;
@@ -69,14 +69,25 @@ define(function(require, exports, module) {
                 command: "newWindow"
             }), c += 100, plugin);
             
+            // projects menu
             menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
                 "onprop.visible" : function(e){
                     if (e.value) {
-                        // projects menu
-                        var recentWindows = server.windowManager.getRecentWindows();
+                        var recentWindows = server.windowManager.getRecentWindows().filter(function(x) {
+                            return x.type != "remote";
+                        }).sort(function(a, b) {
+                            if (b.isOpen === a.isOpen)
+                                return b.time - a.time;
+                            return b.isOpen ? 1 : -1;
+                        });
                         
                         menus.remove("Cloud9/Recent Windows/");
-                        recentWindows.forEach(function (x) {
+                        var dividerAdded = false;
+                        recentWindows.forEach(function(x) {
+                            if (!x.isOpen && !dividerAdded) {
+                                dividerAdded = true;
+                                menus.addItemByPath("Cloud9/Recent Windows/~", new ui.divider(), c+=100, plugin);
+                            }
                             menus.addItemByPath("Cloud9/Recent Windows/"
                                 + x.name.replace(/[/]/, "\u2044"), new ui.item({value : x}), c += 100, plugin);
                         });
@@ -104,6 +115,14 @@ define(function(require, exports, module) {
                     }), c += 100, plugin);
                 });
             });
+            
+            favs.on("favoriteRemove", updateFavorites);
+            favs.on("favoriteAdd", updateFavorites);
+            favs.on("favoriteReorder", updateFavorites);
+            function updateFavorites() {
+                server.windowManager.setFavorites(win.options.id, favs.favorites);
+            }
+            updateFavorites();
         }
         
         /***** Methods *****/
