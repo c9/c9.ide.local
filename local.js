@@ -94,13 +94,10 @@ define(function(require, exports, module) {
             
             tabs.on("ready", function(){
                 // Parse argv
-                var argv = app.argv.slice(0);
-                while (argv.length) {
-                    if (argv[0].charAt(0) == "-") {
-                        argv.shift(); argv.shift();
-                        continue;
-                    }
-                    openPath.open(argv.shift());
+                if (win.options) {
+                    var path = app.argv["file-"+win.options.id];
+                    delete app.argv["file-"+win.options.id];
+                    path && open(path);
                 }
             }, plugin);
 
