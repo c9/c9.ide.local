@@ -111,22 +111,26 @@ define(function(require, exports, module) {
         }
         
         function authError(message, callback) {
-            message = message || "Please make sure you have an internet "
-                + "connection when you first run Cloud9 Desktop. This way we "
-                + "can authorize your copy and enable cloud connectivity "
-                + "features.";
             auth.logout();
             window.app["dialog.alert"].show(
                 "Authentication failed",
                 "Could not authorize your copy of Cloud9 Desktop.",
                 message,
                 function() {
-                    // TODO: just quit?
+                    // Sigh. Ok, let the user in, but nag again later.
                     auth.logout();
-                    login(true, callback);
+                    setTimeout(function() {
+                        window.app["dialog.alert"].show(
+                            "Authorize Cloud9 Desktop",
+                            "Please authorize your copy of Cloud9 Desktop.",
+                            "Authorization is required for cloud connectivity.",
+                            function() {
+                                login(true, callback);
+                            }
+                        );
+                    }, 20 * 60 * 100);
                 }
             );
-            return;
         }
         
         function canHasInternets(callback) {
