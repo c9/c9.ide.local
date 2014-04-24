@@ -35,10 +35,13 @@ define(function(require, exports, module) {
             });
             
             auth.on("logout", function() {
-                fs.exists(function(exists) {
-                    if (exists)
-                        fs.unlink(installPath + "/profile.settings", function() {});
-                });
+                fs.exists(
+                    installPath + "/profile.settings",
+                    function(exists) {
+                        if (exists)
+                            fs.unlink(installPath + "/profile.settings", function() {});
+                    }
+                );
             });
             auth.on("login", login);
             auth.on("relogin", login);
