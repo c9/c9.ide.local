@@ -97,7 +97,8 @@ define(function(require, exports, module) {
             api.users.post(
                 "authorize_desktop",
                 {
-                    body: { uid: user.id, version: c9.version }
+                    body: { uid: user.id, version: c9.version },
+                    noLogin: true
                 },
                 function(err, response) {
                     // ignore err; no-internet handling passed above
