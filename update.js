@@ -22,6 +22,7 @@ define(function(require, exports, module) {
         var join = require("path").join;
         var dirname = require("path").dirname;
         var basename = require("path").basename;
+        var mkdirp = require("mkdirp");
 
         /***** Initialization *****/
         
@@ -72,22 +73,27 @@ define(function(require, exports, module) {
             if (!c9.has(c9.NETWORK))
                 return;
             
-            fs.exists(installPath + "/updates/" + date, function(exists){
+            var updateDir = join(installPath, "updates");
+            var updateFile = join(updateDir, date);
+            console.log('updateFile: '+updateFile);
+            fs.exists(updateFile, function(exists){
                 var url    = "http://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
-                var target = installPath + "/updates/" + date;
-                
+
                 if (exists) {
-                    return decompress(date, target);
+                    return decompress(date, updateFile);
                 }
                 
-                fs.mkdir(installPath + "/updates", function(){
+                mkdirp(updateDir, function(err) {
+                    if (err) throw err;
+                    var cmdDlUpdate = "(curl " + url +" -o " + updateFile + ".sig --post301 --post302 &&"
+                            + "curl " + url +" -o " + updateFile + " --post301 --post302) ||"
+                            + "(wget " + url + ".sig -P" + updateDir + " &&"
+                            + "wget " + url + " -P" + updateDir + ")";
+                    console.log("cmdDlUpdate: "+cmdDlUpdate);        
                     proc.execFile("bash", {
                         args : [
                             "-c",
-                            "(curl " + url +" -o " + target + ".sig --post301 --post302 &&"
-                            + "curl " + url +" -o " + target + " --post301 --post302) ||"
-                            + "(wget " + url + ".sig -P" + installPath + "/updates &&"
-                            + "wget " + url + " -P" + installPath + "/updates)"
+                            cmdDlUpdate
                         ],
                     }, function(err, stdout, stderr){
                         if (err) {
@@ -102,7 +108,7 @@ define(function(require, exports, module) {
                             return;
                         }
                         
-                        decompress(date, target);
+                        decompress(date, updateFile);
                     });
                 });
             });
