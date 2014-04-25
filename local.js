@@ -328,6 +328,7 @@ define(function(require, exports, module) {
                                     var btn = doc.querySelector(".close-button");
                                     if (!btn) return wait();
                                     
+                                    console.clear();
                                     btn.addEventListener("click", function(){
                                         session.pane.hide();
                                     });
