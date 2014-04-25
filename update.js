@@ -22,6 +22,7 @@ define(function(require, exports, module) {
         var join = require("path").join;
         var dirname = require("path").dirname;
         var basename = require("path").basename;
+        var mkdirp = require("mkdirp").mkdirp;
 
         /***** Initialization *****/
         
@@ -82,7 +83,7 @@ define(function(require, exports, module) {
                     return decompress(date, updateFile);
                 }
                 
-                require("mkdirp").mkdirp(updateDir, function(err) {
+                mkdirp(updateDir, function(err) {
                     if (err) throw err;
                     var cmdDlUpdate = "(curl " + url +" -o " + updateFile + ".sig --post301 --post302 &&"
                             + "curl " + url +" -o " + updateFile + " --post301 --post302) ||"
