@@ -35,10 +35,13 @@ define(function(require, exports, module) {
             });
             
             auth.on("logout", function() {
-                fs.exists(function(exists) {
-                    if (exists)
-                        fs.unlink(installPath + "/profile.settings", function() {});
-                });
+                fs.exists(
+                    installPath + "/profile.settings",
+                    function(exists) {
+                        if (exists)
+                            fs.unlink(installPath + "/profile.settings", function() {});
+                    }
+                );
             });
             auth.on("login", login);
             auth.on("relogin", login);
@@ -94,7 +97,8 @@ define(function(require, exports, module) {
             api.users.post(
                 "authorize_desktop",
                 {
-                    body: { uid: user.id, version: c9.version }
+                    body: { uid: user.id, version: c9.version },
+                    noLogin: true
                 },
                 function(err, response) {
                     // ignore err; no-internet handling passed above
@@ -107,22 +111,26 @@ define(function(require, exports, module) {
         }
         
         function authError(message, callback) {
-            message = message || "Please make sure you have an internet "
-                + "connection when you first run Cloud9 Desktop. This way we "
-                + "can authorize your copy and enable cloud connectivity "
-                + "features.";
             auth.logout();
             window.app["dialog.alert"].show(
                 "Authentication failed",
                 "Could not authorize your copy of Cloud9 Desktop.",
                 message,
                 function() {
-                    // TODO: just quit?
+                    // Sigh. Ok, let the user in, but nag again later.
                     auth.logout();
-                    login(true, callback);
+                    setTimeout(function() {
+                        window.app["dialog.alert"].show(
+                            "Authorize Cloud9 Desktop",
+                            "Please authorize your copy of Cloud9 Desktop.",
+                            "Authorization is required for cloud connectivity.",
+                            function() {
+                                login(true, callback);
+                            }
+                        );
+                    }, 20 * 60 * 100);
                 }
             );
-            return;
         }
         
         function canHasInternets(callback) {

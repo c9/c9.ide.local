@@ -4,7 +4,8 @@ define(function(require, exports, module) {
         "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
-        "tree", "layout", "dialog.error", "util", "openPath"
+        "tree", "layout", "dialog.error", "util", "openPath", "preview",
+        "MenuItem"
     ];
     main.provides = ["local"];
     return main;
@@ -19,27 +20,29 @@ define(function(require, exports, module) {
     */
 
     function main(options, imports, register) {
-        var c9        = imports.c9;
-        var fs        = imports.fs;
-        var Plugin    = imports.Plugin;
-        var settings  = imports.settings;
-        var menus     = imports.menus;
-        var commands  = imports.commands;
-        var dragdrop  = imports.dragdrop;
-        var openPath  = imports.openPath;
-        var util      = imports.util;
-        var openfiles = imports.openfiles;
-        var tabs      = imports.tabManager;
-        var upload    = imports.upload;
-        var favs      = imports["tree.favorites"];
-        var tree      = imports.tree;
-        var layout    = imports.layout;
-        var prefs     = imports.preferences;
-        var ui        = imports.ui;
-        var alert     = imports["dialog.alert"].show;
-        var question  = imports["dialog.question"];
-        var bridge    = imports.bridge;
-        var error     = imports["dialog.error"];
+        var c9         = imports.c9;
+        var fs         = imports.fs;
+        var Plugin     = imports.Plugin;
+        var settings   = imports.settings;
+        var C9MenuItem = imports.MenuItem;
+        var menus      = imports.menus;
+        var commands   = imports.commands;
+        var dragdrop   = imports.dragdrop;
+        var openPath   = imports.openPath;
+        var util       = imports.util;
+        var openfiles  = imports.openfiles;
+        var tabs       = imports.tabManager;
+        var upload     = imports.upload;
+        var favs       = imports["tree.favorites"];
+        var tree       = imports.tree;
+        var layout     = imports.layout;
+        var preview    = imports.preview;
+        var prefs      = imports.preferences;
+        var ui         = imports.ui;
+        var alert      = imports["dialog.alert"].show;
+        var question   = imports["dialog.question"];
+        var bridge     = imports.bridge;
+        var error      = imports["dialog.error"];
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -286,6 +289,44 @@ define(function(require, exports, module) {
                     return false;
                 }
             });
+            
+            // Preview
+            preview.settingsMenu.append(new C9MenuItem({ 
+                caption: "Show Dev Tools", 
+                onclick: function(){
+                    var previewTab = tabs.focussedTab;
+                    
+                    var session = previewTab.document.getSession();
+                    var iframe = session.iframe;
+                    if (!session.devtools) {
+                        session.devtools = new ui.vsplitbox({
+                            htmlNode: iframe.parentNode,
+                            anchors: "0 0 0 0",
+                            splitter: true,
+                            childNodes: [
+                                new ui.bar({ height: "50%" }),
+                                new ui.bar()
+                            ]
+                        });
+                        
+                        // Reparent Iframe
+                        session.devtools.firstChild.$ext.appendChild(iframe);
+                        
+                        // Create dev tools iframe
+                        session.deviframe = session.devtools.lastChild.$ext
+                            .appendChild(document.createElement("iframe"));
+                        session.deviframe.style.width = "100%";
+                        session.deviframe.style.height = "100%";
+                        session.deviframe.style.border = "0";
+                    }
+                    
+                    win.on("devtools-opened", function wait(url) {
+                        session.deviframe.src = url;
+                        win.off("devtools-opened", wait);
+                    });
+                    win.showDevTools(iframe, true);
+                } 
+            }));
             
             // Preferences
             prefs.add({
