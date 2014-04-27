@@ -104,9 +104,7 @@ define(function(require, exports, module) {
             // Menu item to quit Cloud9
             menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
             menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({
-                onclick : function(){
-                    app.quit();
-                }
+                command: "exit"
             }), 2000000, plugin);
 
             menus.addItemByPath("Window/Developer Tools", new ui.item({
@@ -131,10 +129,14 @@ define(function(require, exports, module) {
             
             commands.addCommand({
                 name    : "exit",
-                bindKey : { mac: "Command-Q", win: "Alt-F4" },
-                exec    : function() {
-                    win.emit("close", "quit");
-                }
+                bindKey : { mac: "Command-Q", win: "" },
+                exec    : function() { app.quit(); }
+            }, plugin);
+            
+            commands.addCommand({
+                name    : "closeWindow",
+                bindKey : { mac: "", win: "Alt-F4" },
+                exec    : function() { win.emit("close", "quit"); }
             }, plugin);
             
             commands.addCommand({

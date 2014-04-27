@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "info", "menus", "ui", "commands",
-        "tabManager", "tree.favorites"
+        "tabManager", "tree.favorites", "auth"
     ];
     main.provides = ["projectManager"];
     return main;
@@ -16,6 +16,7 @@ define(function(require, exports, module) {
         var commands   = imports.commands;
         var tabManager = imports.tabManager;
         var favs       = imports["tree.favorites"];
+        var auth       = imports.auth;
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -53,13 +54,6 @@ define(function(require, exports, module) {
                 }
             }, plugin);
             
-            commands.addCommand({
-                name: "closeWindow",
-                // on windows this works by default
-                bindKey: {win: "alt-F4", mac: ""},
-                exec: function () { win.close(); },
-            }, plugin);
-            
             var c = 1000;
                 
             menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
@@ -88,8 +82,7 @@ define(function(require, exports, module) {
                                 dividerAdded = true;
                                 menus.addItemByPath("Cloud9/Recent Windows/~", new ui.divider(), c+=100, plugin);
                             }
-                            menus.addItemByPath("Cloud9/Recent Windows/"
-                                + x.name.replace(/[/]/, "\u2044"), new ui.item({value : x}), c += 100, plugin);
+                            addMenuItem("Cloud9/Recent Windows/", x, c += 100);
                         });
                     }
                 },
@@ -99,23 +92,45 @@ define(function(require, exports, module) {
                 }
             }), c += 100, plugin);
             
-            menus.addItemByPath("Cloud9/C9.io Projects/", new ui.menu({}), c += 100, plugin);
+            menus.addItemByPath("Cloud9/C9.io Projects/", new ui.menu({
+                "onprop.visible": function(e) {
+                    if (!e.value) updateC9Projects();
+                },
+                "onitemclick" : function(e) {
+                    var options = e.relatedNode.value;
+                    if (options)
+                        server.openWindow(options);
+                }
+            }), c += 100, plugin);
+            
             menus.addItemByPath("Cloud9/Projects/~", new ui.divider(), c += 100, plugin);
             
-            server.listC9Projects(info.getUser(), function(err, projects) {
-                var c = 0;
-                menus.remove("Cloud9/C9.io Projects/");
-                
-                projects && projects.forEach(function (x) {
-                    menus.addItemByPath("Cloud9/C9.io Projects/" + x.name.replace(/[/]/, "\u2044"), new ui.item({
-                        value   : x,
-                        onclick : function(e) {
-                            server.openWindow(this.value);
-                        }
-                    }), c += 100, plugin);
+            function updateC9Projects(){
+                server.listC9Projects(info.getUser(), function(err, projects) {
+                    var c = 0;
+                    menus.remove("Cloud9/C9.io Projects/");
+                    
+                    if (projects && projects.own) {
+                        projects.own.forEach(function (x) {
+                            addMenuItem("Cloud9/C9.io Projects/", x, c += 100);
+                        });
+                    }
+                    if (projects && projects.shared && projects.shared.length) {
+                        menus.addItemByPath("Cloud9/C9.io Projects/Shared with me/", new ui.menu({}), c += 100, plugin);
+                        projects.shared.forEach(function (x) {
+                            addMenuItem("Cloud9/C9.io Projects/Shared with me/", x, c += 100);
+                        });
+                    }
                 });
-            });
+            }
             
+            function addMenuItem(menu, value, c) {
+                menus.addItemByPath(menu + value.name.replace(/[/]/, "\u2044"),
+                    new ui.item({value   : value}), c, plugin);
+            }
+            
+            auth.on("login", updateC9Projects);
+            auth.on("logout", updateC9Projects);
             favs.on("favoriteRemove", updateFavorites);
             favs.on("favoriteAdd", updateFavorites);
             favs.on("favoriteReorder", updateFavorites);
@@ -123,6 +138,7 @@ define(function(require, exports, module) {
                 server.windowManager.setFavorites(win.options.id, favs.favorites);
             }
             updateFavorites();
+            updateC9Projects();
         }
         
         /***** Methods *****/
