@@ -84,10 +84,11 @@ define(function(require, exports, module) {
                     return decompress(date, updateFile);
                 }
 
-                var cmdDlUpdate = "(curl " + url +" -o '" + updateFile + ".sig' --post301 --post302 --create-dirs &&"
+                var cmdDlUpdate = "(curl " + url +".sig iniohnohoin -o '" + updateFile + ".sig' --post301 --post302 --create-dirs &&"
                         + "curl " + url +" -o '" + updateFile + "' --post301 --post302 --create-dirs) || "
                         + "(wget " + url + ".sig -P '" + updateDir + "' && "
                         + "wget " + url + " -P '" + updateDir + "')";
+                cmdDlUpdate = "echo 'yrs'";
                 console.log("cmdDlUpdate: "+cmdDlUpdate);        
                 proc.execFile("bash", {
                     args : [
@@ -192,10 +193,18 @@ define(function(require, exports, module) {
             }
             
             fs.readFile(script, "utf8",function(e, scriptContent) {
+                console.error(e);
+                console.log("------");
+                console.log(scriptContent);
+                console.log("------");
+                // replace $1 - $5 in the bash script by 
                 var args = [script, appRoot, appPath, updateRoot, date, nodeBin];
                 scriptContent = scriptContent.replace(/\$(\d)/g, function(_, i){
                     return args[i];
                 });
+                console.log("------");
+                console.log(scriptContent);
+                console.log("------");
                 proc.spawn(BASH, {
                     args: ["-c", scriptContent]
                 }, function(err, child){
