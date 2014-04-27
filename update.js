@@ -84,11 +84,10 @@ define(function(require, exports, module) {
                     return decompress(date, updateFile);
                 }
 
-                var cmdDlUpdate = "(curl " + url +".sig iniohnohoin -o '" + updateFile + ".sig' --post301 --post302 --create-dirs &&"
+                var cmdDlUpdate = "(curl " + url +".sig -o '" + updateFile + ".sig' --post301 --post302 --create-dirs &&"
                         + "curl " + url +" -o '" + updateFile + "' --post301 --post302 --create-dirs) || "
                         + "(wget " + url + ".sig -P '" + updateDir + "' && "
                         + "wget " + url + " -P '" + updateDir + "')";
-                cmdDlUpdate = "echo 'yrs'";
                 console.log("cmdDlUpdate: "+cmdDlUpdate);        
                 proc.execFile("bash", {
                     args : [
