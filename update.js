@@ -78,7 +78,7 @@ define(function(require, exports, module) {
             
             // check if already downloaded
             fs.exists(updateFile, function(exists){
-                var url    = "http://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
+                var url    = "https://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
 
                 if (exists) {
                     return decompress(date, updateFile);
