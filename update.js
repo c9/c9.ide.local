@@ -192,9 +192,9 @@ define(function(require, exports, module) {
             }
             
             fs.readFile(script, "utf8",function(e, scriptContent) {
-                // replace $1 - $5 in the bash script by 
+                // replace $R1 - $R5 in the bash script by 
                 var args = [script, appRoot, appPath, updateRoot, date, nodeBin];
-                scriptContent = scriptContent.replace(/\$(\d)/g, function(_, i){
+                scriptContent = scriptContent.replace(/\$R(\d)/g, function(_, i){
                     return args[i];
                 });
                 proc.spawn(BASH, {
