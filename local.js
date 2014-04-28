@@ -5,7 +5,7 @@ define(function(require, exports, module) {
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
         "tree", "layout", "dialog.error", "util", "openPath", "preview",
-        "MenuItem"
+        "MenuItem", "terminal"
     ];
     main.provides = ["local"];
     return main;
@@ -43,6 +43,7 @@ define(function(require, exports, module) {
         var question   = imports["dialog.question"];
         var bridge     = imports.bridge;
         var error      = imports["dialog.error"];
+        var terminal   = imports.terminal;
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -400,6 +401,10 @@ define(function(require, exports, module) {
             bridge.on("message", function(e) {
                 if (e.message.type === "open")
                     focusWindow();
+            });
+            
+            terminal.on("setTerminalCwd", function() {
+                return favs.favorites[0] || c9.home;
             });
         }
         
