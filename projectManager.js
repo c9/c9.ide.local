@@ -92,7 +92,7 @@ define(function(require, exports, module) {
                 }
             }), c += 100, plugin);
             
-            menus.addItemByPath("Cloud9/C9.io Projects/", new ui.menu({
+            menus.addItemByPath("Cloud9/Remote Workspaces/", new ui.menu({
                 "onprop.visible": function(e) {
                     if (!e.value) updateC9Projects();
                 },
@@ -108,17 +108,17 @@ define(function(require, exports, module) {
             function updateC9Projects(){
                 server.listC9Projects(info.getUser(), function(err, projects) {
                     var c = 0;
-                    menus.remove("Cloud9/C9.io Projects/");
+                    menus.remove("Cloud9/Remote Workspaces/");
                     
                     if (projects && projects.own) {
                         projects.own.forEach(function (x) {
-                            addMenuItem("Cloud9/C9.io Projects/", x, c += 100);
+                            addMenuItem("Cloud9/Remote Workspaces/", x, c += 100);
                         });
                     }
                     if (projects && projects.shared && projects.shared.length) {
-                        menus.addItemByPath("Cloud9/C9.io Projects/Shared with me/", new ui.menu({}), c += 100, plugin);
+                        menus.addItemByPath("Cloud9/Remote Workspaces/Shared with me/", new ui.menu({}), c += 100, plugin);
                         projects.shared.forEach(function (x) {
-                            addMenuItem("Cloud9/C9.io Projects/Shared with me/", x, c += 100);
+                            addMenuItem("Cloud9/Remote Workspaces/Shared with me/", x, c += 100);
                         });
                     }
                 });
