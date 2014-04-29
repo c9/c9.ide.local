@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "info", "menus", "ui", "commands",
-        "tabManager", "tree.favorites", "auth"
+        "tabManager", "tree.favorites", "auth", "settings"
     ];
     main.provides = ["projectManager"];
     return main;
@@ -17,6 +17,7 @@ define(function(require, exports, module) {
         var tabManager = imports.tabManager;
         var favs       = imports["tree.favorites"];
         var auth       = imports.auth;
+        var settings   = imports.settings;
 
         // Some require magic to get nw.gui
         var nw  = nativeRequire("nw.gui"); 
@@ -38,8 +39,16 @@ define(function(require, exports, module) {
             
             commands.addCommand({
                 name: "newWindow",
-                exec: function () {
-                    server.openWindow();
+                exec: function() {
+                    var state = JSON.parse(JSON.stringify(settings.model.state));
+                    var stateSettings = {
+                        console: state.console,
+                        panels: state.panels,
+                        menus: state.menus
+                    };
+                    delete stateSettings.console["json()"];
+                
+                    server.openWindow({stateSettings: stateSettings});
                 }
             }, plugin);
             
