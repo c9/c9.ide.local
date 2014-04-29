@@ -224,13 +224,13 @@ define(function(require, exports, module) {
 
             // Tabs
             tabs.on("focusSync", function(e){
-                win.title = e.tab.title + " - Cloud9";
+                win.title = e.tab.title + (win.displayName ? " - " + win.displayName : "") + " - Cloud9";
                 if (title)
                     title.innerHTML = win.title;
             });
             tabs.on("tabDestroy", function(e){
                 if (e.last) {
-                    win.title = "Cloud9";
+                    win.title = (win.displayName ? win.displayName + " - " : "") + "Cloud9";
                     if (title)
                         title.innerHTML = win.title;
                 }
