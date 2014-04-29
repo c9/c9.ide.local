@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
-    main.consumes = ["Plugin", "api", "fs", "auth", "http", "c9"];
+    main.consumes = ["Plugin", "api", "fs", "auth", "http", "c9", "dialog.alert"];
     main.provides = ["info"];
     return main;
 
@@ -14,6 +14,7 @@ define(function(require, exports, module) {
         var auth = imports.auth;
         var http = imports.http;
         var c9 = imports.c9;
+        var showAlert = imports["dialog.alert"].show;
         
         var ANONYMOUS = -1;
         
@@ -28,11 +29,6 @@ define(function(require, exports, module) {
         function load() {
             if (loaded) return false;
             loaded = true;
-            
-            // HACK: avoid circular dependency
-            setTimeout(function() {
-                assert(window.app["dialog.alert"], "Can't find dialog.alert");
-            });
             
             auth.on("logout", function() {
                 fs.exists(
@@ -112,7 +108,7 @@ define(function(require, exports, module) {
         
         function authError(message, callback) {
             auth.logout();
-            window.app["dialog.alert"].show(
+            showAlert(
                 "Authentication failed",
                 "Could not authorize your copy of Cloud9 Desktop.",
                 message,
