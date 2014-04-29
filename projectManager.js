@@ -77,7 +77,7 @@ define(function(require, exports, module) {
                 "onprop.visible" : function(e){
                     if (e.value) {
                         var recentWindows = server.windowManager.getRecentWindows().filter(function(x) {
-                            return x.type != "remote";
+                            return !x.isRemote;
                         }).sort(function(a, b) {
                             if (b.isOpen === a.isOpen)
                                 return b.time - a.time;
