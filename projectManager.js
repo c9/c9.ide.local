@@ -76,9 +76,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
                 "onprop.visible" : function(e){
                     if (e.value) {
-                        var recentWindows = server.windowManager.getRecentWindows().filter(function(x) {
-                            return !x.isRemote;
-                        }).sort(function(a, b) {
+                        var recentWindows = server.windowManager.getRecentWindows().sort(function(a, b) {
                             if (b.isOpen === a.isOpen)
                                 return b.time - a.time;
                             return b.isOpen ? 1 : -1;
@@ -86,6 +84,7 @@ define(function(require, exports, module) {
                         
                         menus.remove("Cloud9/Recent Windows/");
                         var dividerAdded = false;
+                        var c = 0;
                         recentWindows.forEach(function(x) {
                             if (!x.isOpen && !dividerAdded) {
                                 dividerAdded = true;
@@ -119,14 +118,24 @@ define(function(require, exports, module) {
                     var c = 0;
                     menus.remove("Cloud9/Remote Workspaces/");
                     
-                    if (projects && projects.own) {
-                        projects.own.forEach(function (x) {
+                    if (err || !projects) {
+                        menus.addItemByPath("Cloud9/Remote Workspaces/Error while loading workspace list", 
+                            new ui.item({disabled: true}), c, plugin);
+                        return;
+                    }
+                    
+                    if (projects.own) {
+                        projects.own.sort(function (a, b) {
+                            return a.name.localeCompare(b.name);
+                        }).forEach(function (x) {
                             addMenuItem("Cloud9/Remote Workspaces/", x, c += 100);
                         });
                     }
-                    if (projects && projects.shared && projects.shared.length) {
+                    if (projects.shared && projects.shared.length) {
                         menus.addItemByPath("Cloud9/Remote Workspaces/Shared with me/", new ui.menu({}), c += 100, plugin);
-                        projects.shared.forEach(function (x) {
+                        projects.shared.sort(function (a, b) {
+                            return a.name.localeCompare(b.name);
+                        }).forEach(function (x) {
                             addMenuItem("Cloud9/Remote Workspaces/Shared with me/", x, c += 100);
                         });
                     }
