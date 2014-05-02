@@ -397,12 +397,6 @@ define(function(require, exports, module) {
             win.on("enter-fullscreen", handler);
             win.on("leave-fullscreen", handler);
 
-            // Focus when opening new files
-            bridge.on("message", function(e) {
-                if (e.message.type === "open")
-                    focusWindow();
-            });
-            
             terminal.on("setTerminalCwd", function() {
                 return favs.favorites[0] || c9.home;
             });
