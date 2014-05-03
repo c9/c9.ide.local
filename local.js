@@ -96,11 +96,17 @@ define(function(require, exports, module) {
             tabs.on("ready", function(){
                 // Parse argv
                 if (win.options) {
-                    var path = app.argv["file-"+win.options.id];
-                    delete app.argv["file-"+win.options.id];
+                    var path = win.options.filePath;
+                    delete win.options.filePath;
                     path && open(path);
                 }
+                win.on("openFile", function(e) {
+                    var path = e.path;
+                    path && open(path);
+                });
             }, plugin);
+            
+            win.on("focusWindow", focusWindow);
 
             // Menu item to quit Cloud9
             menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
