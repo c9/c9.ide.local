@@ -78,9 +78,11 @@ define(function(require, exports, module) {
                     if (e.value) {
                         server.windowManager.getRecentWindows(function(err, recentWindows) {
                             recentWindows = recentWindows.sort(function(a, b) {
-                                if (b.isOpen === a.isOpen)
-                                    return b.time - a.time;
-                                return b.isOpen ? 1 : -1;
+                                if (b.isOpen !== a.isOpen)
+                                    return b.isOpen ? 1 : -1;
+                                if (b.isEmpty !== a.isEmpty)
+                                    return b.isEmpty ? -1 : 1;
+                                return b.time - a.time;
                             });
                             
                             menus.remove("Cloud9/Recent Windows/");
