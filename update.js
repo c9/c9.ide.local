@@ -8,16 +8,19 @@ define(function(require, exports, module) {
     return main;
 
     function main(options, imports, register) {
-        var c9       = imports.c9;
-        var Plugin   = imports.Plugin;
-        var confirm  = imports["dialog.confirm"].show;
-        var alert    = imports["dialog.alert"].show;
-        var fs       = imports.fs;
-        var proc     = imports.proc;
-        var http     = imports.http;
+        var c9 = imports.c9;
+        var Plugin = imports.Plugin;
+        var showConfirm = imports["dialog.confirm"].show;
+        var showAlert = imports["dialog.alert"].show;
+        var fs = imports.fs;
+        var proc = imports.proc;
+        var http = imports.http;
+        var nodeBin = Array.isArray(options.nodeBin)
+            ? options.nodeBin[0]
+            : options.nodeBin || "node";
         
-        var join     = require("path").join;
-        var dirname  = require("path").dirname;
+        var join = require("path").join;
+        var dirname = require("path").dirname;
         var basename = require("path").basename;
 
         /***** Initialization *****/
@@ -69,12 +72,16 @@ define(function(require, exports, module) {
             if (!c9.has(c9.NETWORK))
                 return;
             
-            fs.exists(installPath + "/updates/" + date, function(exists){
-                var url    = "http://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
-                var target = installPath + "/updates/" + date;
-                
+            var updateDir = join(installPath, "updates");
+            var updateFile = join(updateDir, date);
+            console.log('updateFile: '+updateFile);
+            
+            // check if already downloaded
+            fs.exists(updateFile, function(exists){
+                var url    = "https://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
+
                 if (exists) {
-                    return decompress(date, target);
+                    return decompress(date, updateFile);
                 }
                 
                 fs.mkdir(installPath + "/updates", function(){
@@ -106,8 +113,6 @@ define(function(require, exports, module) {
                         }
                         decompress(date, target);
                     });
-                    
-                    return false;
                 });
                 
                 return false;
@@ -148,7 +153,7 @@ define(function(require, exports, module) {
         }
         
         function showUpdatePopup(date){
-            confirm("Cloud9 needs to be updated", 
+            showConfirm("Cloud9 needs to be updated", 
                 "Update Available", 
                 "There is an update available of Cloud9. "
                     + "Click OK to restart and update Cloud9.", 
@@ -165,7 +170,7 @@ define(function(require, exports, module) {
             return options.path + "/bin/c9";
         }
         
-        function update(date){
+        function update(date) {
             // Use the update script from the new package
             var script = join(getC9Path(), "../../scripts/checkforupdates.sh");
             
@@ -180,7 +185,7 @@ define(function(require, exports, module) {
             else if (c9.platform == "win32") {
                 var toCygwinPath = function(winPath) {
                     return winPath.replace(/(\w):/, "/$1").replace(/\\/g, "/");
-                }
+                };
                 // script = toCygwinPath(script);
                 path = toCygwinPath(path);
                 updateRoot = toCygwinPath(updateRoot);
@@ -197,9 +202,10 @@ define(function(require, exports, module) {
             }
             
             fs.readFile(script, "utf8",function(e, scriptContent) {
+                // replace $R1 - $R5 in the bash script by 
                 var url  = "http://" + HOST + ":" + PORT + "/nw/" + c9.platform + "/"
-                var args = [script, appRoot, appPath, updateRoot, date, url];
-                scriptContent = scriptContent.replace(/\$(\d)/g, function(_, i){
+                var args = [script, appRoot, appPath, updateRoot, date, nodeBin, url];
+                scriptContent = scriptContent.replace(/\$R(\d)/g, function(_, i){
                     return args[i];
                 });
                 proc.spawn(BASH, {

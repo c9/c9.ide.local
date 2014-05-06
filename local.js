@@ -325,7 +325,9 @@ define(function(require, exports, module) {
                             splitter: true,
                             childNodes: [
                                 new ui.bar({ height: "50%" }),
-                                new ui.bar()
+                                session.pane = new ui.bar({ 
+                                    style: "background:#f1f1f1"
+                                })
                             ]
                         });
                         
@@ -338,6 +340,25 @@ define(function(require, exports, module) {
                         session.deviframe.style.width = "100%";
                         session.deviframe.style.height = "100%";
                         session.deviframe.style.border = "0";
+                        
+                        session.deviframe.addEventListener("load", function(){
+                            function wait(){
+                                setTimeout(function(){
+                                    var doc = session.deviframe.contentWindow.document;
+                                    var btn = doc.querySelector(".close-button");
+                                    if (!btn) return wait();
+                                    
+                                    console.clear();
+                                    btn.addEventListener("click", function(){
+                                        session.pane.hide();
+                                    });
+                                }, 10);
+                            }
+                            wait();
+                        });
+                    }
+                    else {
+                        session.pane.show();
                     }
                     
                     win.on("devtools-opened", function wait(url) {
