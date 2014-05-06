@@ -170,13 +170,13 @@ define(function(require, exports, module) {
              * Returns the logged in user.
              * @return {Object} The currently user
              */
-            getUser : getUser,
+            getUser: getUser,
             
             /**
              * Return the active workspace.
              * @return {Object} The currently active workspace
              */
-            getWorkspace : getWorkspace,
+            getWorkspace: getWorkspace,
             
             _events: [
                 /**
