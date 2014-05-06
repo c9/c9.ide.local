@@ -27,11 +27,11 @@ define(function(require, exports, module) {
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
-        // var emit   = plugin.getEmitter();
+        // var emit = plugin.getEmitter();
         
-        var HOST        = options.host || "localhost";
-        var PORT        = options.port || "8282";
-        var BASH        = options.bashBin || "bash";
+        var HOST = options.host || "localhost";
+        var PORT = options.port || "8282";
+        var BASH = options.bashBin || "bash";
         var installPath = options.installPath.replace(/^~/, c9.home);
         
         var loaded = false;
@@ -50,8 +50,8 @@ define(function(require, exports, module) {
         
         function checkForUpdates(){
             var url = "http://" + HOST + ":" + PORT + "/update";
-            http.request(url, {}, function(err, date, res){
-                isNewer(date, function(err, newer){
+            http.request(url, {}, function(err, date, res) {
+                isNewer(date, function(err, newer) {
                     if (err) return;
                 
                     if (newer)
@@ -60,8 +60,8 @@ define(function(require, exports, module) {
             });
         }
         
-        function isNewer(date, callback){
-            fs.readFile(options.path + "/version", function(err, currentDate){
+        function isNewer(date, callback) {
+            fs.readFile(options.path + "/version", function(err, currentDate) {
                 if (!currentDate) currentDate = 0;
                 
                 var newer = parseInt(currentDate, 10) < parseInt(date, 10);
@@ -69,7 +69,7 @@ define(function(require, exports, module) {
             });
         }
         
-        function downloadLatest(date){
+        function downloadLatest(date) {
             if (!c9.has(c9.NETWORK))
                 return;
             
@@ -78,8 +78,8 @@ define(function(require, exports, module) {
             console.log('updateFile: '+updateFile);
             
             // check if already downloaded
-            fs.exists(updateFile, function(exists){
-                var url    = "https://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
+            fs.exists(updateFile, function(exists) {
+                var url = "https://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
 
                 if (exists) {
                     return decompress(date, updateFile);
@@ -91,11 +91,11 @@ define(function(require, exports, module) {
                         + "wget " + url + " -P '" + updateDir + "')";
                 console.log("cmdDlUpdate: "+cmdDlUpdate);        
                 proc.execFile("bash", {
-                    args : [
+                    args: [
                         "-c",
                         cmdDlUpdate
                     ],
-                }, function(err, stdout, stderr){
+                }, function(err, stdout, stderr) {
                     if (err) {
                         showAlert(
                             "Unable to download update",
@@ -113,12 +113,12 @@ define(function(require, exports, module) {
             });
         }
         
-        function decompress(date, target){
+        function decompress(date, target) {
             fs.rmdir(installPath + "/updates/app.nw", { recursive: true }, function(){
                 proc.execFile("tar", {
-                    args : ["-zxf", basename(target)],
-                    cwd  : dirname(target)
-                }, function(err, stdout, stderr){
+                    args: ["-zxf", basename(target)],
+                    cwd: dirname(target)
+                }, function(err, stdout, stderr) {
                     if (err) {
                         fs.unlink(target, function(){});
                         return;
@@ -131,7 +131,7 @@ define(function(require, exports, module) {
             });
         }
         
-        function flagUpdate(date){
+        function flagUpdate(date) {
             if (typeof document === "undefined")
                 return;
             
@@ -140,7 +140,7 @@ define(function(require, exports, module) {
             });
         }
         
-        function showUpdatePopup(date){
+        function showUpdatePopup(date) {
             showConfirm("Cloud9 needs to be updated", 
                 "Update Available", 
                 "There is an update available of Cloud9. "
@@ -191,23 +191,23 @@ define(function(require, exports, module) {
             fs.readFile(script, "utf8",function(e, scriptContent) {
                 // replace $R1 - $R5 in the bash script by 
                 var args = [script, appRoot, appPath, updateRoot, date, nodeBin];
-                scriptContent = scriptContent.replace(/\$R(\d)/g, function(_, i){
+                scriptContent = scriptContent.replace(/\$R(\d)/g, function(_, i) {
                     return args[i];
                 });
                 proc.spawn(BASH, {
                     args: ["-c", scriptContent]
-                }, function(err, child){
+                }, function(err, child) {
                     if (err) return console.error(err);
                     
-                    child.stdout.on("data", function(chunk){
+                    child.stdout.on("data", function(chunk) {
                         console.log(chunk);
                     });
                     
-                    child.stderr.on("data", function(chunk){
+                    child.stderr.on("data", function(chunk) {
                         console.log(chunk);
                     });
                     
-                    child.on("exit", function(code){
+                    child.on("exit", function(code) {
                         if (code !== 0) {
                             console.log("Update Failed.");
                             // @todo cleanup
@@ -227,7 +227,7 @@ define(function(require, exports, module) {
             // proc.spawn(getC9Path(), {
             //     args     : ["restart"],
             //     detached : true
-            // }, function(err, process){
+            // }, function(err, process) {
             //     if (err) return;
 
             //     // required so the parent can exit
@@ -263,7 +263,7 @@ define(function(require, exports, module) {
             /**
              * 
              */
-            checkForUpdates : checkForUpdates,
+            checkForUpdates: checkForUpdates,
             /**
              * 
              */
