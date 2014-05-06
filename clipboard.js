@@ -5,12 +5,12 @@ define(function(require, exports, module) {
     return main;
 
     function main(options, imports, register) {
-        var Plugin   = imports.Plugin;
+        var Plugin = imports.Plugin;
         
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
-        var emit   = plugin.getEmitter();
+        var emit = plugin.getEmitter();
         
         var clipboard;
         function getClipboard() {
@@ -25,12 +25,12 @@ define(function(require, exports, module) {
             getClipboard().clear();
         }
         
-        function set(type, data){
+        function set(type, data) {
             if (supported(type))
                 getClipboard().set(data, "text");
         }
         
-        function get(type){
+        function get(type) {
             if (supported(type))
                 return getClipboard().get("text");
         }
@@ -60,14 +60,14 @@ define(function(require, exports, module) {
          * Clipboard Provider Using the node-webkit interface
          **/
         plugin.freezePublicAPI({
-            wrap   : function(){},
-            unwrap : function(){},
+            wrap: function(){},
+            unwrap: function(){},
             
             /**
              * Clears the clipboard
              * @param {Function} callback(err)
              */
-            clear : clear,
+            clear: clear,
             
             /**
              * Sets the clipboard
@@ -75,14 +75,14 @@ define(function(require, exports, module) {
              * @param {String} data
              * @param {Function} callback(err)
              */
-            set : set,
+            set: set,
             
             /**
              * Gets the current value of the clipboard
              * @param {String} type
              * * @param {Function} callback(err, data)
              */
-            get : get
+            get: get
         });
         
         register(null, {

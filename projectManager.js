@@ -8,29 +8,29 @@ define(function(require, exports, module) {
     return main;
 
     function main(options, imports, register) {
-        var c9         = imports.c9;
-        var Plugin     = imports.Plugin;
-        var info       = imports.info;
-        var menus      = imports.menus;
-        var ui         = imports.ui;
-        var commands   = imports.commands;
+        var c9 = imports.c9;
+        var Plugin = imports.Plugin;
+        var info = imports.info;
+        var menus = imports.menus;
+        var ui = imports.ui;
+        var commands = imports.commands;
         var tabManager = imports.tabManager;
-        var favs       = imports["tree.favorites"];
-        var auth       = imports.auth;
-        var settings   = imports.settings;
+        var favs = imports["tree.favorites"];
+        var auth = imports.auth;
+        var settings = imports.settings;
 
         // Some require magic to get nw.gui
-        var nw  = nativeRequire("nw.gui"); 
+        var nw = nativeRequire("nw.gui"); 
         
         // Ref to window
-        var win      = nw.Window.get();
-        var app      = nw.App;
-        var server   = window.server;
+        var win = nw.Window.get();
+        var app = nw.App;
+        var server = window.server;
             
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
-        // var emit   = plugin.getEmitter();
+        // var emit = plugin.getEmitter();
         
         var loaded = false;
         function load(){
@@ -74,7 +74,7 @@ define(function(require, exports, module) {
             
             // projects menu
             menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
-                "onprop.visible" : function(e){
+                "onprop.visible" : function(e) {
                     if (e.value) {
                         server.windowManager.getRecentWindows(function(err, recentWindows) {
                             recentWindows = recentWindows.sort(function(a, b) {

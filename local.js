@@ -12,7 +12,7 @@ define(function(require, exports, module) {
 
     /*
         - Add real menus
-            https://github.com/rogerwang/node-webkit/wiki/Menu
+            https: //github.com/rogerwang/node-webkit/wiki/Menu
 
         ISSUES:
         - First opened pane does not get the focus (errors, no loading)
@@ -20,46 +20,46 @@ define(function(require, exports, module) {
     */
 
     function main(options, imports, register) {
-        var c9         = imports.c9;
-        var fs         = imports.fs;
-        var Plugin     = imports.Plugin;
-        var settings   = imports.settings;
+        var c9 = imports.c9;
+        var fs = imports.fs;
+        var Plugin = imports.Plugin;
+        var settings = imports.settings;
         var C9MenuItem = imports.MenuItem;
-        var menus      = imports.menus;
-        var commands   = imports.commands;
-        var dragdrop   = imports.dragdrop;
-        var openPath   = imports.openPath;
-        var util       = imports.util;
-        var openfiles  = imports.openfiles;
-        var tabs       = imports.tabManager;
-        var upload     = imports.upload;
-        var favs       = imports["tree.favorites"];
-        var tree       = imports.tree;
-        var layout     = imports.layout;
-        var preview    = imports.preview;
-        var prefs      = imports.preferences;
-        var ui         = imports.ui;
-        var alert      = imports["dialog.alert"].show;
-        var question   = imports["dialog.question"];
-        var bridge     = imports.bridge;
-        var error      = imports["dialog.error"];
-        var terminal   = imports.terminal;
+        var menus = imports.menus;
+        var commands = imports.commands;
+        var dragdrop = imports.dragdrop;
+        var openPath = imports.openPath;
+        var util = imports.util;
+        var openfiles = imports.openfiles;
+        var tabs = imports.tabManager;
+        var upload = imports.upload;
+        var favs = imports["tree.favorites"];
+        var tree = imports.tree;
+        var layout = imports.layout;
+        var preview = imports.preview;
+        var prefs = imports.preferences;
+        var ui = imports.ui;
+        var alert = imports["dialog.alert"].show;
+        var question = imports["dialog.question"];
+        var bridge = imports.bridge;
+        var error = imports["dialog.error"];
+        var terminal = imports.terminal;
 
         // Some require magic to get nw.gui
-        var nw  = nativeRequire("nw.gui"); 
+        var nw = nativeRequire("nw.gui"); 
         
         // Ref to window
-        var win      = nw.Window.get();
-        var app      = nw.App;
-        var Menu     = nw.Menu;
+        var win = nw.Window.get();
+        var app = nw.App;
+        var Menu = nw.Menu;
         var MenuItem = nw.MenuItem;
-        var Tray     = nw.Tray;
+        var Tray = nw.Tray;
         var tray, nativeTitle, title, titlebar;
             
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
-        // var emit   = plugin.getEmitter();
+        // var emit = plugin.getEmitter();
         
         var overrides = [
             [ "newfile", {"mac": "Command-N|Ctrl-N", "win": "Ctrl-N" } ],
@@ -85,7 +85,7 @@ define(function(require, exports, module) {
                 // focusWindow();
                 
                 // Set commands
-                overrides.forEach(function(item){
+                overrides.forEach(function(item) {
                     commands.setDefault(item[0], item[1]);
                 });
                 
@@ -115,7 +115,7 @@ define(function(require, exports, module) {
             }), 2000000, plugin);
 
             menus.addItemByPath("Window/Developer Tools", new ui.item({
-                onclick : function(){
+                onclick: function(){
                     win.showDevTools();
                 }
             }), 2000000, plugin);
@@ -135,31 +135,31 @@ define(function(require, exports, module) {
             }), 900, plugin);
             
             commands.addCommand({
-                name    : "exit",
-                bindKey : { mac: "Command-Q", win: "" },
-                exec    : function() { app.quit(); }
+                name: "exit",
+                bindKey: { mac: "Command-Q", win: "" },
+                exec: function() { app.quit(); }
             }, plugin);
             
             commands.addCommand({
-                name    : "closeWindow",
-                bindKey : { mac: "", win: "Alt-F4" },
-                exec    : function() { win.emit("close", "quit"); }
+                name: "closeWindow",
+                bindKey: { mac: "", win: "Alt-F4" },
+                exec: function() { win.emit("close", "quit"); }
             }, plugin);
             
             commands.addCommand({
-                name    : "fallback",
-                bindKey : { mac: "Command-W", win: "Ctrl-F4" },
-                isAvailable : function(){
+                name: "fallback",
+                bindKey: { mac: "Command-W", win: "Ctrl-F4" },
+                isAvailable: function(){
                     return true;
                 },
-                exec    : function() {
+                exec: function() {
                     // Do nothing
                 }
             }, plugin);
             
             commands.addCommand({
-                name    : "toggleFullscreen",
-                exec    : function() {
+                name: "toggleFullscreen",
+                exec: function() {
                     setTimeout(function(){
                         win.isFullscreen 
                             ? win.leaveFullscreen()
@@ -168,13 +168,13 @@ define(function(require, exports, module) {
                 }
             }, plugin);
             
-            tree.getElement("mnuCtxTree", function(mnuCtxTree){
+            tree.getElement("mnuCtxTree", function(mnuCtxTree) {
                 ui.insertByIndex(mnuCtxTree, new ui.item({
-                    match   : "folder|file",
-                    caption : process.platform == "darwin"
+                    match: "folder|file",
+                    caption: process.platform == "darwin"
                         ? "Reveal in Finder"
                         : "Show item in Explorer",
-                    onclick : function() {
+                    onclick: function() {
                         var path = tree.selected;
                         if (!path) return;
                         if (process.platform == "win32")
@@ -190,7 +190,7 @@ define(function(require, exports, module) {
             });
             
             // Deal with closing
-            win.on("close", function(quit){
+            win.on("close", function(quit) {
                 if (quit || process.platform !== "darwin") {
                     // Save All State
                     c9.beforequit();
@@ -229,12 +229,12 @@ define(function(require, exports, module) {
             });
 
             // Tabs
-            tabs.on("focusSync", function(e){
+            tabs.on("focusSync", function(e) {
                 win.title = e.tab.title + (win.displayName ? " - " + win.displayName : "") + " - Cloud9";
                 if (title)
                     title.innerHTML = win.title;
             });
-            tabs.on("tabDestroy", function(e){
+            tabs.on("tabDestroy", function(e) {
                 if (e.last) {
                     win.title = (win.displayName ? win.displayName + " - " : "") + "Cloud9";
                     if (title)
@@ -263,7 +263,7 @@ define(function(require, exports, module) {
             }, plugin);
             
             // Drag&Drop upload
-            upload.on("upload.drop", function(e){
+            upload.on("upload.drop", function(e) {
                 function transformPath(path) {
                     if (c9.platform == "win32")
                         path = "/" + path.replace(/\\/g, "/");
@@ -367,12 +367,12 @@ define(function(require, exports, module) {
             // Preferences
             prefs.add({
                "General" : {
-                   position : 100,
+                   position: 100,
                    "General" : {
                        "Show Tray Icon" : {
-                           type : "checkbox",
-                           path : "user/local/@tray",
-                           position : 300
+                           type: "checkbox",
+                           path: "user/local/@tray",
+                           position: 300
                        }
                        // "Use Native Title Bar (requires restart)" : {
                        //     type : "checkbox",
@@ -411,7 +411,7 @@ define(function(require, exports, module) {
         /***** Methods *****/
         
         var timer;
-        function storeWindowSettings(force){
+        function storeWindowSettings(force) {
             if (!force) {
                 clearTimeout(timer);
                 timer = setTimeout(storeWindowSettings.bind(null, true), 1000);
@@ -423,7 +423,7 @@ define(function(require, exports, module) {
             settings.set("state/local/window/@fullscreen", win.isFullscreen);
         }
 
-        function toggleTray(to){
+        function toggleTray(to) {
             if (to) {
                 // Create a tray icon
                 tray = new Tray({ icon: 'favicon.ico' });
@@ -431,14 +431,14 @@ define(function(require, exports, module) {
                 // Give it a menu
                 var menu = new Menu();
                 menu.append(new MenuItem({ 
-                    label   : 'Visit c9.io', 
-                    click : function(){
+                    label: 'Visit c9.io', 
+                    click: function(){
                         window.open("http://c9.io");
                     }
                 }));
                 menu.append(new MenuItem({ 
-                    label   : 'Show Developer Tools', 
-                    click : function(){
+                    label: 'Show Developer Tools', 
+                    click: function(){
                         win.showDevTools();
                     }
                 }));
@@ -451,11 +451,11 @@ define(function(require, exports, module) {
             }
         }
 
-        function switchNativeTitle(to){
+        function switchNativeTitle(to) {
 
         }
 
-        function setNativeTitle(on){
+        function setNativeTitle(on) {
             ui.insertCss(require("text!./local.less"), options.staticPrefix, plugin);
             
             var platform = process.platform; // c9.platform is remote os platform so we use process instead
@@ -531,7 +531,7 @@ define(function(require, exports, module) {
             
             var timer;
             var lastScreen = util.extend({}, screen);
-            win.on("move", function(x, y){
+            win.on("move", function(x, y) {
                 clearTimeout(timer);
                 timer = setTimeout(checkScreen, 500);
             });
@@ -557,7 +557,7 @@ define(function(require, exports, module) {
             
             var menubar = document.querySelector(".c9-menu-bar");
             menubar.style.backgroundPosition = "0 -4px";
-            menubar.style.webkitUserSelect   = "none";
+            menubar.style.webkitUserSelect = "none";
         }
         
         function focusWindow(){
@@ -566,14 +566,14 @@ define(function(require, exports, module) {
             win.focus();
         }
         
-        function validateWindowGeometry(fitInScreen){
+        function validateWindowGeometry(fitInScreen) {
             if (settings.get("state/local/window/@maximized"))
                 return;
             // Check if Window Position is In view
             var changedSize;
             var changedPos;
             
-            var width  = win.width;
+            var width = win.width;
             var height = win.height;
             
             if (width > screen.width) {
@@ -587,7 +587,7 @@ define(function(require, exports, module) {
             }
             
             var left = win.x;
-            var top  = win.y;
+            var top = win.y;
             
             var isLTZero = left < 0 || top < 0;
             
@@ -651,12 +651,12 @@ define(function(require, exports, module) {
             /**
              * 
              */
-            focusWindow : focusWindow,
+            focusWindow: focusWindow,
             
             /**
              * 
              */
-            installMode : installMode,
+            installMode: installMode,
             
             /**
              * 
