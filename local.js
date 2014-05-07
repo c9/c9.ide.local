@@ -184,47 +184,39 @@ define(function(require, exports, module) {
                 }), 1020, plugin);
             });
 
-            // Deal with user reopening app on osx
-            app.on("reopen", function(){
-                win.show();
-            });
-            
             // Deal with closing
             win.on("close", function(quit) {
-                if (quit || process.platform !== "darwin") {
-                    // Save All State
-                    c9.beforequit();
-                    
-                    if (window.onbeforeunload) {
-                        var message = window.onbeforeunload();
-                        if (message) {
-                            question.show("Quit Cloud9?",
-                                "Are you sure you want to exit Cloud9?",
-                                "Cloud9 will preserve your entire state. "
-                                    + "Even unsaved files or changes will still "
-                                    + "be available the next time you start cloud9.",
-                                function(){ // yes
-                                    settings.set("user/general/@confirmexit", 
-                                        !question.dontAsk);
-                                    settings.save(true, true);
-                                    
-                                    win.close(true);
-                                },
-                                function(){ // no
-                                    settings.set("user/general/@confirmexit", 
-                                        !question.dontAsk);
-                                    settings.save(true, true);
-                                }, {
-                                    showDontAsk: true
-                                });
-                            focusWindow();
-                            return;
-                        }
-                    }
-                    win.close(true);
+                var message = window.onbeforeunload && window.onbeforeunload();
+                if (message) {
+                    question.show("Quit Cloud9?",
+                        "Are you sure you want to exit Cloud9?",
+                        "Cloud9 will preserve your entire state. "
+                            + "Even unsaved files or changes will still "
+                            + "be available the next time you start cloud9.",
+                        function(){ // yes
+                            settings.set("user/general/@confirmexit", 
+                                !question.dontAsk);
+                            
+                            saveAndQuit();
+                        },
+                        function(){ // no
+                            settings.set("user/general/@confirmexit", 
+                                !question.dontAsk);
+                            settings.save(true, true);
+                        }, {
+                            showDontAsk: true
+                        });
+                    focusWindow();
+                } else {
+                    saveAndQuit();
                 }
-                else {
+                
+                // saving can be slow for remote workspaces
+                // so we hide window, Save All State and then quit
+                function saveAndQuit() {
                     win.hide();
+                    c9.beforequit();
+                    win.close(true);
                 }
             });
 
