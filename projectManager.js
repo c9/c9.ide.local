@@ -26,6 +26,7 @@ define(function(require, exports, module) {
         var win = nw.Window.get();
         var app = nw.App;
         var server = window.server;
+        var windowManager = server.windowManager;
             
         /***** Initialization *****/
         
@@ -48,7 +49,10 @@ define(function(require, exports, module) {
                     };
                     delete stateSettings.console["json()"];
                 
-                    server.openWindow({stateSettings: stateSettings});
+                    server.openWindow({
+                        stateSettings: stateSettings,
+                        focus: true
+                    }, showProgress());
                 }
             }, plugin);
             
@@ -76,7 +80,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
                 "onprop.visible" : function(e) {
                     if (e.value) {
-                        server.windowManager.getRecentWindows(function(err, recentWindows) {
+                        windowManager.getRecentWindows(function(err, recentWindows) {
                             recentWindows = recentWindows.sort(function(a, b) {
                                 if (b.isOpen !== a.isOpen)
                                     return b.isOpen ? 1 : -1;
@@ -100,7 +104,8 @@ define(function(require, exports, module) {
                 },
                 "onitemclick" : function(e) {
                     var options = e.relatedNode.value;
-                    server.openWindow(options);
+                    options.focus = true;
+                    server.openWindow(options, showProgress());
                 }
             }), c += 100, plugin);
             
@@ -110,8 +115,10 @@ define(function(require, exports, module) {
                 },
                 "onitemclick" : function(e) {
                     var options = e.relatedNode.value;
-                    if (options)
-                        server.openWindow(options);
+                    if (options) {
+                        options.focus = true;
+                        server.openWindow(options, showProgress());
+                    }
                 }
             }), c += 100, plugin);
             
@@ -157,7 +164,7 @@ define(function(require, exports, module) {
             favs.on("favoriteAdd", updateFavorites);
             favs.on("favoriteReorder", updateFavorites);
             function updateFavorites() {
-                server.windowManager.setFavorites(win.options.id, favs.favorites);
+                windowManager.setFavorites(win.options.id, favs.favorites);
             }
             updateFavorites();
             updateC9Projects();
@@ -165,7 +172,20 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        
+        function showProgress() {
+            // window needed for windows and win on mac
+            window.addEventListener("blur", restoreCursor);
+            win.on("blur", restoreCursor);
+            window.addEventListener("mousedown", restoreCursor);
+            ui.setStyleRule("*", "cursor", "progress!important");
+            function restoreCursor() {
+                ui.setStyleRule("*", "cursor", "");
+                window.removeEventListener("blur", restoreCursor);
+                win.removeListener("blur", restoreCursor);
+                window.removeEventListener("mousedown", restoreCursor);
+            }
+            return restoreCursor;
+        }
         
         /***** Lifecycle *****/
         
