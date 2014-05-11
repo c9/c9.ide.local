@@ -377,15 +377,19 @@ define(function(require, exports, module) {
             
             // Window
             win.on("minimize", function(){
+                win.isMinimized = true;
                 settings.set("state/local/window/@minimized", true);
             });
             win.on("restore", function(){
+                win.isMinimized = false;
                 settings.set("state/local/window/@minimized", false);
             });
             win.on("maximize", function(){
+                win.isMaximized = true;
                 settings.set("state/local/window/@maximized", true);
             });
             win.on("unmaximize", function(){
+                win.isMaximized = false;
                 settings.set("state/local/window/@maximized", false);
             });
             
@@ -410,9 +414,16 @@ define(function(require, exports, module) {
                 return;
             }
             
+            settings.set("state/local/window/@fullscreen", win.isFullscreen);
+                
+
+            win.emit("savePosition");
+            
+            if (win.isFullscreen || win.isMaximized || win.isMinimized)
+                return;
+            
             settings.set("state/local/window/@position", win.x + ":" + win.y);
             settings.set("state/local/window/@size", win.width + ":" + win.height);
-            settings.set("state/local/window/@fullscreen", win.isFullscreen);
         }
 
         function toggleTray(to) {
@@ -453,6 +464,8 @@ define(function(require, exports, module) {
             var platform = process.platform; // c9.platform is remote os platform so we use process instead
             var titleHeight = platform == "win32" ? 27 : 23;
             
+            var isMaximized = settings.get("state/local/window/@maximized");
+            
             error.top = titleHeight + 1;
             
             var div = document.body.appendChild(document.createElement("div"));
@@ -472,7 +485,7 @@ define(function(require, exports, module) {
             logobar.$ext.style.maxHeight = "27px";
             
             titlebar = document.body.appendChild(document.createElement("div"));
-            titlebar.className = "window-titlebar " + platform;
+            titlebar.className = "window-titlebar " + platform + (isMaximized ? " maximized" : "");
 
             // Caption
             title = titlebar.appendChild(document.createElement("div"));
@@ -503,8 +516,6 @@ define(function(require, exports, module) {
                     ? win.unmaximize()
                     : win.maximize();
             });
-            
-            var isMaximized = settings.get("state/local/window/@maximized");
             
             win.on("blur", function(){
                 titlebar.className = titlebar.className.replace(/ focus/g, "");
