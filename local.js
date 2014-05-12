@@ -5,7 +5,7 @@ define(function(require, exports, module) {
         "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
         "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
         "tree", "layout", "dialog.error", "util", "openPath", "preview",
-        "MenuItem"
+        "MenuItem", "terminal"
     ];
     main.provides = ["local"];
     return main;
@@ -43,6 +43,7 @@ define(function(require, exports, module) {
         var question = imports["dialog.question"];
         var bridge = imports.bridge;
         var error = imports["dialog.error"];
+        var terminal = imports.terminal;
 
         // Some require magic to get nw.gui
         var nw = nativeRequire("nw.gui"); 
@@ -80,7 +81,7 @@ define(function(require, exports, module) {
             loaded = true;
             
             // When the UI is loaded, show the window
-            c9.on("ready", function(){
+            c9.once("ready", function(){
                 // focusWindow();
                 
                 // Set commands
@@ -92,24 +93,25 @@ define(function(require, exports, module) {
                 validateWindowGeometry();
             }, plugin);
             
-            tabs.on("ready", function(){
+            tabs.once("ready", function(){
                 // Parse argv
-                var argv = app.argv.slice(0);
-                while (argv.length) {
-                    if (argv[0].charAt(0) == "-") {
-                        argv.shift(); argv.shift();
-                        continue;
-                    }
-                    openPath.open(argv.shift());
+                if (win.options) {
+                    var path = win.options.filePath;
+                    delete win.options.filePath;
+                    path && open(path);
                 }
+                win.on("openFile", function(e) {
+                    var path = e.path;
+                    path && open(path);
+                });
             }, plugin);
+            
+            win.on("focusWindow", focusWindow);
 
             // Menu item to quit Cloud9
             menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
             menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({
-                onclick: function(){
-                    app.quit();
-                }
+                command: "exit"
             }), 2000000, plugin);
 
             menus.addItemByPath("Window/Developer Tools", new ui.item({
@@ -134,10 +136,14 @@ define(function(require, exports, module) {
             
             commands.addCommand({
                 name: "exit",
-                bindKey: { mac: "Command-Q", win: "Alt-F4" },
-                exec: function() {
-                    win.emit("close", "quit");
-                }
+                bindKey: { mac: "Command-Q", win: "" },
+                exec: function() { app.quit(); }
+            }, plugin);
+            
+            commands.addCommand({
+                name: "closeWindow",
+                bindKey: { mac: "", win: "Alt-F4" },
+                exec: function() { win.emit("close", "quit"); }
             }, plugin);
             
             commands.addCommand({
@@ -178,67 +184,51 @@ define(function(require, exports, module) {
                 }), 1020, plugin);
             });
 
-            // Event to open additional files (I hope)
-            app.on("open", function(cmdLine) {
-                var argv = cmdLine.match(/(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|((?:[^ \\]|\\.)+))/g)
-                    .map(function(x) { return x.replace(/^["']|["']$/g, ""); });
-                openPath.open(argv.pop());
-                focusWindow();
-            });
-            
-            // Deal with user reopening app
-            app.on("reopen", function(){
-                win.show();
-            });
-            
             // Deal with closing
             win.on("close", function(quit) {
-                if (quit || process.platform == "win32") {
-                    // Save All State
-                    c9.beforequit();
-                    
-                    if (window.onbeforeunload) {
-                        var message = window.onbeforeunload();
-                        if (message) {
-                            question.show("Quit Cloud9?",
-                                "Are you sure you want to exit Cloud9?",
-                                "Cloud9 will preserve your entire state. "
-                                    + "Even unsaved files or changes will still "
-                                    + "be available the next time you start cloud9.",
-                                function(){ // yes
-                                    settings.set("user/general/@confirmexit", 
-                                        !question.dontAsk);
-                                    settings.save(true, true);
-                                    
-                                    win.close(true);
-                                },
-                                function(){ // no
-                                    settings.set("user/general/@confirmexit", 
-                                        !question.dontAsk);
-                                    settings.save(true, true);
-                                }, {
-                                    showDontAsk: true
-                                });
-                            focusWindow();
-                            return;
-                        }
-                    }
-                    win.close(true);
+                var message = window.onbeforeunload && window.onbeforeunload();
+                if (message) {
+                    question.show("Quit Cloud9?",
+                        "Are you sure you want to exit Cloud9?",
+                        "Cloud9 will preserve your entire state. "
+                            + "Even unsaved files or changes will still "
+                            + "be available the next time you start cloud9.",
+                        function(){ // yes
+                            settings.set("user/general/@confirmexit", 
+                                !question.dontAsk);
+                            
+                            saveAndQuit();
+                        },
+                        function(){ // no
+                            settings.set("user/general/@confirmexit", 
+                                !question.dontAsk);
+                            settings.save(true, true);
+                        }, {
+                            showDontAsk: true
+                        });
+                    focusWindow();
+                } else {
+                    saveAndQuit();
                 }
-                else {
+                
+                // saving can be slow for remote workspaces
+                // so we hide window, Save All State and then quit
+                function saveAndQuit() {
                     win.hide();
+                    c9.beforequit();
+                    win.close(true);
                 }
             });
 
             // Tabs
             tabs.on("focusSync", function(e) {
-                win.title = e.tab.title + " - Cloud9";
+                win.title = e.tab.title + (win.displayName ? " - " + win.displayName : "") + " - Cloud9";
                 if (title)
                     title.innerHTML = win.title;
             });
             tabs.on("tabDestroy", function(e) {
                 if (e.last) {
-                    win.title = "Cloud9";
+                    win.title = (win.displayName ? win.displayName + " - " : "") + "Cloud9";
                     if (title)
                         title.innerHTML = win.title;
                 }
@@ -274,7 +264,7 @@ define(function(require, exports, module) {
                 var files = e.entries;
                 if (e.path.isTree && files.length == 1 && files[0].isDirectory) {
                     var path = e.files[0].path;
-                    favs.addFavorite(transformPath(path));
+                    favs.addFavorite(c9.toInternalPath(path));
                     openfiles.showTree();
                     return false;
                 }
@@ -288,6 +278,23 @@ define(function(require, exports, module) {
                     }
                     return false;
                 }
+            });
+            
+            tree.on("draw", function(){
+                // todo click event from tree isn't fired for empty tree
+                tree.tree.container.addEventListener("click", function() {
+                    if (favs.favorites.length || tree.tree.provider.visibleItems.length)
+                        return;
+                    var input = document.createElement("input");
+                    input.type = "file";
+                    input.nwdirectory = true;
+                    input.onchange = function() {
+                        var path = input.files[0].path;
+                        favs.addFavorite(c9.toInternalPath(path));
+                        openfiles.showTree();
+                    };
+                    input.click();
+                });
             });
             
             // Preview
@@ -370,15 +377,19 @@ define(function(require, exports, module) {
             
             // Window
             win.on("minimize", function(){
+                win.isMinimized = true;
                 settings.set("state/local/window/@minimized", true);
             });
             win.on("restore", function(){
+                win.isMinimized = false;
                 settings.set("state/local/window/@minimized", false);
             });
             win.on("maximize", function(){
+                win.isMaximized = true;
                 settings.set("state/local/window/@maximized", true);
             });
             win.on("unmaximize", function(){
+                win.isMaximized = false;
                 settings.set("state/local/window/@maximized", false);
             });
             
@@ -388,10 +399,8 @@ define(function(require, exports, module) {
             win.on("enter-fullscreen", handler);
             win.on("leave-fullscreen", handler);
 
-            // Focus when opening new files
-            bridge.on("message", function(e) {
-                if (e.message.type === "open")
-                    focusWindow();
+            terminal.on("setTerminalCwd", function() {
+                return favs.favorites[0] || c9.home;
             });
         }
         
@@ -405,9 +414,16 @@ define(function(require, exports, module) {
                 return;
             }
             
+            settings.set("state/local/window/@fullscreen", win.isFullscreen);
+                
+
+            win.emit("savePosition");
+            
+            if (win.isFullscreen || win.isMaximized || win.isMinimized)
+                return;
+            
             settings.set("state/local/window/@position", win.x + ":" + win.y);
             settings.set("state/local/window/@size", win.width + ":" + win.height);
-            settings.set("state/local/window/@fullscreen", win.isFullscreen);
         }
 
         function toggleTray(to) {
@@ -445,8 +461,10 @@ define(function(require, exports, module) {
         function setNativeTitle(on) {
             ui.insertCss(require("text!./local.less"), options.staticPrefix, plugin);
             
-            var platform = c9.platform
+            var platform = process.platform; // c9.platform is remote os platform so we use process instead
             var titleHeight = platform == "win32" ? 27 : 23;
+            
+            var isMaximized = settings.get("state/local/window/@maximized");
             
             error.top = titleHeight + 1;
             
@@ -457,7 +475,7 @@ define(function(require, exports, module) {
             layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
             
             titlebar = document.body.appendChild(document.createElement("div"));
-            titlebar.className = "window-titlebar " + platform;
+            titlebar.className = "window-titlebar " + platform + (isMaximized ? " maximized" : "");
 
             // Caption
             title = titlebar.appendChild(document.createElement("div"));
@@ -488,8 +506,6 @@ define(function(require, exports, module) {
                     ? win.unmaximize()
                     : win.maximize();
             });
-            
-            var isMaximized = settings.get("state/local/window/@maximized");
             
             win.on("blur", function(){
                 titlebar.className = titlebar.className.replace(/ focus/g, "");
@@ -593,6 +609,11 @@ define(function(require, exports, module) {
             focusWindow();
         }
         
+        function open(path) {
+            openPath.open(path);
+            focusWindow();
+        }
+        
         /***** Lifecycle *****/
         
         plugin.on("load", function(){
@@ -628,7 +649,12 @@ define(function(require, exports, module) {
             /**
              * 
              */
-            installMode: installMode
+            installMode: installMode,
+            
+            /**
+             * 
+             */
+            open: open
         });
         
         register(null, {

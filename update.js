@@ -24,6 +24,7 @@ define(function(require, exports, module) {
         var dirname = require("path").dirname;
         var basename = require("path").basename;
 
+        var windowManager = window.server.windowManager;
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
@@ -38,17 +39,21 @@ define(function(require, exports, module) {
         function load(){
             if (loaded) return false;
             loaded = true;
-
-            // At startup check for updates
-            checkForUpdates();
             
-            // Then check for updates once every 15 minutes
-            setInterval(checkForUpdates, 60 * 15 * 1000);
+            setTimeout(function() {
+                // At startup check for updates
+                checkForUpdates();
+                
+                // Then check for updates once every 15 minutes
+                setInterval(checkForUpdates, 60 * 15 * 1000);
+            }, 5 * 1000);
         }
         
         /***** Methods *****/
         
         function checkForUpdates(){
+            if (!windowManager.isPrimaryWindow(window))
+                return;
             var url = "http://" + HOST + ":" + PORT + "/update";
             http.request(url, {}, function(err, date, res) {
                 isNewer(date, function(err, newer) {
