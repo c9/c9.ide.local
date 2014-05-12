@@ -25,6 +25,7 @@ define(function(require, exports, module) {
         var basename = require("path").basename;
 
         var windowManager = window.server.windowManager;
+        
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
