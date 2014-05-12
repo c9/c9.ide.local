@@ -81,7 +81,7 @@ define(function(require, exports, module) {
             loaded = true;
             
             // When the UI is loaded, show the window
-            c9.on("ready", function(){
+            c9.once("ready", function(){
                 // focusWindow();
                 
                 // Set commands
@@ -93,7 +93,7 @@ define(function(require, exports, module) {
                 validateWindowGeometry();
             }, plugin);
             
-            tabs.on("ready", function(){
+            tabs.once("ready", function(){
                 // Parse argv
                 if (win.options) {
                     var path = win.options.filePath;
