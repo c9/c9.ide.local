@@ -67,7 +67,7 @@ define(function(require, exports, module) {
                 }
             }, plugin);
             
-            var c = 1000;
+            var c = 1300;
                 
             menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
             
@@ -103,7 +103,7 @@ define(function(require, exports, module) {
                     }
                 },
                 "onitemclick" : function(e) {
-                    var options = e.relatedNode.value;
+                    var options = e.value;
                     options.focus = true;
                     server.openWindow(options, showProgress());
                 }
