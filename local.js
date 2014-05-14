@@ -11,9 +11,6 @@ define(function(require, exports, module) {
     return main;
 
     /*
-        - Add real menus
-            https: //github.com/rogerwang/node-webkit/wiki/Menu
-
         ISSUES:
         - First opened pane does not get the focus (errors, no loading)
         - After opening ace docs the UI becomes slow
