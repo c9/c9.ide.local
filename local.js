@@ -113,19 +113,20 @@ define(function(require, exports, module) {
             // Menu items
             var appName = "Cloud9";
             
-            menus.addItemByPath("Cloud9/~", new ui.divider(), 900, plugin);
+            var c = 1400;
+            menus.addItemByPath("Cloud9/~", new ui.divider(), c, plugin);
             menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringFWithFixup("IDS_HIDE_APP_MAC", appName), new ui.item({
                 selector: "hide:",
                 key: "h"
-            }), 1000, plugin);
+            }), c += 100, plugin);
             menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringFWithFixup("IDS_HIDE_OTHERS_MAC", appName), new ui.item({
                 selector: "hideOtherApplications:",
                 key: "h",
                 modifiers: "cmd-alt"
-            }), 1100, plugin);
+            }), c += 100, plugin);
             menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringWithFixup("IDS_SHOW_ALL_MAC"), new ui.item({
                 selector: "unhideAllApplications:"
-            }), 1200, plugin);
+            }), c += 100, plugin);
             
             menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
             menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({

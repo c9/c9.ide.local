@@ -81,7 +81,7 @@ define(function(require, exports, module) {
               || !settings.getBool("user/local/@nativeMenus")) {
                 
                 // Create Root Menus
-                layout.initMenus(menus);
+                menus.init();
                 
                 // Create Built In Menus
                 windowManager.connection.send(0, {
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
             menus.on("menuitem", createMenuItem);
             
             // Create Root Menus
-            layout.initMenus(menus);
+            menus.init();
             
             // Click Dispatcher
             win.on("menuClick", function(e) {

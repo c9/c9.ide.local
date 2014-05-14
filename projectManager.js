@@ -67,7 +67,12 @@ define(function(require, exports, module) {
                 }
             }, plugin);
             
-            var c = 1300;
+            menus.addItemByPath("File/New Window", new ui.item({
+                value: "",
+                command: "newWindow"
+            }), 150, plugin);
+            
+            var c = 900;
                 
             menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
             
@@ -75,11 +80,6 @@ define(function(require, exports, module) {
                 value: "",
                 command: "newWindow"
             }), c += 100, plugin);
-            
-            menus.addItemByPath("File/New Window", new ui.item({
-                value: "",
-                command: "newWindow"
-            }), 150, plugin);
             
             // projects menu
             menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
