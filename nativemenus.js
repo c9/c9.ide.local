@@ -1,6 +1,6 @@
 /*global nativeRequire*/
 define(function(require, exports, module) {
-    main.consumes = ["Plugin", "menus", "layout"];
+    main.consumes = ["Plugin", "menus", "layout", "preferences", "settings"];
     main.provides = ["nativeMenus"];
     return main;
 
@@ -8,6 +8,8 @@ define(function(require, exports, module) {
         var Plugin = imports.Plugin;
         var menus = imports.menus;
         var layout = imports.layout;
+        var settings = imports.settings;
+        var prefs = imports.preferences;
 
         // Some require magic to get nw.gui
         var nw = nativeRequire("nw.gui"); 
@@ -54,8 +56,40 @@ define(function(require, exports, module) {
             if (loaded) return false;
             loaded = true;
             
+            prefs.add({
+                "General" : {
+                    "User Interface" : {
+                        "Use Native Menus (restart required)" : {
+                            type: "checkbox",
+                            path: "user/local/@nativeMenus",
+                            position: 50
+                        }
+                    }
+                }
+            }, plugin);
+            
+            settings.on("read", function(){
+                settings.setDefaults("user/local", [["nativeMenus", true]]);
+                
+                init();
+            });
+        }
+        
+        function init(){
             // Only do this for OSX
-            if (process.platform != "darwin") return;
+            if (process.platform != "darwin" 
+              || !settings.getBool("user/local/@nativeMenus")) {
+                
+                // Create Root Menus
+                layout.initMenus(menus);
+                
+                // Create Built In Menus
+                windowManager.connection.send(0, {
+                    type: "builtin"
+                });
+                  
+                return;
+            }
 
             function decorateMenu(menu, basename) {
                 menu.native = true;
@@ -197,7 +231,7 @@ define(function(require, exports, module) {
                 
                 item.native = true; // Prevent re-entry
                 item.originalName = e.name; // Used as an item id
-                if (e.name == "Edit/Cut") debugger;
+                
                 var data = {
                     type: "setMenuItem",
                     name: e.name,

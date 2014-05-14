@@ -76,6 +76,11 @@ define(function(require, exports, module) {
                 command: "newWindow"
             }), c += 100, plugin);
             
+            menus.addItemByPath("File/New Window", new ui.item({
+                value: "",
+                command: "newWindow"
+            }), 150, plugin);
+            
             // projects menu
             menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
                 "onprop.visible" : function(e) {

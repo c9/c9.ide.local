@@ -376,23 +376,23 @@ define(function(require, exports, module) {
             }));
             
             // Preferences
-            prefs.add({
-               "General" : {
-                   position: 100,
-                   "General" : {
-                       "Show Tray Icon" : {
-                           type: "checkbox",
-                           path: "user/local/@tray",
-                           position: 300
-                       }
-                       // "Use Native Title Bar (requires restart)" : {
-                       //     type : "checkbox",
-                       //     path : "user/local/@nativeTitle",
-                       //     position : 300
-                       // }
-                   }
-               }
-            }, plugin);
+            // prefs.add({
+            //   "General" : {
+            //       position: 100,
+            //       "General" : {
+            //           "Show Tray Icon" : {
+            //               type: "checkbox",
+            //               path: "user/local/@tray",
+            //               position: 300
+            //           }
+            //           // "Use Native Title Bar (requires restart)" : {
+            //           //     type : "checkbox",
+            //           //     path : "user/local/@nativeTitle",
+            //           //     position : 300
+            //           // }
+            //       }
+            //   }
+            // }, plugin);
             
             // Window
             win.on("minimize", function(){
