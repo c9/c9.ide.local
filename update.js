@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "fs", "util", "proc", "dialog.alert", "dialog.confirm",
-        "http", "layout"
+        "http"
     ];
     main.provides = ["local.update"];
     return main;
@@ -18,14 +18,12 @@ define(function(require, exports, module) {
         var nodeBin = Array.isArray(options.nodeBin)
             ? options.nodeBin[0]
             : options.nodeBin || "node";
-        var layout = imports.layout;
         
         var join = require("path").join;
         var dirname = require("path").dirname;
         var basename = require("path").basename;
 
         var windowManager = window.server.windowManager;
-        
         /***** Initialization *****/
         
         var plugin = new Plugin("Ajax.org", main.consumes);
@@ -141,7 +139,11 @@ define(function(require, exports, module) {
             if (typeof document === "undefined")
                 return;
             
-            layout.flagUpdate(function(){
+            var mainlogo = document.querySelector(".window-titlebar");
+            mainlogo.className += " update";
+            mainlogo.title = "Update Cloud9 to a newer version";
+            
+            mainlogo.addEventListener("click", function(e) {
                 showUpdatePopup(date);
             });
         }
