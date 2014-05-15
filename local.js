@@ -142,8 +142,7 @@ define(function(require, exports, module) {
             
             menus.addItemByPath("View/~", new ui.divider(), 800, plugin);
             
-            var itemFullscreen = 
-              menus.addItemByPath("View/Enter Full Screen", new ui.item({
+            var itemFullscreen = new ui.item({
                 isAvailable: function(){
                     itemFullscreen.setAttribute("caption", 
                         win.isFullscreen 
@@ -152,7 +151,9 @@ define(function(require, exports, module) {
                     return true;
                 },
                 command: "toggleFullscreen"
-            }), 900, plugin);
+            });
+            menus.addItemByPath("View/Enter Full Screen", 
+                itemFullscreen, 900, plugin);
             
             commands.addCommand({
                 name: "exit",
