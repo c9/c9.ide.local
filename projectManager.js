@@ -122,6 +122,9 @@ define(function(require, exports, module) {
                 }
             }), c += 100, plugin);
             
+            menus.addItemByPath("Cloud9/Remote Workspaces/Loading workspace list...", 
+                new ui.item({disabled: true}), 0, plugin);
+                
             menus.addItemByPath("Cloud9/Projects/~", new ui.divider(), c += 100, plugin);
             
             function updateC9Projects(){
