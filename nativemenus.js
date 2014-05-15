@@ -158,7 +158,7 @@ define(function(require, exports, module) {
             
             // Click Dispatcher
             win.on("menuClick", function(e) {
-                var item = menus.get(e.name).item;
+                var item = findMenu(e.name);
                 if (!item) throw new Error();
                 
                 var type = item.getAttribute("type");
@@ -222,6 +222,22 @@ define(function(require, exports, module) {
         }
         
         /***** Methods *****/
+        
+        function findMenu(name){
+            var item = menus.get(name).item;
+            if (!item) {
+                var p = name.split("/");
+                var f = p.pop();
+                var parent = menus.get(p.join("/")).menu;
+                parent.childNodes.some(function(node){
+                    if (node.caption == f) {
+                        item = node;
+                        return true;
+                    }
+                });
+            }
+            return item;
+        }
         
         function createMenuItem(e){
             var item = e.item;
