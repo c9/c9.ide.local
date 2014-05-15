@@ -102,7 +102,11 @@ define(function(require, exports, module) {
                 }
                 win.on("openFile", function(e) {
                     var path = e.path;
-                    path && open(path);
+                    path && open(path, function(err, tab) {
+                        if (tab && !favs.favorites.length && tree.area.activePanel == "tree") {
+                            tree.expandAndSelect(tab.path);
+                        }
+                    });
                 });
             }, plugin);
             
@@ -619,8 +623,8 @@ define(function(require, exports, module) {
             focusWindow();
         }
         
-        function open(path) {
-            openPath.open(path);
+        function open(path, cb) {
+            openPath.open(path, cb);
             focusWindow();
         }
         
