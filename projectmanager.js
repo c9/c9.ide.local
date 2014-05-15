@@ -1,7 +1,7 @@
 /*global nativeRequire*/
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "Plugin", "info", "menus", "ui", "commands",
+        "c9", "Plugin", "info", "menus", "ui", "commands", "login",
         "tabManager", "tree.favorites", "auth", "settings"
     ];
     main.provides = ["projectManager"];
@@ -12,6 +12,7 @@ define(function(require, exports, module) {
         var Plugin = imports.Plugin;
         var info = imports.info;
         var menus = imports.menus;
+        var login = imports.login;
         var ui = imports.ui;
         var commands = imports.commands;
         var tabManager = imports.tabManager;
@@ -72,110 +73,129 @@ define(function(require, exports, module) {
                 command: "newWindow"
             }), 250, plugin);
             
-            var c = 900;
+            login.once("ready", function(e){
+                var name = e.name;
                 
-            menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
-            
-            menus.addItemByPath("Cloud9/New Window", new ui.item({
-                value: "",
-                command: "newWindow"
-            }), c += 100, plugin);
-            
-            // projects menu
-            menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
-                "onprop.visible" : function(e) {
-                    if (e.value) {
-                        windowManager.getRecentWindows(function(err, recentWindows) {
-                            recentWindows = recentWindows.sort(function(a, b) {
-                                if (b.isOpen !== a.isOpen)
-                                    return b.isOpen ? 1 : -1;
-                                if (b.isEmpty !== a.isEmpty)
-                                    return b.isEmpty ? -1 : 1;
-                                return b.time - a.time;
+                var c = 900;
+                // menus.addItemByPath(name + "/New Window", new ui.item({
+                //     value: "",
+                //     command: "newWindow"
+                // }), c += 100, plugin);
+                
+                menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
+                
+                // projects menu
+                menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
+                    "onprop.visible" : function(e) {
+                        if (e.value) {
+                            windowManager.getRecentWindows(function(err, recentWindows) {
+                                recentWindows = recentWindows.sort(function(a, b) {
+                                    if (b.isOpen !== a.isOpen)
+                                        return b.isOpen ? 1 : -1;
+                                    if (b.isEmpty !== a.isEmpty)
+                                        return b.isEmpty ? -1 : 1;
+                                    return b.time - a.time;
+                                });
+                                
+                                menus.remove("Cloud9/Recent Windows/");
+                                var dividerAdded = false;
+                                var c = 0;
+                                recentWindows.forEach(function(x) {
+                                    if (!x.isOpen && !dividerAdded) {
+                                        dividerAdded = true;
+                                        menus.addItemByPath("Cloud9/Recent Windows/~", new ui.divider(), c+=100, plugin);
+                                    }
+                                    addMenuItem("Cloud9/Recent Windows/", x, c += 100);
+                                });
                             });
-                            
-                            menus.remove("Cloud9/Recent Windows/");
-                            var dividerAdded = false;
-                            var c = 0;
-                            recentWindows.forEach(function(x) {
-                                if (!x.isOpen && !dividerAdded) {
-                                    dividerAdded = true;
-                                    menus.addItemByPath("Cloud9/Recent Windows/~", new ui.divider(), c+=100, plugin);
-                                }
-                                addMenuItem("Cloud9/Recent Windows/", x, c += 100);
-                            });
-                        });
-                    }
-                },
-                "onitemclick" : function(e) {
-                    var options = e.value;
-                    options.focus = true;
-                    server.openWindow(options, showProgress());
-                }
-            }), c += 100, plugin);
-            
-            menus.addItemByPath("Cloud9/Remote Workspaces/", new ui.menu({
-                "onprop.visible": function(e) {
-                    if (e.value) updateC9Projects();
-                },
-                "onitemclick" : function(e) {
-                    var options = e.relatedNode.value;
-                    if (options) {
+                        }
+                    },
+                    "onitemclick" : function(e) {
+                        var options = e.value;
                         options.focus = true;
                         server.openWindow(options, showProgress());
                     }
-                }
-            }), c += 100, plugin);
-            
-            menus.addItemByPath("Cloud9/Remote Workspaces/Loading workspace list...", 
-                new ui.item({disabled: true}), 0, plugin);
+                }), c += 100, plugin);
                 
-            menus.addItemByPath("Cloud9/Projects/~", new ui.divider(), c += 100, plugin);
-            
-            function updateC9Projects(){
-                server.listC9Projects(info.getUser(), function(err, projects) {
-                    var c = 0;
-                    menus.remove("Cloud9/Remote Workspaces/");
+                c = 0;
+                
+                menus.addItemByPath(name + "/My Workspaces/", new ui.menu({
+                    "onprop.visible": function(e) {
+                        if (e.value) updateC9Projects();
+                    },
+                    "onitemclick" : function(e) {
+                        var options = e.relatedNode.value;
+                        if (options) {
+                            options.focus = true;
+                            server.openWindow(options, showProgress());
+                        }
+                    }
+                }), c += 100, plugin);
+                
+                menus.addItemByPath(name + "/Shared Workspaces/", new ui.menu({
+                    "onprop.visible": function(e) {
+                        if (e.value) updateC9Projects();
+                    },
+                    "onitemclick" : function(e) {
+                        var options = e.relatedNode.value;
+                        if (options) {
+                            options.focus = true;
+                            server.openWindow(options, showProgress());
+                        }
+                    }
+                }), c += 100, plugin);
+                
+                menus.addItemByPath(name + "/My Workspaces/Loading workspace list...", 
+                    new ui.item({disabled: true}), 0, plugin);
                     
-                    if (err || !projects) {
-                        menus.addItemByPath("Cloud9/Remote Workspaces/Error while loading workspace list", 
-                            new ui.item({disabled: true}), c, plugin);
-                        return;
-                    }
-                    
-                    if (projects.own) {
-                        projects.own.sort(function (a, b) {
-                            return a.name.localeCompare(b.name);
-                        }).forEach(function (x) {
-                            addMenuItem("Cloud9/Remote Workspaces/", x, c += 100);
-                        });
-                    }
-                    if (projects.shared && projects.shared.length) {
-                        menus.addItemByPath("Cloud9/Remote Workspaces/Shared with me/", new ui.menu({}), c += 100, plugin);
-                        projects.shared.sort(function (a, b) {
-                            return a.name.localeCompare(b.name);
-                        }).forEach(function (x) {
-                            addMenuItem("Cloud9/Remote Workspaces/Shared with me/", x, c += 100);
-                        });
-                    }
-                });
-            }
-            
-            function addMenuItem(menu, value, c) {
-                menus.addItemByPath(menu + value.name.replace(/[/]/, "\u2044"),
-                    new ui.item({value   : value}), c, plugin);
-            }
-            
-            auth.on("login", updateC9Projects);
-            auth.on("logout", updateC9Projects);
-            favs.on("favoriteRemove", updateFavorites);
-            favs.on("favoriteAdd", updateFavorites);
-            favs.on("favoriteReorder", updateFavorites);
-            function updateFavorites() {
-                windowManager.setFavorites(win.options.id, favs.favorites);
-            }
-            updateFavorites();
-            updateC9Projects();
+                // menus.addItemByPath(name + "/Projects/~", new ui.divider(), c += 100, plugin);
+                menus.addItemByPath(name + "/~", new ui.divider(), c += 100, plugin);
+                
+                function updateC9Projects(){
+                    server.listC9Projects(info.getUser(), function(err, projects) {
+                        var c = 0;
+                        menus.remove(name + "/My Workspaces/");
+                        menus.remove(name + "/Shared Workspaces/");
+                        
+                        if (err || !projects) {
+                            menus.addItemByPath(name + "/My Workspaces/Error while loading workspace list", 
+                                new ui.item({disabled: true}), c, plugin);
+                            return;
+                        }
+                        
+                        if (projects.own) {
+                            projects.own.sort(function (a, b) {
+                                return a.name.localeCompare(b.name);
+                            }).forEach(function (x) {
+                                addMenuItem(name + "/My Workspaces/", x, c += 100);
+                            });
+                        }
+                        if (projects.shared && projects.shared.length) {
+                            projects.shared.sort(function (a, b) {
+                                return a.name.localeCompare(b.name);
+                            }).forEach(function (x) {
+                                addMenuItem(name + "/Shared Workspaces/", x, c += 100);
+                            });
+                        }
+                    });
+                }
+                
+                function addMenuItem(menu, value, c) {
+                    menus.addItemByPath(menu + value.name.replace(/[/]/, "\u2044"),
+                        new ui.item({value   : value}), c, plugin);
+                }
+                
+                auth.on("login", updateC9Projects);
+                auth.on("logout", updateC9Projects);
+                favs.on("favoriteRemove", updateFavorites);
+                favs.on("favoriteAdd", updateFavorites);
+                favs.on("favoriteReorder", updateFavorites);
+                function updateFavorites() {
+                    windowManager.setFavorites(win.options.id, favs.favorites);
+                }
+                updateFavorites();
+                updateC9Projects();
+            });
         }
         
         /***** Methods *****/
