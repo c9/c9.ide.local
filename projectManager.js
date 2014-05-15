@@ -70,7 +70,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("File/New Window", new ui.item({
                 value: "",
                 command: "newWindow"
-            }), 150, plugin);
+            }), 250, plugin);
             
             var c = 900;
                 
