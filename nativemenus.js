@@ -158,7 +158,7 @@ define(function(require, exports, module) {
             
             // Click Dispatcher
             win.on("menuClick", function(e) {
-                var item = findMenu(e.name);
+                var item = findMenuItem(e.name);
                 if (!item) throw new Error();
                 
                 var type = item.getAttribute("type");
@@ -177,7 +177,7 @@ define(function(require, exports, module) {
             // Show Dispatcher
             win.on("menuShow", function(msg) {
                 var menu = menus.get(msg.name).menu;
-                if (!menu) throw new Error();
+                if (!menu) debugger;
                 
                 // Update AML Menu
                 menu.dispatchEvent("prop.visible", { value: true });
@@ -223,7 +223,7 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function findMenu(name){
+        function findMenuItem(name){
             var item = menus.get(name).item;
             if (!item) {
                 var p = name.split("/");
