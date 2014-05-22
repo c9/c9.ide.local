@@ -179,6 +179,9 @@ define(function(require, exports, module) {
                 var menu = menus.get(msg.name).menu;
                 if (!menu) debugger;
                 
+                if (!menu.$ext)
+                    apf.document.documentElement.appendChild(menu);
+                
                 // Update AML Menu
                 menu.dispatchEvent("prop.visible", { value: true });
                 
@@ -201,6 +204,7 @@ define(function(require, exports, module) {
                         visible: n.visible,
                         caption: n.caption,
                         key: n.key,
+                        submenu: n.submenu ? true : false,
                         modifiers: n.modifiers,
                         checked: n.checked || n.selected || n.selectedItem == n,
                         disabled: n.disabled
