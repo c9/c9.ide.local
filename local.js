@@ -109,29 +109,7 @@ define(function(require, exports, module) {
             
             win.on("focusWindow", focusWindow);
 
-            // Update Toolbar
-            var barTools = layout.getElement("barTools");
-            barTools.$ext.style.marginLeft = "-10px";
-            barTools.$ext.firstElementChild.style.display = "none";
-
-            // Menu items
-            var appName = "Cloud9";
-            
-            var c = 1400;
-            menus.addItemByPath("Cloud9/~", new ui.divider(), c, plugin);
-            menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringFWithFixup("IDS_HIDE_APP_MAC", appName), new ui.item({
-                selector: "hide:",
-                key: "h"
-            }), c += 100, plugin);
-            menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringFWithFixup("IDS_HIDE_OTHERS_MAC", appName), new ui.item({
-                selector: "hideOtherApplications:",
-                key: "h",
-                modifiers: "cmd-alt"
-            }), c += 100, plugin);
-            menus.addItemByPath("Cloud9/" + nwDispatcher.getNSStringWithFixup("IDS_SHOW_ALL_MAC"), new ui.item({
-                selector: "unhideAllApplications:"
-            }), c += 100, plugin);
-            
+            // Menu Items
             menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
             menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({
                 selector: "closeAllWindowsQuit:",
@@ -506,7 +484,8 @@ define(function(require, exports, module) {
             ui.setStyleRule(".right .panelsbar", "position", "absolute");
             
             var logobar = layout.getElement("logobar");
-            logobar.setHeight(menus.minimized ? 1 : 27);
+            if (!menus.minimized)
+                logobar.setHeight(27);
             logobar.$ext.style.maxHeight = "27px";
             
             titlebar = document.body.appendChild(document.createElement("div"));

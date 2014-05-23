@@ -1,6 +1,8 @@
-/*global nativeRequire*/
+/*global nativeRequire nwDispatcher*/
 define(function(require, exports, module) {
-    main.consumes = ["Plugin", "menus", "layout", "preferences", "settings"];
+    main.consumes = [
+        "Plugin", "menus", "layout", "preferences", "settings", "ui"
+    ];
     main.provides = ["nativeMenus"];
     return main;
 
@@ -8,6 +10,7 @@ define(function(require, exports, module) {
         var Plugin = imports.Plugin;
         var menus = imports.menus;
         var layout = imports.layout;
+        var ui = imports.ui;
         var settings = imports.settings;
         var prefs = imports.preferences;
 
@@ -223,6 +226,35 @@ define(function(require, exports, module) {
                     items: items
                 });
             });
+            
+            // Update Toolbar
+            var barTools = layout.getElement("barTools");
+            barTools.$ext.style.marginLeft = "-10px";
+            barTools.$ext.firstElementChild.style.display = "none";
+            
+            // Menu items
+            var appName = "Cloud9";
+            
+            var c = 1400;
+            menus.addItemByPath("Cloud9/~", new ui.divider(), c, plugin);
+            menus.addItemByPath("Cloud9/" + 
+              nwDispatcher.getNSStringFWithFixup("IDS_HIDE_APP_MAC", appName), 
+              new ui.item({
+                selector: "hide:",
+                key: "h"
+            }), c += 100, plugin);
+            menus.addItemByPath("Cloud9/" + 
+              nwDispatcher.getNSStringFWithFixup("IDS_HIDE_OTHERS_MAC", appName), 
+              new ui.item({
+                selector: "hideOtherApplications:",
+                key: "h",
+                modifiers: "cmd-alt"
+            }), c += 100, plugin);
+            menus.addItemByPath("Cloud9/" + 
+              nwDispatcher.getNSStringWithFixup("IDS_SHOW_ALL_MAC"), 
+              new ui.item({
+                selector: "unhideAllApplications:"
+            }), c += 100, plugin);
         }
         
         /***** Methods *****/
