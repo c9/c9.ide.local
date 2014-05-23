@@ -506,7 +506,7 @@ define(function(require, exports, module) {
             ui.setStyleRule(".right .panelsbar", "position", "absolute");
             
             var logobar = layout.getElement("logobar");
-            logobar.setHeight(menus.minimized ? 8 : 27);
+            logobar.setHeight(menus.minimized ? 1 : 27);
             logobar.$ext.style.maxHeight = "27px";
             
             titlebar = document.body.appendChild(document.createElement("div"));
