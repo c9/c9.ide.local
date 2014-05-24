@@ -178,7 +178,7 @@ define(function(require, exports, module) {
             });
             
             // Show Dispatcher
-            win.on("menuShow", function(msg) {
+            win.on("menuShow", function(msg) { 
                 var menu = menus.get(msg.name).menu;
                 if (!menu) debugger;
                 

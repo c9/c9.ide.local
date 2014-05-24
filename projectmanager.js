@@ -98,12 +98,14 @@ define(function(require, exports, module) {
                                 });
                                 
                                 menus.remove("Cloud9/Recent Windows/");
+                                
                                 var dividerAdded = false;
                                 var c = 0;
                                 recentWindows.forEach(function(x) {
                                     if (!x.isOpen && !dividerAdded) {
                                         dividerAdded = true;
-                                        menus.addItemByPath("Cloud9/Recent Windows/~", new ui.divider(), c+=100, plugin);
+                                        menus.addItemByPath("Cloud9/Recent Windows/~", 
+                                            new ui.divider(), c+=100, plugin);
                                     }
                                     addMenuItem("Cloud9/Recent Windows/", x, c += 100);
                                 });
