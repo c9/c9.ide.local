@@ -84,6 +84,10 @@ define(function(require, exports, module) {
                 validateWindowGeometry();
             }, plugin);
             
+            c9.on("beforequit", function(){
+                win.removeAllListeners();
+            });
+            
             tabs.once("ready", function(){
                 // Parse argv
                 if (win.options) {

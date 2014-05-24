@@ -1,7 +1,7 @@
 /*global nativeRequire nwDispatcher*/
 define(function(require, exports, module) {
     main.consumes = [
-        "Plugin", "menus", "layout", "preferences", "settings", "ui", "c9"
+        "Plugin", "menus", "layout", "preferences", "settings", "ui"
     ];
     main.provides = ["nativeMenus"];
     return main;
@@ -11,7 +11,6 @@ define(function(require, exports, module) {
         var menus = imports.menus;
         var layout = imports.layout;
         var ui = imports.ui;
-        var c9 = imports.c9;
         var settings = imports.settings;
         var prefs = imports.preferences;
 
@@ -71,10 +70,6 @@ define(function(require, exports, module) {
                     }
                 }
             }, plugin);
-            
-            c9.on("beforequit", function(){
-                win.removeAllListeners();
-            });
             
             settings.on("read", function(){
                 settings.setDefaults("user/local", [["nativeMenus", true]]);
