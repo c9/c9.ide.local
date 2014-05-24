@@ -116,8 +116,6 @@ define(function(require, exports, module) {
                     
                     decompress(date, updateFile);
                 });
-                
-                return false;
             });
         }
         
