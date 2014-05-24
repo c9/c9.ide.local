@@ -489,7 +489,7 @@ define(function(require, exports, module) {
             logobar.$ext.style.maxHeight = "27px";
             
             titlebar = document.body.appendChild(document.createElement("div"));
-            titlebar.className = "window-titlebar " + platform + (isMaximized ? " maximized" : "");
+            titlebar.className = "window-titlebar focus " + platform + (isMaximized ? " maximized" : "");
 
             // Caption
             title = titlebar.appendChild(document.createElement("div"));
