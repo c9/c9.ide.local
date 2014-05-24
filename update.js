@@ -91,35 +91,30 @@ define(function(require, exports, module) {
                     return decompress(date, updateFile);
                 }
                 
-                fs.mkdir(installPath + "/updates", function(){
-                    proc.execFile("curl", {
-                        args: [url, "-o", target, "--post301", "--post302"],
-                    }, function(err1, stdout, stderr) {
-                        if (err1) {
-                            var minP = "-P" + installPath + "/updates";
-                            
-                            proc.execFile("wget", {
-                                args: [url, minP],
-                            }, function(err2, stdout, stderr) {
-                                if (err2) {
-                                    alert(
-                                        "Unable to download update",
-                                        "Got errors while attempting to download update to Cloud9",
-                                        "I tried to download using curl and wget. See the browser's log for more info. "
-                                            + "Contact support@c9.io to help your resolve this issue."
-                                    );
-                                    
-                                    console.error(err1.message);
-                                    console.error(err2.message);
-                                    return;
-                                }
-                                
-                                decompress(date, target);
-                            });
-                            return;
-                        }
-                        decompress(date, target);
-                    });
+                var cmdDlUpdate = "(curl " + url +".sig -o '" + updateFile + ".sig' --post301 --post302 --create-dirs &&"
+                        + "curl " + url +" -o '" + updateFile + "' --post301 --post302 --create-dirs) || "
+                        + "(wget " + url + ".sig -P '" + updateDir + "' && "
+                        + "wget " + url + " -P '" + updateDir + "')";
+                console.log("cmdDlUpdate: "+cmdDlUpdate);        
+                proc.execFile("bash", {
+                    args : [
+                        "-c",
+                        cmdDlUpdate
+                    ],
+                }, function(err, stdout, stderr){
+                    if (err) {
+                        showAlert(
+                            "Unable to download update",
+                            "Got errors while attempting to download update to Cloud9",
+                            "I tried to download using curl and wget. See the browser's log for more info. "
+                                + "Contact support@c9.io to help your resolve this issue."
+                        );
+                        
+                        console.error(err.message, stderr);
+                        return;
+                    }
+                    
+                    decompress(date, updateFile);
                 });
                 
                 return false;
