@@ -1,9 +1,8 @@
 /*global nativeRequire nwDispatcher*/
 define(function(require, exports, module) {
     main.consumes = [
-        "c9", "Plugin", "menus", "tabManager", "settings", "preferences", 
-        "ui", "proc", "fs", "tree.favorites", "upload", "dialog.alert",
-        "commands", "bridge", "dialog.question", "openfiles", "dragdrop",
+        "c9", "Plugin", "menus", "tabManager", "settings", "ui", "proc", 
+        "tree.favorites", "upload", "commands", "dialog.question", "openfiles", 
         "tree", "layout", "dialog.error", "util", "openPath", "preview",
         "MenuItem", "terminal"
     ];
@@ -18,13 +17,11 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         var c9 = imports.c9;
-        var fs = imports.fs;
         var Plugin = imports.Plugin;
         var settings = imports.settings;
         var C9MenuItem = imports.MenuItem;
         var menus = imports.menus;
         var commands = imports.commands;
-        var dragdrop = imports.dragdrop;
         var openPath = imports.openPath;
         var util = imports.util;
         var openfiles = imports.openfiles;
@@ -34,11 +31,8 @@ define(function(require, exports, module) {
         var tree = imports.tree;
         var layout = imports.layout;
         var preview = imports.preview;
-        var prefs = imports.preferences;
         var ui = imports.ui;
-        var alert = imports["dialog.alert"].show;
         var question = imports["dialog.question"];
-        var bridge = imports.bridge;
         var error = imports["dialog.error"];
         var terminal = imports.terminal;
 
