@@ -217,9 +217,10 @@ define(function(require, exports, module) {
                 // saving can be slow for remote workspaces
                 // so we hide window, Save All State and then quit
                 function saveAndQuit() {
+                    win.removeAllListeners();
                     win.hide();
                     c9.beforequit();
-                    win.close(true);
+                    win.close(quit);
                 }
             });
 
