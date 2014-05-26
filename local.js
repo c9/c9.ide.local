@@ -401,7 +401,7 @@ define(function(require, exports, module) {
             win.on("leave-fullscreen", handler);
 
             terminal.on("setTerminalCwd", function() {
-                return favs.favorites[0] || c9.home;
+                return favs.favorites[0];
             });
         }
         
