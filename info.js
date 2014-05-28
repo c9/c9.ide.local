@@ -47,7 +47,7 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function login(allowPrompt, callback) {debugger;
+        function login(allowPrompt, callback) {
             if (typeof allowPrompt === "function")
                 return login(false, allowPrompt);
             if (!callback)

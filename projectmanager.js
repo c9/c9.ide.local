@@ -155,7 +155,6 @@ define(function(require, exports, module) {
                 
                 function updateC9Projects(){
                     info.getUser(function(err, user){
-                        debugger;
                         server.listC9Projects(user, function(err, projects) {
                             var c = 0;
                             menus.remove(name + "/My Workspaces/");
