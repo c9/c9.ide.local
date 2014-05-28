@@ -217,7 +217,7 @@ define(function(require, exports, module) {
                 function saveAndQuit() {
                     win.hide();
                     c9.beforequit();
-                    win.close(quit);
+                    win.close(true);
                 }
             });
 
