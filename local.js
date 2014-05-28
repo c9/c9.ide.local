@@ -71,6 +71,9 @@ define(function(require, exports, module) {
             if (loaded) return false;
             loaded = true;
             
+            // Load native title
+            setNativeTitle();
+            
             // When the UI is loaded, show the window
             c9.once("ready", function(){
                 // focusWindow();
@@ -238,14 +241,10 @@ define(function(require, exports, module) {
             // Settings
             settings.on("read", function(){
                 settings.setDefaults("user/local", [
-                    ["tray", "false"],
-                    ["nativeTitle", "true"]
+                    ["tray", "false"]
                 ]);
                 if (settings.getBool("user/local/@tray"))
                     toggleTray(true);
-
-                nativeTitle = settings.getBool("user/local/@nativeTitle");
-                setNativeTitle(!nativeTitle);
             }, plugin);
 
             settings.on("user/local", function(){
@@ -459,7 +458,7 @@ define(function(require, exports, module) {
 
         }
 
-        function setNativeTitle(on) {
+        function setNativeTitle() {
             ui.insertCss(require("text!./local.less"), options.staticPrefix, plugin);
             
             var platform = process.platform; // c9.platform is remote os platform so we use process instead
