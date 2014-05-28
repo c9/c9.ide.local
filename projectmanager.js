@@ -154,31 +154,33 @@ define(function(require, exports, module) {
                 menus.addItemByPath(name + "/~", new ui.divider(), c += 100, plugin);
                 
                 function updateC9Projects(){
-                    server.listC9Projects(info.getUser(), function(err, projects) {
-                        var c = 0;
-                        menus.remove(name + "/My Workspaces/");
-                        menus.remove(name + "/Shared Workspaces/");
-                        
-                        if (err || !projects) {
-                            menus.addItemByPath(name + "/My Workspaces/Error while loading workspace list", 
-                                new ui.item({disabled: true}), c, plugin);
-                            return;
-                        }
-                        
-                        if (projects.own) {
-                            projects.own.sort(function (a, b) {
-                                return a.name.localeCompare(b.name);
-                            }).forEach(function (x) {
-                                addMenuItem(name + "/My Workspaces/", x, c += 100);
-                            });
-                        }
-                        if (projects.shared && projects.shared.length) {
-                            projects.shared.sort(function (a, b) {
-                                return a.name.localeCompare(b.name);
-                            }).forEach(function (x) {
-                                addMenuItem(name + "/Shared Workspaces/", x, c += 100);
-                            });
-                        }
+                    info.getUser(function(err, user){
+                        server.listC9Projects(user, function(err, projects) {
+                            var c = 0;
+                            menus.remove(name + "/My Workspaces/");
+                            menus.remove(name + "/Shared Workspaces/");
+                            
+                            if (err || !projects) {
+                                menus.addItemByPath(name + "/My Workspaces/Error while loading workspace list", 
+                                    new ui.item({disabled: true}), c, plugin);
+                                return;
+                            }
+                            
+                            if (projects.own) {
+                                projects.own.sort(function (a, b) {
+                                    return a.name.localeCompare(b.name);
+                                }).forEach(function (x) {
+                                    addMenuItem(name + "/My Workspaces/", x, c += 100);
+                                });
+                            }
+                            if (projects.shared && projects.shared.length) {
+                                projects.shared.sort(function (a, b) {
+                                    return a.name.localeCompare(b.name);
+                                }).forEach(function (x) {
+                                    addMenuItem(name + "/Shared Workspaces/", x, c += 100);
+                                });
+                            }
+                        });
                     });
                 }
                 

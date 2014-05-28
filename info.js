@@ -137,7 +137,8 @@ define(function(require, exports, module) {
         
         function getUser(callback) {
             if (!callback) return user;
-            if (user) return callback(null, user);
+            if (user && user.id != ANONYMOUS) 
+                return callback(null, user);
             plugin.once("change", function(e){ callback(null, e.user); });
         }
         
