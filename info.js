@@ -47,7 +47,7 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function login(allowPrompt, callback) {
+        function login(allowPrompt, callback) {debugger;
             if (typeof allowPrompt === "function")
                 return login(false, allowPrompt);
             if (!callback)
@@ -70,10 +70,11 @@ define(function(require, exports, module) {
                     return callback(err);
                 }
                 
-                authorizeCopy();
-                
                 var oldUser = user;
                 user = _user;
+                
+                authorizeCopy();
+                
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
                 fs.writeFile(
@@ -89,7 +90,7 @@ define(function(require, exports, module) {
             });
         }
         
-        function authorizeCopy() {
+        function authorizeCopy() { 
             api.users.post(
                 "authorize_desktop",
                 {
