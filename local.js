@@ -114,7 +114,6 @@ define(function(require, exports, module) {
             menus.addItemByPath("Cloud9/~", new ui.divider(), 2000000, plugin);
             menus.addItemByPath("Cloud9/Quit Cloud9", new ui.item({
                 selector: "closeAllWindowsQuit:",
-                key: "q",
                 command: "exit"
             }), 2000100, plugin);
 
