@@ -1,4 +1,4 @@
-/*global nativeRequire nwDispatcher*/
+/*global nativeRequire nwDispatcher windowManager*/
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "menus", "tabManager", "settings", "ui", "proc", 
@@ -41,7 +41,6 @@ define(function(require, exports, module) {
         
         // Ref to window
         var win = nw.Window.get();
-        var app = nw.App;
         var Menu = nw.Menu;
         var MenuItem = nw.MenuItem;
         var Tray = nw.Tray;
@@ -141,7 +140,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "exit",
                 bindKey: { mac: "Command-Q", win: "" },
-                exec: function() { app.quit(); }
+                exec: function() { windowManager.quit(); }
             }, plugin);
             
             commands.addCommand({
