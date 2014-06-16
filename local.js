@@ -279,7 +279,7 @@ define(function(require, exports, module) {
                 }
             });
             
-            tree.on("draw", function(){
+            tree.once("draw", function(){
                 // todo click event from tree isn't fired for empty tree
                 tree.tree.container.addEventListener("click", function() {
                     if (favs.favorites.length || tree.tree.provider.visibleItems.length)
