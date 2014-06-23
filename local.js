@@ -261,7 +261,7 @@ define(function(require, exports, module) {
                     return path;
                 }
                 var files = e.entries;
-                if (e.path.isTree && files.length == 1 && files[0].isDirectory) {
+                if (files.length == 1 && files[0].isDirectory) {
                     var path = e.files[0].path;
                     favs.addFavorite(c9.toInternalPath(path));
                     openfiles.showTree();
