@@ -4,7 +4,7 @@ define(function(require, exports, module) {
         "c9", "Plugin", "menus", "tabManager", "settings", "ui", "proc", 
         "tree.favorites", "upload", "commands", "dialog.question", "openfiles", 
         "tree", "layout", "dialog.error", "util", "openPath", "preview",
-        "MenuItem", "terminal"
+        "MenuItem", "terminal", "auth"
     ];
     main.provides = ["local"];
     return main;
@@ -17,24 +17,25 @@ define(function(require, exports, module) {
 
     function main(options, imports, register) {
         var c9 = imports.c9;
+        var ui = imports.ui;
+        var menus = imports.menus;
         var Plugin = imports.Plugin;
         var settings = imports.settings;
         var C9MenuItem = imports.MenuItem;
-        var menus = imports.menus;
+        var openfiles = imports.openfiles;
         var commands = imports.commands;
         var openPath = imports.openPath;
-        var util = imports.util;
-        var openfiles = imports.openfiles;
-        var tabs = imports.tabManager;
         var upload = imports.upload;
+        var util = imports.util;
+        var tabs = imports.tabManager;
         var favs = imports["tree.favorites"];
         var tree = imports.tree;
         var layout = imports.layout;
         var preview = imports.preview;
-        var ui = imports.ui;
         var question = imports["dialog.question"];
-        var error = imports["dialog.error"];
         var terminal = imports.terminal;
+        var error = imports["dialog.error"];
+        var auth = imports.auth;
 
         // Some require magic to get nw.gui
         var nw = nativeRequire("nw.gui"); 
@@ -401,6 +402,9 @@ define(function(require, exports, module) {
             terminal.on("setTerminalCwd", function() {
                 return favs.favorites[0];
             });
+            
+            // login/logout
+            auth.on("logout", clearCookies);
         }
         
         /***** Methods *****/
@@ -622,6 +626,17 @@ define(function(require, exports, module) {
         function open(path, cb) {
             openPath.open(path, cb);
             focusWindow();
+        }
+        
+        function clearCookies(domain) {
+            win.cookies.getAll(domain ? {domain: domain} : {}, function(cookies) {
+                cookies.forEach(function(c) {
+                    win.cookies.remove({
+                        url: "http" + (c.secure ? "s" : "") + "://" + c.domain + c.path,
+                        name: c.name
+                    });
+                });
+            });
         }
         
         /***** Lifecycle *****/
