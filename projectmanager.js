@@ -153,7 +153,7 @@ define(function(require, exports, module) {
                 // menus.addItemByPath(name + "/Projects/~", new ui.divider(), c += 100, plugin);
                 menus.addItemByPath(name + "/~", new ui.divider(), c += 100, plugin);
                 
-                function updateC9Projects(){
+                function updateC9Projects() {
                     info.getUser(function(err, user){
                         server.listC9Projects(user, function(err, projects) {
                             var c = 0;
