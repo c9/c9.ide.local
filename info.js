@@ -1,3 +1,4 @@
+/*global win*/
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
@@ -75,16 +76,18 @@ define(function(require, exports, module) {
                 
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
-                fs.writeFile(
-                    installPath + "/profile.settings",
-                    JSON.stringify(user, null, 2),
-                    "utf8",
-                    function(err) {
-                        if (err) console.error(err);
-                        
-                        callback(err, user, project);
-                    }
-                );
+                getLoginCookie(function(err, value) {
+                    fs.writeFile(
+                        installPath + "/profile.settings",
+                        JSON.stringify(user, null, 2),
+                        "utf8",
+                        function(err) {
+                            if (err) console.error(err);
+                            
+                            callback(err, user, project);
+                        }
+                    );
+                });
             });
         }
         
@@ -145,6 +148,24 @@ define(function(require, exports, module) {
             if (!callback) return project;
             if (project) return callback(null, user);
             plugin.once("change", function(e){ callback(null, e.workspace); });
+        }
+        
+        function getLoginCookie(cb) {
+            win.cookies.get({
+                url: "https://c9.io/", name: "c9.live"
+            }, function(cookie) {
+                cb(null, cookie && cookie.value);
+            });
+        }
+        
+        function setLoginCookie(value, cb) {
+            win.cookies.set({
+                url: "https://c9.io/",
+                name: "c9.live",
+                secure: true,
+                value: value,
+                expirationDate: Math.floor(Date.now() / 1000) + 365 * 24 * 3600
+            }, cb);
         }
         
         /***** Lifecycle *****/
