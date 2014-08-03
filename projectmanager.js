@@ -73,53 +73,48 @@ define(function(require, exports, module) {
                 command: "newWindow"
             }), 250, plugin);
             
-            login.once("ready", function(e){
-                var name = e.name;
-                
-                var c = 900;
-                // menus.addItemByPath(name + "/New Window", new ui.item({
-                //     value: "",
-                //     command: "newWindow"
-                // }), c += 100, plugin);
-                
-                menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
-                
-                // projects menu
-                menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
-                    "onprop.visible" : function(e) {
-                        if (e.value) {
-                            windowManager.getRecentWindows(function(err, recentWindows) {
-                                recentWindows = recentWindows.sort(function(a, b) {
-                                    if (b.isOpen !== a.isOpen)
-                                        return b.isOpen ? 1 : -1;
-                                    if (b.isEmpty !== a.isEmpty)
-                                        return b.isEmpty ? -1 : 1;
-                                    return b.time - a.time;
-                                });
-                                
-                                menus.remove("Cloud9/Recent Windows/");
-                                
-                                var dividerAdded = false;
-                                var c = 0;
-                                recentWindows.forEach(function(x) {
-                                    if (!x.isOpen && !dividerAdded) {
-                                        dividerAdded = true;
-                                        menus.addItemByPath("Cloud9/Recent Windows/~", 
-                                            new ui.divider(), c+=100, plugin);
-                                    }
-                                    addMenuItem("Cloud9/Recent Windows/", x, c += 100);
-                                });
+            var c = 900;
+            
+            menus.addItemByPath("Cloud9/~", new ui.divider(), c += 100, plugin);
+            
+            // projects menu
+            menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
+                "onprop.visible" : function(e) {
+                    if (e.value) {
+                        windowManager.getRecentWindows(function(err, recentWindows) {
+                            recentWindows = recentWindows.sort(function(a, b) {
+                                if (b.isOpen !== a.isOpen)
+                                    return b.isOpen ? 1 : -1;
+                                if (b.isEmpty !== a.isEmpty)
+                                    return b.isEmpty ? -1 : 1;
+                                return b.time - a.time;
                             });
-                        }
-                    },
-                    "onitemclick" : function(e) {
-                        var options = e.value;
-                        options.focus = true;
-                        server.openWindow(options, showProgress());
+                            
+                            menus.remove("Cloud9/Recent Windows/");
+                            
+                            var dividerAdded = false;
+                            var c = 0;
+                            recentWindows.forEach(function(x) {
+                                if (!x.isOpen && !dividerAdded) {
+                                    dividerAdded = true;
+                                    menus.addItemByPath("Cloud9/Recent Windows/~", 
+                                        new ui.divider(), c+=100, plugin);
+                                }
+                                addMenuItem("Cloud9/Recent Windows/", x, c += 100);
+                            });
+                        });
                     }
-                }), c += 100, plugin);
-                
-                c = 0;
+                },
+                "onitemclick" : function(e) {
+                    var options = e.value;
+                    options.focus = true;
+                    server.openWindow(options, showProgress());
+                }
+            }), c += 100, plugin);
+            
+            login.on("ready", function(e) {
+                var name = e.name;
+                var c = 0;
                 
                 menus.addItemByPath(name + "/My Workspaces/", new ui.menu({
                     "onprop.visible": function(e) {
@@ -147,59 +142,80 @@ define(function(require, exports, module) {
                     }
                 }), c += 100, plugin);
                 
-                menus.addItemByPath(name + "/My Workspaces/Loading workspace list...", 
-                    new ui.item({disabled: true}), 0, plugin);
+                addDisabled(name, "/My Workspaces/Loading workspace list...");
+                addDisabled(name, "/Shared Workspaces/Loading workspace list...");
                     
                 // menus.addItemByPath(name + "/Projects/~", new ui.divider(), c += 100, plugin);
                 menus.addItemByPath(name + "/~", new ui.divider(), c += 100, plugin);
                 
-                function updateC9Projects() {
-                    info.getUser(function(err, user){
-                        server.listC9Projects(user, function(err, projects) {
-                            var c = 0;
-                            menus.remove(name + "/My Workspaces/");
-                            menus.remove(name + "/Shared Workspaces/");
-                            
-                            if (err || !projects) {
-                                menus.addItemByPath(name + "/My Workspaces/Error while loading workspace list", 
-                                    new ui.item({disabled: true}), c, plugin);
-                                return;
-                            }
-                            
-                            if (projects.own) {
-                                projects.own.sort(function (a, b) {
-                                    return a.name.localeCompare(b.name);
-                                }).forEach(function (x) {
-                                    addMenuItem(name + "/My Workspaces/", x, c += 100);
-                                });
-                            }
-                            if (projects.shared && projects.shared.length) {
-                                projects.shared.sort(function (a, b) {
-                                    return a.name.localeCompare(b.name);
-                                }).forEach(function (x) {
-                                    addMenuItem(name + "/Shared Workspaces/", x, c += 100);
-                                });
-                            }
-                        });
-                    });
-                }
-                
-                function addMenuItem(menu, value, c) {
-                    menus.addItemByPath(menu + value.name.replace(/[/]/, "\u2044"),
-                        new ui.item({value   : value}), c, plugin);
-                }
-                
-                auth.on("login", updateC9Projects);
-                auth.on("logout", updateC9Projects);
-                favs.on("favoriteRemove", updateFavorites);
-                favs.on("favoriteAdd", updateFavorites);
-                favs.on("favoriteReorder", updateFavorites);
-                function updateFavorites() {
-                    windowManager.setFavorites(win.options.id, favs.favorites);
-                }
-                updateFavorites();
                 updateC9Projects();
             });
+                
+            function updateC9Projects() {
+                info.getUser(function(err, user) {
+                    server.listC9Projects(user, function(err, projects) {
+                        var c = 0;
+                        var name = user.fullname;
+                        menus.remove(name + "/My Workspaces/");
+                        menus.remove(name + "/Shared Workspaces/");
+                        
+                        if (err || !projects) {
+                            menus.addItemByPath(name + "/My Workspaces/Error while loading workspace list", 
+                                new ui.item({disabled: true}), c, plugin);
+                            menus.addItemByPath(name + "/Shared Workspaces/Error while loading workspace list", 
+                                new ui.item({disabled: true}), c, plugin);
+                            return;
+                        }
+                        
+                        if (projects.own) {
+                            projects.own.sort(function (a, b) {
+                                return a.name.localeCompare(b.name);
+                            }).forEach(function (x) {
+                                addMenuItem(name + "/My Workspaces/", x, c += 100);
+                            });
+                        } else {
+                            addDisabled(name, "/My Workspaces/You have no workspaces");
+                        }
+                        
+                        if (projects.shared && projects.shared.length) {
+                            projects.shared.sort(function (a, b) {
+                                return a.name.localeCompare(b.name);
+                            }).forEach(function (x) {
+                                addMenuItem(name + "/Shared Workspaces/", x, c += 100);
+                            });
+                        } else {
+                            addDisabled(name, "/Shared Workspaces/You have no Shared workspaces");
+                        }
+                    });
+                });
+            }
+            
+            function addMenuItem(menu, value, c) {
+                menus.addItemByPath(menu + value.name.replace(/[/]/, "\u2044"),
+                    new ui.item({value   : value}), c || 0, plugin);
+            }
+            
+            function addDisabled(name, path) {
+                menus.addItemByPath(name + path, 
+                    new ui.item({disabled: true}), 0, plugin);
+            }
+            
+            function updateFavorites() {
+                windowManager.setFavorites(win.options.id, favs.favorites);
+            }
+            
+            function updateLoginState(e) {
+                if (!e || e.id != -1)
+                    windowManager.signalToAll("checkLogin");
+            }
+            win.on("checkLogin", function() { auth.login() });
+                
+            auth.on("login", updateLoginState);
+            auth.on("logout", updateLoginState);
+            favs.on("favoriteRemove", updateFavorites);
+            favs.on("favoriteAdd", updateFavorites);
+            favs.on("favoriteReorder", updateFavorites);
+            updateFavorites();
         }
         
         /***** Methods *****/

@@ -31,13 +31,11 @@ define(function(require, exports, module) {
             loaded = true;
             
             auth.on("logout", function() {
-                fs.exists(
-                    installPath + "/profile.settings",
-                    function(exists) {
-                        if (exists)
-                            fs.unlink(installPath + "/profile.settings", function() {});
-                    }
-                );
+                emit("change", { user: {fullname: "Logged Out", email: ""} });
+                fs.exists(installPath + "/profile.settings", function(exists) {
+                    if (exists)
+                        fs.unlink(installPath + "/profile.settings", function() {});
+                });
             });
             auth.on("login", login);
             auth.on("relogin", login);

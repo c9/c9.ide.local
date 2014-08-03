@@ -404,7 +404,7 @@ define(function(require, exports, module) {
             });
             
             // login/logout
-            auth.on("logout", clearCookies);
+            auth.on("logout", clearCookies.bind(null, "c9.io"));
         }
         
         /***** Methods *****/
