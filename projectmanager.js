@@ -205,11 +205,17 @@ define(function(require, exports, module) {
             }
             
             function updateLoginState(e) {
-                if (!e || e.id != -1)
-                    windowManager.signalToAll("checkLogin");
+                windowManager.signalToAll("checkLogin", {
+                    winId: win.id,
+                    uid: e && e.newUid || e.uid
+                });
             }
-            win.on("checkLogin", function() { auth.login() });
-                
+            
+            win.on("checkLogin", function(e) {
+                if (e && e.winId != win.id)
+                    auth.login(e.uid != -1);
+            });
+            
             auth.on("login", updateLoginState);
             auth.on("logout", updateLoginState);
             favs.on("favoriteRemove", updateFavorites);
