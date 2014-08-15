@@ -32,7 +32,7 @@ define(function(require, exports, module) {
         // var emit = plugin.getEmitter();
         
         var HOST = options.host || "localhost";
-        var PORT = options.port || "8282";
+        var PORT = options.port || "8888";
         var BASH = options.bashBin || "bash";
         var installPath = options.installPath.replace(/^~/, c9.home);
         
@@ -55,6 +55,7 @@ define(function(require, exports, module) {
         function checkForUpdates(){
             if (!windowManager.isPrimaryWindow(window))
                 return;
+            
             var url = "http://" + HOST + ":" + PORT + "/update";
             http.request(url, {}, function(err, date, res) {
                 isNewer(date, function(err, newer) {

@@ -35,6 +35,7 @@ define(function(require, exports, module) {
         var question = imports["dialog.question"];
         var terminal = imports.terminal;
         var error = imports["dialog.error"];
+        var notifications = imports["dialog.notification"];
         var auth = imports.auth;
 
         // Some require magic to get nw.gui
