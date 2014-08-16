@@ -88,9 +88,9 @@ define(function(require, exports, module) {
                 validateWindowGeometry();
             }, plugin);
             
-            c9.on("beforequit", function(){
-                win.removeAllListeners();
-            });
+            // c9.on("beforequit", function(){
+            //     win.removeAllListeners();
+            // });
             
             tabs.once("ready", function(){
                 // Parse argv
@@ -249,7 +249,7 @@ define(function(require, exports, module) {
             }, plugin);
 
             settings.on("user/local", function(){
-                if (!!tray !== settings.getBool("user/local/@tray"))
+                if (Boolean(tray) !== settings.getBool("user/local/@tray"))
                     toggleTray(!tray);
                 if (nativeTitle !== settings.getBool("user/local/@nativeTitle"))
                     switchNativeTitle(!nativeTitle);
