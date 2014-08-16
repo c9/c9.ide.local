@@ -9,12 +9,6 @@ define(function(require, exports, module) {
     main.provides = ["local"];
     return main;
 
-    /*
-        ISSUES:
-        - First opened pane does not get the focus (errors, no loading)
-        - After opening ace docs the UI becomes slow
-    */
-
     function main(options, imports, register) {
         var c9 = imports.c9;
         var ui = imports.ui;
@@ -35,7 +29,6 @@ define(function(require, exports, module) {
         var question = imports["dialog.question"];
         var terminal = imports.terminal;
         var error = imports["dialog.error"];
-        var notifications = imports["dialog.notification"];
         var auth = imports.auth;
 
         // Some require magic to get nw.gui
