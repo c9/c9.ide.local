@@ -642,7 +642,7 @@ define(function(require, exports, module) {
             var top = win.y;
             
             var minLeft = screen.width - screen.availWidth; // Guestimate
-            if (left < minLeft){
+            if (left < minLeft) {
                 left = screen.availLeft;
                 changedPos = true;
             }
