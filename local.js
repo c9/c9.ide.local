@@ -620,6 +620,7 @@ define(function(require, exports, module) {
         function validateWindowGeometry(fitInScreen) {
             if (settings.get("state/local/window/@maximized"))
                 return;
+                
             // Check if Window Position is In view
             var changedSize;
             var changedPos;
@@ -627,36 +628,45 @@ define(function(require, exports, module) {
             var width = win.width;
             var height = win.height;
             
-            if (width > screen.width) {
-                width = screen.width;
+            if (width > screen.availWidth) {
+                width = screen.availWidth;
                 changedSize = true;
             }
             
-            if (height > screen.height) {
-                height = screen.height;
+            if (height > screen.availHeight) {
+                height = screen.availHeight;
                 changedSize = true;
             }
             
             var left = win.x;
             var top = win.y;
             
-            var isLTZero = left < 0 || top < 0;
-            
-            if (left < 0 || left > screen.width + screen.availLeft) {
-                left = Math.max(0, screen.width + screen.availLeft - width) / 2;
+            var minLeft = screen.width - screen.availWidth; // Guestimate
+            if (left < minLeft){
+                left = screen.availLeft;
+                changedPos = true;
+            }
+            else if (left > screen.availWidth + screen.availLeft) {
+                left = screen.availWidth + screen.availLeft - 100;
                 changedPos = true;
             }
             
-            if (top < 0 || top > screen.height + screen.availTop) {
-                top = Math.max(0, screen.height + screen.availTop - height) / 2;
+            if (top < screen.availTop) {
+                top = screen.availTop;
                 changedPos = true;
             }
-            else if (fitInScreen && top + height > screen.height + screen.availTop) {
-                height = screen.height - top + screen.availTop;
+            else if (top > screen.availHeight + screen.availTop) {
+                top = screen.availHeight + screen.availTop - 100;
+                changedPos = true;
+            }
+            else if (fitInScreen && height + top > screen.availTop + screen.availHeight) {
+                top = screen.availTop;
+                height = screen.availHeight;
+                changedPos = true;
                 changedSize = true;
             }
             
-            if (changedPos && (!fitInScreen || isLTZero))
+            if (changedPos)
                 win.moveTo(left, top);
             
             if (changedSize)
