@@ -81,9 +81,9 @@ define(function(require, exports, module) {
                 validateWindowGeometry();
             }, plugin);
             
-            // c9.on("beforequit", function(){
-            //     win.removeAllListeners();
-            // });
+            c9.on("quit", function(){
+                win.removeAllListeners();
+            });
             
             tabs.once("ready", function(){
                 // Parse argv
@@ -184,6 +184,12 @@ define(function(require, exports, module) {
 
             // Deal with closing
             win.on("close", function(quit) {
+                var fullQuit = true;//win.fullQuit;
+                
+                // Prepare cloud9 for quitting
+                c9.beforequit();
+                
+                // Fetch quit message, if any
                 var message = window.onbeforeunload && window.onbeforeunload();
                 if (message) {
                     question.show("Quit Cloud9?",
@@ -200,7 +206,9 @@ define(function(require, exports, module) {
                         function(){ // no
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
-                            settings.save(true, true);
+                            
+                            if (fullQuit)
+                                windowManager.unquit();
                         }, {
                             showDontAsk: true
                         });
@@ -213,8 +221,18 @@ define(function(require, exports, module) {
                 // so we hide window, Save All State and then quit
                 function saveAndQuit() {
                     win.hide();
-                    c9.beforequit();
-                    win.close(true);
+                    
+                    // Notify plugins that we're quitting
+                    c9.quit();
+                    
+                    // Close all the other windows
+                    if (fullQuit)
+                        windowManager.quitAll();
+                    
+                    // Unregister the window
+                    windowManager.onClose(window.win.options.id);
+                    
+                    // win.close(true);
                 }
             });
 
