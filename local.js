@@ -591,12 +591,17 @@ define(function(require, exports, module) {
 
             win.on("leave-fullscreen", function(){
                 layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
-                    titlebar.style.display = "block";
+                titlebar.style.display = "block";
+                document.body.classList.remove("fullscreen");
             });
-            win.on("enter-fullscreen", function(){
+            var enterFullscreen = function(){
                 layout.getElement("root").setAttribute("anchors", "0 0 0 0");
                 titlebar.style.display = "none";
-            });
+                document.body.classList.add("fullscreen");
+            }
+            win.on("enter-fullscreen", enterFullscreen);
+            
+            if (win.isFullscreen) enterFullscreen();
             
             var menubar = document.querySelector(".c9-menu-bar");
             menubar.style.backgroundPosition = "0 -4px";
