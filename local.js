@@ -314,57 +314,84 @@ define(function(require, exports, module) {
                 caption: "Show Dev Tools", 
                 onclick: function(){
                     var previewTab = tabs.focussedTab;
+                    var previewEditor = previewTab.editor;
+                    
+                    var reload = function (iframe){
+                        win.once("devtools-opened", function wait(url) {
+                            devtools.iframe.src = url;
+                        });
+                        win.showDevTools(iframe, true);
+                    }
                     
                     var session = previewTab.document.getSession();
+                    var devtools = previewEditor.meta.$devtools;
                     var iframe = session.iframe;
-                    if (!session.devtools) {
-                        session.devtools = new ui.vsplitbox({
+                    
+                    // Clear console
+                    if (!console.fake) {
+                        console.clear();
+                        console = { fake: true };
+                        console.clear = console.log = console.warn = 
+                        console.error = function(){};
+                    }
+                    
+                    if (!devtools) {
+                        previewEditor.meta.$devtools = devtools = {};
+                        
+                        devtools.container = new ui.vsplitbox({
                             htmlNode: iframe.parentNode,
                             anchors: "0 0 0 0",
                             splitter: true,
                             childNodes: [
                                 new ui.bar({ height: "50%" }),
-                                session.pane = new ui.bar({ 
+                                devtools.pane = new ui.bar({ 
                                     style: "background:#f1f1f1"
                                 })
                             ]
                         });
                         
                         // Reparent Iframe
-                        session.devtools.firstChild.$ext.appendChild(iframe);
+                        devtools.container.firstChild.$ext.appendChild(iframe);
                         
                         // Create dev tools iframe
-                        session.deviframe = session.devtools.lastChild.$ext
-                            .appendChild(document.createElement("iframe"));
-                        session.deviframe.style.width = "100%";
-                        session.deviframe.style.height = "100%";
-                        session.deviframe.style.border = "0";
+                        var deviframe = devtools.container.lastChild.$ext
+                                .appendChild(document.createElement("iframe"));
+                        devtools.iframe = deviframe;
                         
-                        session.deviframe.addEventListener("load", function(){
+                        deviframe.style.width = "100%";
+                        deviframe.style.height = "100%";
+                        deviframe.style.border = "0";
+                        
+                        deviframe.addEventListener("load", function(){
                             function wait(){
                                 setTimeout(function(){
-                                    var doc = session.deviframe.contentWindow.document;
+                                    var doc = deviframe.contentWindow.document;
                                     var btn = doc.querySelector(".close-button");
                                     if (!btn) return wait();
                                     
-                                    console.clear();
                                     btn.addEventListener("click", function(){
-                                        session.pane.hide();
+                                        devtools.pane.hide();
                                     });
                                 }, 10);
                             }
                             wait();
                         });
+                        
+                        // Update url when session switches or navigates is loaded
+                        var update = function(e){
+                            var session = e.session || e.doc.getSession();
+                            if (devtools.pane.visible)
+                                reload(session.iframe);
+                        };
+                        previewEditor.on("navigate", update);
+                        previewEditor.on("reload", update);
+                        previewEditor.on("documentActivate", update);
                     }
                     else {
-                        session.pane.show();
+                        devtools.pane.show();
                     }
                     
-                    win.on("devtools-opened", function wait(url) {
-                        session.deviframe.src = url;
-                        win.off("devtools-opened", wait);
-                    });
-                    win.showDevTools(iframe, true);
+                    reload(iframe);
                 } 
             }));
             
