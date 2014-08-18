@@ -630,8 +630,8 @@ define(function(require, exports, module) {
             var changedSize;
             var changedPos;
             
-            var width = win.width;
-            var height = win.height;
+            var width = Math.max(400, win.width);
+            var height = Math.max(300, win.height);
             
             if (width > screen.availWidth) {
                 width = screen.availWidth;
