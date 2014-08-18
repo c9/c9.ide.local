@@ -183,12 +183,8 @@ define(function(require, exports, module) {
             });
 
             // Deal with closing
-            win.on("close", function(quit) {
-                var fullQuit = true;//win.fullQuit;
-                
-                // Prepare cloud9 for quitting
-                c9.beforequit();
-                
+            win.on("askForQuit", function(quit) {
+                var acceptQuit = quit ? windowManager.quitAll : saveAndQuit;
                 // Fetch quit message, if any
                 var message = window.onbeforeunload && window.onbeforeunload();
                 if (message) {
@@ -201,40 +197,44 @@ define(function(require, exports, module) {
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
                             
-                            saveAndQuit();
+                            acceptQuit();
                         },
                         function(){ // no
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
                             
-                            if (fullQuit)
-                                windowManager.unquit();
+                            windowManager.unquit();
                         }, {
                             showDontAsk: true
                         });
                     focusWindow();
                 } else {
-                    saveAndQuit();
-                }
-                
-                // saving can be slow for remote workspaces
-                // so we hide window, Save All State and then quit
-                function saveAndQuit() {
-                    win.hide();
-                    
-                    // Notify plugins that we're quitting
-                    c9.quit();
-                    
-                    // Close all the other windows
-                    if (fullQuit)
-                        windowManager.quitAll();
-                    
-                    // Unregister the window
-                    windowManager.onClose(window.win.options.id);
-                    
-                    // win.close(true);
+                    acceptQuit();
                 }
             });
+            
+            win.on("saveAndQuit", saveAndQuit);
+            
+            win.on("close", function(quit) {
+                win.emit("askForQuit", quit);
+            });
+            
+            // saving can be slow for remote workspaces
+            // so we hide window, Save All State and then quit
+            function saveAndQuit() {
+                win.hide();
+                
+                // Prepare cloud9 for quitting
+                c9.beforequit();
+                
+                // Notify plugins that we're quitting
+                c9.quit();
+                
+                // Unregister the window
+                windowManager.onClose(window.win.options.id);
+                
+                win.close(true);
+            }
 
             // Tabs
             tabs.on("focusSync", function(e) {
