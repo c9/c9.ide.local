@@ -87,7 +87,7 @@ define(function(require, exports, module) {
                             return;
                         }
                         
-                        settings.read({ user: userSettings });
+                        settings.update("user", userSettings);
                         settings.saveToCloud.user = true;
                     });
                 }
