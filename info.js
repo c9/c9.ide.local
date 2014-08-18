@@ -79,16 +79,18 @@ define(function(require, exports, module) {
                 
                 authorizeCopy();
                 
-                api.settings.get("user", {}, function(err, userSettings) {
-                    try { userSettings = JSON.parse(userSettings); }
-                    catch(e){ 
-                        console.error("Could not read user settings: ", e); 
-                        return;
-                    }
-                    
-                    settings.read({ user: userSettings });
-                    settings.saveToCloud.user = true;
-                });
+                if (!c9.hosted) {
+                    api.settings.get("user", {}, function(err, userSettings) {
+                        try { userSettings = JSON.parse(userSettings); }
+                        catch(e){ 
+                            console.error("Could not read user settings: ", e); 
+                            return;
+                        }
+                        
+                        settings.read({ user: userSettings });
+                        settings.saveToCloud.user = true;
+                    });
+                }
                 
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
