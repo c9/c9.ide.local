@@ -189,7 +189,7 @@ define(function(require, exports, module) {
                 var message = window.onbeforeunload && window.onbeforeunload();
                 if (message) {
                     question.show("Quit Cloud9?",
-                        "Are you sure you want to exit Cloud9?",
+                        "Are you sure you want to " + (quit ? "exit Cloud9?" : "close this window"),
                         "Cloud9 will preserve your entire state. "
                             + "Even unsaved files or changes will still "
                             + "be available the next time you start cloud9.",
@@ -203,7 +203,8 @@ define(function(require, exports, module) {
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
                             
-                            windowManager.unquit();
+                            if (quit)
+                                windowManager.unquit();
                         }, {
                             showDontAsk: true
                         });
@@ -321,7 +322,7 @@ define(function(require, exports, module) {
                             devtools.iframe.src = url;
                         });
                         win.showDevTools(iframe, true);
-                    }
+                    };
                     
                     var session = previewTab.document.getSession();
                     var devtools = previewEditor.meta.$devtools;
