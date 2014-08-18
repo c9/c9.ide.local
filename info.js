@@ -2,7 +2,9 @@
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
-    main.consumes = ["Plugin", "api", "fs", "auth", "http", "c9", "dialog.alert"];
+    main.consumes = [
+        "Plugin", "api", "fs", "auth", "http", "c9", "dialog.alert"
+    ];
     main.provides = ["info"];
     return main;
 
@@ -25,6 +27,7 @@ define(function(require, exports, module) {
         var user = options.user;
         var project = options.project;
         var installPath = options.installPath;
+        var settings;
 
         var loaded = false;
         function load() {
@@ -32,6 +35,8 @@ define(function(require, exports, module) {
             loaded = true;
             
             auth.on("logout", function() {
+                settings.saveToCloud.user = false;
+                
                 emit("change", { user: {fullname: "Logged Out", email: ""} });
                 fs.exists(installPath + "/profile.settings", function(exists) {
                     if (exists)
@@ -73,6 +78,17 @@ define(function(require, exports, module) {
                 user = _user;
                 
                 authorizeCopy();
+                
+                api.settings.get("user", {}, function(err, userSettings) {
+                    try { userSettings = JSON.parse(userSettings); }
+                    catch(e){ 
+                        console.error("Could not read user settings: ", e); 
+                        return;
+                    }
+                    
+                    settings.read({ user: userSettings });
+                    settings.saveToCloud.user = true;
+                });
                 
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
@@ -187,6 +203,9 @@ define(function(require, exports, module) {
          *     oldpath  {String} description
          **/
         plugin.freezePublicAPI({
+            get settings(){ throw new Error("Not Allowed"); },
+            set settings(v){ settings = v; },
+            
             /**
              * Returns the logged in user.
              * @return {Object} The currently user
