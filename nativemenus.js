@@ -78,7 +78,11 @@ define(function(require, exports, module) {
             });
         }
         
+        var inited;
         function init(){
+            if (inited) return;
+            inited = true;
+            
             // Only do this for OSX
             if (process.platform != "darwin" 
               || !settings.getBool("user/local/@nativeMenus")) {

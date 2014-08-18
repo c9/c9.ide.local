@@ -49,7 +49,7 @@ define(function(require, exports, module) {
                         menus: state.menus
                     };
                     delete stateSettings.console["json()"];
-                
+                    
                     server.openWindow({
                         stateSettings: stateSettings,
                         focus: true
