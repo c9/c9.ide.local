@@ -444,7 +444,11 @@ define(function(require, exports, module) {
             });
             
             // login/logout
-            auth.on("logout", clearCookies.bind(null, "c9.io"));
+            auth.on("logout", function(argument) {
+                clearCookies("c9.io");
+                clearCookies("github.com");
+                clearCookies("bitbucket.org");
+            });
         }
         
         /***** Methods *****/
