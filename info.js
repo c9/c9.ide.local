@@ -77,6 +77,7 @@ define(function(require, exports, module) {
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
                 getLoginCookie(function(err, value) {
+                    user.cookie = value;
                     fs.writeFile(
                         installPath + "/profile.settings",
                         JSON.stringify(user, null, 2),

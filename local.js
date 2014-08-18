@@ -424,7 +424,11 @@ define(function(require, exports, module) {
             });
             
             // login/logout
-            auth.on("logout", clearCookies.bind(null, "c9.io"));
+            auth.on("logout", function(argument) {
+                clearCookies("c9.io");
+                clearCookies("github.com");
+                clearCookies("bitbucket.org");
+            });
             
             // Add undo redo support for html elements
             var ta = {"INPUT":1, "TEXTAREA":1, "SELECT":1, "PRE": 1};
