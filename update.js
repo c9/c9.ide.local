@@ -98,7 +98,7 @@ define(function(require, exports, module) {
                         + "curl " + url +" -o '" + updateFile + "' --post301 --post302 --create-dirs) || "
                         + "(wget " + url + ".sig -P '" + updateDir + "' && "
                         + "wget " + url + " -P '" + updateDir + "')";
-                console.log("cmdDlUpdate: "+cmdDlUpdate);        
+                console.log("cmdDlUpdate: " + cmdDlUpdate);
                 proc.execFile("bash", {
                     args : [
                         "-c",
