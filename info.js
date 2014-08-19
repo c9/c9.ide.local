@@ -27,7 +27,7 @@ define(function(require, exports, module) {
         var user = options.user;
         var project = options.project;
         var installPath = options.installPath;
-        var settings;
+        var settings, loadedUserSettings;
 
         var loaded = false;
         function load() {
@@ -79,16 +79,9 @@ define(function(require, exports, module) {
                 
                 authorizeCopy();
                 
-                if (!c9.hosted) {
-                    api.settings.get("user", {}, function(err, userSettings) {
-                        try { userSettings = JSON.parse(userSettings); }
-                        catch(e){ 
-                            console.error("Could not read user settings: ", e); 
-                            return;
-                        }
-                        
-                        settings.update("user", userSettings);
-                        settings.saveToCloud.user = true;
+                if (!c9.hosted && !loadedUserSettings) {
+                    updateUserSettings(function(){
+                        loadedUserSettings = true;
                     });
                 }
                 
@@ -107,6 +100,21 @@ define(function(require, exports, module) {
                         }
                     );
                 });
+            });
+        }
+        
+        function updateUserSettings(callback){
+            api.settings.get("user", {}, function(err, userSettings) {
+                try { userSettings = JSON.parse(userSettings); }
+                catch(e){ 
+                    console.error("Could not read user settings: ", e); 
+                    return;
+                }
+                
+                settings.update("user", userSettings);
+                settings.saveToCloud.user = true;
+                
+                callback();
             });
         }
         
@@ -220,6 +228,11 @@ define(function(require, exports, module) {
              * @return {Object} The currently active workspace
              */
             getWorkspace: getWorkspace,
+            
+            /**
+             * 
+             */
+            updateUserSettings: updateUserSettings,
             
             _events: [
                 /**
