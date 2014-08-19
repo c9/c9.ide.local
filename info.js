@@ -53,13 +53,14 @@ define(function(require, exports, module) {
         
         function initSettings(){
             // Send change events to all windows
-            settings.on("user", function(data){
-                windowManager.signalToAll("updateUserSettings", { data: data });
+            settings.on("user", function(e){
+                if (e.userData != "userSettings")
+                    windowManager.signalToAll("updateUserSettings", { data: e.data });
             });
             
             // Listen for changes for this window
             window.win.on("updateUserSettings", function(e){
-                settings.update("user", e.data);
+                settings.update("user", e.data, "userSettings");
             });
         }
         
