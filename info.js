@@ -1,4 +1,4 @@
-/*global win*/
+/*global win windowManager*/
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
@@ -50,6 +50,18 @@ define(function(require, exports, module) {
         }
         
         /***** Methods *****/
+        
+        function initSettings(){
+            // Send change events to all windows
+            settings.on("user", function(data){
+                windowManager.signalToAll("updateUserSettings", { data: data });
+            });
+            
+            // Listen for changes for this window
+            window.win.on("updateUserSettings", function(e){
+                settings.update("user", e.data);
+            });
+        }
         
         function login(allowPrompt, callback) {
             if (typeof allowPrompt === "function")
@@ -215,7 +227,7 @@ define(function(require, exports, module) {
          **/
         plugin.freezePublicAPI({
             get settings(){ throw new Error("Not Allowed"); },
-            set settings(v){ settings = v; },
+            set settings(v){ settings = v; initSettings(); },
             
             /**
              * Returns the logged in user.
