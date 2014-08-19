@@ -449,6 +449,18 @@ define(function(require, exports, module) {
                 clearCookies("github.com");
                 clearCookies("bitbucket.org");
             });
+            
+            // Add undo redo support for html elements
+            var ta = {"INPUT":1, "TEXTAREA":1, "SELECT":1, "PRE": 1};
+            document.addEventListener("focusin", function(e){
+                var html = e.target;
+                
+                if (html.contentEditable || ta[html.tagName]) {
+                    windowManager.connection.send(0, {
+                        type: "enableUndoRedo"
+                    });
+                }
+            });
         }
         
         /***** Methods *****/
