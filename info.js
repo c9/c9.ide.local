@@ -27,6 +27,7 @@ define(function(require, exports, module) {
         var user = options.user;
         var project = options.project;
         var installPath = options.installPath;
+        var settingDir = options.settingDir || installPath;
         var settings, loadedUserSettings;
 
         var loaded = false;
@@ -38,9 +39,9 @@ define(function(require, exports, module) {
                 settings.saveToCloud.user = false;
                 
                 emit("change", { user: {fullname: "Logged Out", email: ""} });
-                fs.exists(installPath + "/profile.settings", function(exists) {
+                fs.exists(settingDir + "/profile.settings", function(exists) {
                     if (exists)
-                        fs.unlink(installPath + "/profile.settings", function() {});
+                        fs.unlink(settingDir + "/profile.settings", function() {});
                 });
             });
             auth.on("login", login);
@@ -103,7 +104,7 @@ define(function(require, exports, module) {
                 getLoginCookie(function(err, value) {
                     user.cookie = value;
                     fs.writeFile(
-                        installPath + "/profile.settings",
+                        settingDir + "/profile.settings",
                         JSON.stringify(user, null, 2),
                         "utf8",
                         function(err) {
