@@ -1,10 +1,8 @@
-/*global win windowManager*/
+/*global win*/
 define(function(require, exports, module) {
     var assert = require("c9/assert");
 
-    main.consumes = [
-        "Plugin", "api", "fs", "auth", "http", "c9", "dialog.alert"
-    ];
+    main.consumes = ["Plugin", "api", "fs", "auth", "http", "c9", "dialog.alert"];
     main.provides = ["info"];
     return main;
 
@@ -27,8 +25,6 @@ define(function(require, exports, module) {
         var user = options.user;
         var project = options.project;
         var installPath = options.installPath;
-        var settingDir = options.settingDir || installPath;
-        var settings, loadedUserSettings;
 
         var loaded = false;
         function load() {
@@ -36,12 +32,10 @@ define(function(require, exports, module) {
             loaded = true;
             
             auth.on("logout", function() {
-                settings.saveToCloud.user = false;
-                
                 emit("change", { user: {fullname: "Logged Out", email: ""} });
-                fs.exists(settingDir + "/profile.settings", function(exists) {
+                fs.exists(installPath + "/profile.settings", function(exists) {
                     if (exists)
-                        fs.unlink(settingDir + "/profile.settings", function() {});
+                        fs.unlink(installPath + "/profile.settings", function() {});
                 });
             });
             auth.on("login", login);
@@ -51,19 +45,6 @@ define(function(require, exports, module) {
         }
         
         /***** Methods *****/
-        
-        function initSettings(){
-            // Send change events to all windows
-            settings.on("user", function(e){
-                if (e.userData != "userSettings")
-                    windowManager.signalToAll("updateUserSettings", { data: e.data });
-            });
-            
-            // Listen for changes for this window
-            window.win.on("updateUserSettings", function(e){
-                settings.update("user", e.data, "userSettings");
-            });
-        }
         
         function login(allowPrompt, callback) {
             if (typeof allowPrompt === "function")
@@ -93,18 +74,11 @@ define(function(require, exports, module) {
                 
                 authorizeCopy();
                 
-                if (!c9.hosted && !loadedUserSettings) {
-                    updateUserSettings(function(){
-                        loadedUserSettings = true;
-                    });
-                }
-                
                 emit("change", { oldUser: oldUser, user: user, workspace: project });
                 
                 getLoginCookie(function(err, value) {
-                    user.cookie = value;
                     fs.writeFile(
-                        settingDir + "/profile.settings",
+                        installPath + "/profile.settings",
                         JSON.stringify(user, null, 2),
                         "utf8",
                         function(err) {
@@ -114,21 +88,6 @@ define(function(require, exports, module) {
                         }
                     );
                 });
-            });
-        }
-        
-        function updateUserSettings(callback){
-            api.settings.get("user", {}, function(err, userSettings) {
-                try { userSettings = JSON.parse(userSettings); }
-                catch(e){ 
-                    console.error("Could not read user settings: ", e); 
-                    return;
-                }
-                
-                settings.update("user", userSettings);
-                settings.saveToCloud.user = true;
-                
-                callback();
             });
         }
         
@@ -228,9 +187,6 @@ define(function(require, exports, module) {
          *     oldpath  {String} description
          **/
         plugin.freezePublicAPI({
-            get settings(){ throw new Error("Not Allowed"); },
-            set settings(v){ settings = v; initSettings(); },
-            
             /**
              * Returns the logged in user.
              * @return {Object} The currently user
@@ -242,11 +198,6 @@ define(function(require, exports, module) {
              * @return {Object} The currently active workspace
              */
             getWorkspace: getWorkspace,
-            
-            /**
-             * 
-             */
-            updateUserSettings: updateUserSettings,
             
             _events: [
                 /**

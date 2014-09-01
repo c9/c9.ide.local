@@ -9,6 +9,12 @@ define(function(require, exports, module) {
     main.provides = ["local"];
     return main;
 
+    /*
+        ISSUES:
+        - First opened pane does not get the focus (errors, no loading)
+        - After opening ace docs the UI becomes slow
+    */
+
     function main(options, imports, register) {
         var c9 = imports.c9;
         var ui = imports.ui;
@@ -29,6 +35,7 @@ define(function(require, exports, module) {
         var question = imports["dialog.question"];
         var terminal = imports.terminal;
         var error = imports["dialog.error"];
+        var notifications = imports["dialog.notification"];
         var auth = imports.auth;
 
         // Some require magic to get nw.gui
@@ -81,7 +88,7 @@ define(function(require, exports, module) {
                 validateWindowGeometry();
             }, plugin);
             
-            c9.on("quit", function(){
+            c9.on("beforequit", function(){
                 win.removeAllListeners();
             });
             
@@ -183,13 +190,11 @@ define(function(require, exports, module) {
             });
 
             // Deal with closing
-            win.on("askForQuit", function(quit) {
-                var acceptQuit = quit ? windowManager.quitAll : saveAndQuit;
-                // Fetch quit message, if any
+            win.on("close", function(quit) {
                 var message = window.onbeforeunload && window.onbeforeunload();
                 if (message) {
                     question.show("Quit Cloud9?",
-                        "Are you sure you want to " + (quit ? "exit Cloud9?" : "close this window"),
+                        "Are you sure you want to exit Cloud9?",
                         "Cloud9 will preserve your entire state. "
                             + "Even unsaved files or changes will still "
                             + "be available the next time you start cloud9.",
@@ -197,45 +202,28 @@ define(function(require, exports, module) {
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
                             
-                            acceptQuit();
+                            saveAndQuit();
                         },
                         function(){ // no
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
-                            
-                            if (quit)
-                                windowManager.unquit();
+                            settings.save(true, true);
                         }, {
                             showDontAsk: true
                         });
                     focusWindow();
                 } else {
-                    acceptQuit();
+                    saveAndQuit();
+                }
+                
+                // saving can be slow for remote workspaces
+                // so we hide window, Save All State and then quit
+                function saveAndQuit() {
+                    win.hide();
+                    c9.beforequit();
+                    win.close(true);
                 }
             });
-            
-            win.on("saveAndQuit", saveAndQuit);
-            
-            win.on("close", function(quit) {
-                win.emit("askForQuit", quit);
-            });
-            
-            // saving can be slow for remote workspaces
-            // so we hide window, Save All State and then quit
-            function saveAndQuit() {
-                win.hide();
-                
-                // Prepare cloud9 for quitting
-                c9.beforequit();
-                
-                // Notify plugins that we're quitting
-                c9.quit();
-                
-                // Unregister the window
-                windowManager.onClose(window.win.options.id);
-                
-                win.close(true);
-            }
 
             // Tabs
             tabs.on("focusSync", function(e) {
@@ -261,7 +249,7 @@ define(function(require, exports, module) {
             }, plugin);
 
             settings.on("user/local", function(){
-                if (Boolean(tray) !== settings.getBool("user/local/@tray"))
+                if (!!tray !== settings.getBool("user/local/@tray"))
                     toggleTray(!tray);
                 if (nativeTitle !== settings.getBool("user/local/@nativeTitle"))
                     switchNativeTitle(!nativeTitle);
@@ -315,84 +303,57 @@ define(function(require, exports, module) {
                 caption: "Show Dev Tools", 
                 onclick: function(){
                     var previewTab = tabs.focussedTab;
-                    var previewEditor = previewTab.editor;
-                    
-                    var reload = function (iframe){
-                        win.once("devtools-opened", function wait(url) {
-                            devtools.iframe.src = url;
-                        });
-                        win.showDevTools(iframe, true);
-                    };
                     
                     var session = previewTab.document.getSession();
-                    var devtools = previewEditor.meta.$devtools;
                     var iframe = session.iframe;
-                    
-                    // Clear console
-                    if (!console.fake) {
-                        console.clear();
-                        console = { fake: true };
-                        console.clear = console.log = console.warn = 
-                        console.error = function(){};
-                    }
-                    
-                    if (!devtools) {
-                        previewEditor.meta.$devtools = devtools = {};
-                        
-                        devtools.container = new ui.vsplitbox({
+                    if (!session.devtools) {
+                        session.devtools = new ui.vsplitbox({
                             htmlNode: iframe.parentNode,
                             anchors: "0 0 0 0",
                             splitter: true,
                             childNodes: [
                                 new ui.bar({ height: "50%" }),
-                                devtools.pane = new ui.bar({ 
+                                session.pane = new ui.bar({ 
                                     style: "background:#f1f1f1"
                                 })
                             ]
                         });
                         
                         // Reparent Iframe
-                        devtools.container.firstChild.$ext.appendChild(iframe);
+                        session.devtools.firstChild.$ext.appendChild(iframe);
                         
                         // Create dev tools iframe
-                        var deviframe = devtools.container.lastChild.$ext
-                                .appendChild(document.createElement("iframe"));
-                        devtools.iframe = deviframe;
+                        session.deviframe = session.devtools.lastChild.$ext
+                            .appendChild(document.createElement("iframe"));
+                        session.deviframe.style.width = "100%";
+                        session.deviframe.style.height = "100%";
+                        session.deviframe.style.border = "0";
                         
-                        deviframe.style.width = "100%";
-                        deviframe.style.height = "100%";
-                        deviframe.style.border = "0";
-                        
-                        deviframe.addEventListener("load", function(){
+                        session.deviframe.addEventListener("load", function(){
                             function wait(){
                                 setTimeout(function(){
-                                    var doc = deviframe.contentWindow.document;
+                                    var doc = session.deviframe.contentWindow.document;
                                     var btn = doc.querySelector(".close-button");
                                     if (!btn) return wait();
                                     
+                                    console.clear();
                                     btn.addEventListener("click", function(){
-                                        devtools.pane.hide();
+                                        session.pane.hide();
                                     });
                                 }, 10);
                             }
                             wait();
                         });
-                        
-                        // Update url when session switches or navigates is loaded
-                        var update = function(e){
-                            var session = e.session || e.doc.getSession();
-                            if (devtools.pane.visible)
-                                reload(session.iframe);
-                        };
-                        previewEditor.on("navigate", update);
-                        previewEditor.on("reload", update);
-                        previewEditor.on("documentActivate", update);
                     }
                     else {
-                        devtools.pane.show();
+                        session.pane.show();
                     }
                     
-                    reload(iframe);
+                    win.on("devtools-opened", function wait(url) {
+                        session.deviframe.src = url;
+                        win.off("devtools-opened", wait);
+                    });
+                    win.showDevTools(iframe, true);
                 } 
             }));
             
@@ -444,24 +405,7 @@ define(function(require, exports, module) {
             });
             
             // login/logout
-            auth.on("logout", function(argument) {
-                // clearCookies("c9.io");
-                // clearCookies("github.com");
-                // clearCookies("bitbucket.org");
-                clearCookies();
-            });
-            
-            // Add undo redo support for html elements
-            var ta = {"INPUT":1, "TEXTAREA":1, "SELECT":1, "PRE": 1};
-            document.addEventListener("focusin", function(e){
-                var html = e.target;
-                
-                if (html.contentEditable || ta[html.tagName]) {
-                    windowManager.connection.send(0, {
-                        type: "enableUndoRedo"
-                    });
-                }
-            });
+            auth.on("logout", clearCookies.bind(null, "c9.io"));
         }
         
         /***** Methods *****/
@@ -612,17 +556,12 @@ define(function(require, exports, module) {
 
             win.on("leave-fullscreen", function(){
                 layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
-                titlebar.style.display = "block";
-                document.body.classList.remove("fullscreen");
+                    titlebar.style.display = "block";
             });
-            var enterFullscreen = function(){
+            win.on("enter-fullscreen", function(){
                 layout.getElement("root").setAttribute("anchors", "0 0 0 0");
                 titlebar.style.display = "none";
-                document.body.classList.add("fullscreen");
-            }
-            win.on("enter-fullscreen", enterFullscreen);
-            
-            if (win.isFullscreen) enterFullscreen();
+            });
             
             var menubar = document.querySelector(".c9-menu-bar");
             menubar.style.backgroundPosition = "0 -4px";
@@ -638,53 +577,43 @@ define(function(require, exports, module) {
         function validateWindowGeometry(fitInScreen) {
             if (settings.get("state/local/window/@maximized"))
                 return;
-                
             // Check if Window Position is In view
             var changedSize;
             var changedPos;
             
-            var width = Math.max(400, win.width);
-            var height = Math.max(300, win.height);
+            var width = win.width;
+            var height = win.height;
             
-            if (width > screen.availWidth) {
-                width = screen.availWidth;
+            if (width > screen.width) {
+                width = screen.width;
                 changedSize = true;
             }
             
-            if (height > screen.availHeight) {
-                height = screen.availHeight;
+            if (height > screen.height) {
+                height = screen.height;
                 changedSize = true;
             }
             
             var left = win.x;
             var top = win.y;
             
-            var minLeft = screen.width - screen.availWidth; // Guestimate
-            if (left < minLeft) {
-                left = screen.availLeft;
-                changedPos = true;
-            }
-            else if (left > screen.availWidth + screen.availLeft) {
-                left = screen.availWidth + screen.availLeft - 100;
+            var isLTZero = left < 0 || top < 0;
+            
+            if (left < 0 || left > screen.width + screen.availLeft) {
+                left = Math.max(0, screen.width + screen.availLeft - width) / 2;
                 changedPos = true;
             }
             
-            if (top < screen.availTop) {
-                top = screen.availTop;
+            if (top < 0 || top > screen.height + screen.availTop) {
+                top = Math.max(0, screen.height + screen.availTop - height) / 2;
                 changedPos = true;
             }
-            else if (top > screen.availHeight + screen.availTop) {
-                top = screen.availHeight + screen.availTop - 100;
-                changedPos = true;
-            }
-            else if (fitInScreen && height + top > screen.availTop + screen.availHeight) {
-                top = screen.availTop;
-                height = screen.availHeight;
-                changedPos = true;
+            else if (fitInScreen && top + height > screen.height + screen.availTop) {
+                height = screen.height - top + screen.availTop;
                 changedSize = true;
             }
             
-            if (changedPos)
+            if (changedPos && (!fitInScreen || isLTZero))
                 win.moveTo(left, top);
             
             if (changedSize)

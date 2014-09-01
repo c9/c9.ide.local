@@ -49,7 +49,7 @@ define(function(require, exports, module) {
                         menus: state.menus
                     };
                     delete stateSettings.console["json()"];
-                    
+                
                     server.openWindow({
                         stateSettings: stateSettings,
                         focus: true
@@ -205,11 +205,9 @@ define(function(require, exports, module) {
             }
             
             function updateLoginState(e) {
-                if (e.oldUid === e.uid)
-                    return;
                 windowManager.signalToAll("checkLogin", {
                     winId: win.id,
-                    uid: e.newUid || e.uid
+                    uid: e && e.newUid || e.uid
                 });
             }
             

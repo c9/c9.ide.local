@@ -33,7 +33,6 @@ define(function(require, exports, module) {
         
         var HOST = options.host || "localhost";
         var PORT = options.port || "8888";
-        var PROTOCOL = options.protocol || "https";
         var BASH = options.bashBin || "bash";
         var installPath = options.installPath.replace(/^~/, c9.home);
         
@@ -57,7 +56,7 @@ define(function(require, exports, module) {
             if (!windowManager.isPrimaryWindow(window))
                 return;
             
-            var url = PROTOCOL + "://" + HOST + ":" + PORT + "/update";
+            var url = "http://" + HOST + ":" + PORT + "/update";
             http.request(url, {}, function(err, date, res) {
                 isNewer(date, function(err, newer) {
                     if (err) return;
@@ -87,8 +86,7 @@ define(function(require, exports, module) {
             
             // check if already downloaded
             fs.exists(updateFile, function(exists) {
-                var url = PROTOCOL + "://" + HOST + ":" + PORT + "/update/" 
-                    + c9.platform + "/" + date;
+                var url = "https://" + HOST + ":" + PORT + "/update/" + c9.platform + "/" + date;
 
                 if (exists) {
                     return decompress(date, updateFile);
@@ -98,7 +96,7 @@ define(function(require, exports, module) {
                         + "curl " + url +" -o '" + updateFile + "' --post301 --post302 --create-dirs) || "
                         + "(wget " + url + ".sig -P '" + updateDir + "' && "
                         + "wget " + url + " -P '" + updateDir + "')";
-                console.log("cmdDlUpdate: " + cmdDlUpdate);
+                console.log("cmdDlUpdate: "+cmdDlUpdate);        
                 proc.execFile("bash", {
                     args : [
                         "-c",
@@ -202,7 +200,7 @@ define(function(require, exports, module) {
             
             fs.readFile(script, "utf8",function(e, scriptContent) {
                 // replace $R1 - $R5 in the bash script by 
-                var url = PROTOCOL + "://" + HOST + ":" + PORT + "/nw/" + c9.platform + "/"
+                var url = "http://" + HOST + ":" + PORT + "/nw/" + c9.platform + "/"
                 var args = [script, appRoot, appPath, updateRoot, date, nodeBin, url];
                 scriptContent = scriptContent.replace(/\$R(\d)/g, function(_, i) {
                     return args[i];
