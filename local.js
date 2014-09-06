@@ -448,6 +448,7 @@ define(function(require, exports, module) {
                 clearCookies("c9.io");
                 clearCookies("github.com");
                 clearCookies("bitbucket.org");
+                clearCookies();
             });
             
             // Add undo redo support for html elements
