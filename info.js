@@ -35,6 +35,9 @@ define(function(require, exports, module) {
             if (loaded) return false;
             loaded = true;
             
+            if (options.cookie)
+                checkLoginCookie(options.cookie);
+            
             auth.on("logout", function() {
                 settings.saveToCloud.user = false;
                 
@@ -207,6 +210,14 @@ define(function(require, exports, module) {
                 value: value,
                 expirationDate: Math.floor(Date.now() / 1000) + 365 * 24 * 3600
             }, cb);
+        }
+        
+        function checkLoginCookie(value) {
+            getLoginCookie(function(err, val) {
+                if (!val) {
+                    setLoginCookie(value);
+                }
+            });
         }
         
         /***** Lifecycle *****/
