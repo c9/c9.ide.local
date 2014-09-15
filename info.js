@@ -57,8 +57,8 @@ define(function(require, exports, module) {
         
         function initSettings(){
             // Send change events to all windows
-            settings.on("user", function(e){
-                if (e.userData != "userSettings")
+            settings.on("change:user", function(e){
+                if (e && e.userData != "userSettings")
                     windowManager.signalToAll("updateUserSettings", { data: e.data });
             });
             
