@@ -177,7 +177,7 @@ define(function(require, exports, module) {
                 item.dispatchEvent("click");
                 
                 item.parentNode.dispatchEvent("itemclick", {
-                    value: item.value
+                    value: item.getAttribute("value")
                 });
             });
             
@@ -199,23 +199,24 @@ define(function(require, exports, module) {
                 for (var n, i = nodes.length - 1; i >= 0; i--) {
                     n = nodes[i];
                     
+                    var caption = n.getAttribute("caption");
                     if (n.localName != "item" && n.localName != "divider")
                         continue;
                     
                     if (!n.originalName)
-                        n.originalName = msg.name + "/" + (n.caption || "~" + n.$position);
-                    
+                        n.originalName = msg.name + "/" + (caption || "~" + n.$position);
+                 
                     var data = {
                         name: n.originalName,
                         index: n.$position,
                         visible: n.visible,
-                        caption: n.caption,
+                        caption: caption,
                         key: n.key,
                         submenu: n.submenu ? true : false,
                         modifiers: n.modifiers,
                         checked: n.checked || n.selected || n.selectedItem == n,
                         disabled: n.disabled
-                    }
+                    };
                     
                     if (!n.key && n.hotkey)
                         setHotkey(data, n.hotkey);
