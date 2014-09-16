@@ -289,10 +289,14 @@ define(function(require, exports, module) {
                 item.native = true; // Prevent re-entry
                 item.originalName = e.name; // Used as an item id
                 
+                var index = e.index;
+                if (!index && item.parentNode)
+                    index = item.parentNode.childNodes.indexOf(item);
+                
                 var data = {
                     type: "setMenuItem",
                     name: e.name,
-                    index: e.index,
+                    index: index,
                     disabled: item.disabled,
                     itemtype: item.type,
                     selector: item.selector,
