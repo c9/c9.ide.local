@@ -208,6 +208,10 @@ define(function(require, exports, module) {
                         }, {
                             showDontAsk: true
                         });
+                    // make sure nothing can cover this dialog
+                    question.once("show", function() {
+                        question.aml.setProperty("zindex", 30000000);
+                    });
                     focusWindow();
                 } else {
                     acceptQuit();
