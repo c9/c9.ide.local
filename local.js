@@ -18,6 +18,8 @@ define(function(require, exports, module) {
         var commands = imports.commands;
         var openPath = imports.openPath;
         var upload = imports.upload;
+        var menus = imports.menus;
+        var settings = imports.settings;
         var tabs = imports.tabManager;
         var favs = imports["tree.favorites"];
         var tree = imports.tree;
@@ -246,7 +248,9 @@ define(function(require, exports, module) {
                 } 
             }));
             
-
+            menus.height = 27;
+            menus.minimizedHeight = settings.getBool("user/local/@nativeMenus") 
+                && process.platform == "darwin" ? 1 : 8;
 
             terminal.on("setTerminalCwd", function() {
                 return favs.favorites[0];
