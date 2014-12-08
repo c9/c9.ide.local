@@ -191,7 +191,7 @@ define(function(require, exports, module) {
             }
             
             function addMenuItem(menu, value, c) {
-                menus.addItemByPath(menu + value.name.replace(/[/]/, "\u2044"),
+                menus.addItemByPath(menu + menus.escape(value.name),
                     new ui.item({value   : value}), c || 0, plugin);
             }
             
