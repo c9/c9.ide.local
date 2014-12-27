@@ -113,7 +113,7 @@ define(function(require, exports, module) {
             }), c += 100, plugin);
             
             login.on("ready", function(e) {
-                var name = e.name;
+                var name = "user_" + e.id;
                 var c = 0;
                 
                 menus.addItemByPath(name + "/My Workspaces/", new ui.menu({
@@ -155,7 +155,7 @@ define(function(require, exports, module) {
                 info.getUser(function(err, user) {
                     server.listC9Projects(user, function(err, projects) {
                         var c = 0;
-                        var name = user.fullname;
+                        var name = "user_" + user.id;
                         menus.remove(name + "/My Workspaces/");
                         menus.remove(name + "/Shared Workspaces/");
                         
@@ -192,7 +192,7 @@ define(function(require, exports, module) {
             
             function addMenuItem(menu, value, c) {
                 menus.addItemByPath(menu + menus.escape(value.name),
-                    new ui.item({value   : value}), c || 0, plugin);
+                    new ui.item({value: value}), c || 0, plugin);
             }
             
             function addDisabled(name, path) {
