@@ -9,21 +9,19 @@
         "url": "http://github.com/c9/c9.ide.local.git"
     },
     "plugins": {
-        "plugin": {
-            "clipboard": {},
-            "info": {},
-            "local": {},
-            "nativemenus": {},
-            "open": {},
-            "projectmanager": {},
-            "update": {},
-            "windowframe": {}
-        }
+        "clipboard": {},
+        "info": {},
+        "local": {},
+        "nativemenus": {},
+        "open": {},
+        "projectmanager": {},
+        "update": {},
+        "windowframe": {}
     },
     "categories": [
         "core"
     ],
     "licenses": [
-        ""
+        "AGPL"
     ]
 }
