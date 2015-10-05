@@ -2,7 +2,7 @@
 define(function(require, exports, module) {
     main.consumes = [
         "c9", "Plugin", "info", "menus", "ui", "commands", "login",
-        "tabManager", "tree.favorites", "auth", "settings"
+        "tabManager", "tree.favorites", "auth", "settings", "api"
     ];
     main.provides = ["projectManager"];
     return main;
@@ -13,6 +13,7 @@ define(function(require, exports, module) {
         var info = imports.info;
         var menus = imports.menus;
         var login = imports.login;
+        var api = imports.api;
         var ui = imports.ui;
         var commands = imports.commands;
         var tabManager = imports.tabManager;
@@ -118,7 +119,7 @@ define(function(require, exports, module) {
                 
                 menus.addItemByPath(name + "/My Workspaces/", new ui.menu({
                     "onprop.visible": function(e) {
-                        if (e.value) updateC9Projects();
+                        if (e.value) updateC9Projects("");
                     },
                     "onitemclick" : function(e) {
                         var options = e.relatedNode.value;
@@ -131,7 +132,7 @@ define(function(require, exports, module) {
                 
                 menus.addItemByPath(name + "/Shared Workspaces/", new ui.menu({
                     "onprop.visible": function(e) {
-                        if (e.value) updateC9Projects();
+                        if (e.value) updateC9Projects("/shared");
                     },
                     "onitemclick" : function(e) {
                         var options = e.relatedNode.value;
@@ -147,44 +148,40 @@ define(function(require, exports, module) {
                     
                 // menus.addItemByPath(name + "/Projects/~", new ui.divider(), c += 100, plugin);
                 menus.addItemByPath(name + "/~", new ui.divider(), c += 100, plugin);
-                
-                updateC9Projects();
             });
                 
-            function updateC9Projects() {
+            function updateC9Projects(type) {
                 info.getUser(function(err, user) {
-                    server.listC9Projects(user, function(err, projects) {
+                    if (err) return console.error(err);
+                    api.user.get("projects" + type, function(err, projects) {
                         var c = 0;
                         var name = "user_" + user.id;
-                        menus.remove(name + "/My Workspaces/");
-                        menus.remove(name + "/Shared Workspaces/");
+                        var menuName = name + (type ? "/Shared Workspaces/" : "/My Workspaces/");
+                        menus.remove(menuName);
                         
                         if (err || !projects) {
-                            menus.addItemByPath(name + "/My Workspaces/Error while loading workspace list", 
-                                new ui.item({disabled: true}), c, plugin);
-                            menus.addItemByPath(name + "/Shared Workspaces/Error while loading workspace list", 
+                            menus.addItemByPath(menuName + "Error while loading workspace list", 
                                 new ui.item({disabled: true}), c, plugin);
                             return;
                         }
                         
-                        if (projects.own) {
-                            projects.own.sort(function (a, b) {
+                        if (projects && projects.length) {
+                            projects.map(function(x) {
+                                return {
+                                    name: x.owner.name + "/" + x.name,
+                                    projectName: x.name,
+                                    pid: x.pid,
+                                    isRemote: true,
+                                };
+                            }).sort(function(a, b) {
                                 return a.name.localeCompare(b.name);
                             }).forEach(function (x) {
-                                addMenuItem(name + "/My Workspaces/", x, c += 100);
+                                addMenuItem(menuName, x, c += 100);
                             });
                         } else {
-                            addDisabled(name, "/My Workspaces/You have no workspaces");
-                        }
-                        
-                        if (projects.shared && projects.shared.length) {
-                            projects.shared.sort(function (a, b) {
-                                return a.name.localeCompare(b.name);
-                            }).forEach(function (x) {
-                                addMenuItem(name + "/Shared Workspaces/", x, c += 100);
-                            });
-                        } else {
-                            addDisabled(name, "/Shared Workspaces/You have no Shared workspaces");
+                            addDisabled(menuName, type
+                                ? "You have no Shared workspaces" 
+                                : "You have no workspaces");
                         }
                     });
                 });
