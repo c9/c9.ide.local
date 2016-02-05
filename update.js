@@ -154,13 +154,16 @@ define(function(require, exports, module) {
         function showUpdatePopup(date) {
             showConfirm("Cloud9 needs to be updated", 
                 "Update Available", 
-                "There is an update available of Cloud9. "
-                    + "Click OK to restart and update Cloud9.", 
+                "There is an update available of Cloud9. ", 
                 function(){
                     restart();
                 }, 
                 function(){
                     // Do nothing
+                },
+                {
+                    yes: "Update",
+                    no: "Not now",
                 });
         }
         

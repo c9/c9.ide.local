@@ -137,7 +137,9 @@ define(function(require, exports, module) {
                             if (quit)
                                 windowManager.unquit();
                         }, {
-                            showDontAsk: true
+                            showDontAsk: true,
+                            yes: "Quit",
+                            no: "Abort",
                         });
                     // make sure nothing can cover this dialog
                     question.once("show", function() {
