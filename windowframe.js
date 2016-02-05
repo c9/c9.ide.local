@@ -139,7 +139,7 @@ define(function(require, exports, module) {
                         }, {
                             showDontAsk: true,
                             yes: "Quit",
-                            no: "Abort",
+                            no: "Cancel",
                         });
                     // make sure nothing can cover this dialog
                     question.once("show", function() {
