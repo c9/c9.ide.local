@@ -40,26 +40,26 @@ define(function(require, exports, module) {
         // var emit = plugin.getEmitter();
         
         var overrides = [
-            [ "newfile", {"mac": "Command-N|Ctrl-N", "win": "Ctrl-N" } ],
-            [ "newfiletemplate", {"mac": "Command-Shift-N|Ctrl-Shift-N", "win": "Ctrl-Shift-N" } ],
-            [ "closeallbutme", {"mac": "Command-Option-W|Option-Ctrl-W", "win": "Ctrl-Alt-W" } ],
-            [ "closealltabs", {"mac": "Command-Shift-W|Option-Shift-W", "win": "Ctrl-Shift-W" } ],
-            [ "closetab", {"mac": "Command-W|Option-W", "win": "Ctrl-W" } ],
-            [ "closepane", {"mac": "Command-Ctrl-W", "win": "Ctrl-Option-W" } ],
-            [ "nextpane", {"mac": "Command-ESC|Option-ESC", "win": "Ctrl-ESC" } ],
-            [ "previouspane", {"mac": "Command-Shift-ESC|Option-Shift-ESC", "win": "Ctrl-Shift-ESC" } ],
-            [ "openterminal", {"mac": "Command-T|Option-T", "win": "Alt-T" } ],
-            [ "gototableft", {"mac": "Command-Shift-[|Command-[", "win": "Ctrl-Alt-[" } ],
-            [ "gototabright", {"mac": "Command-Shift-]|Command-]", "win": "Ctrl-Alt-]" } ]
+            [ "newfile", { "mac": "Command-N|Ctrl-N", "win": "Ctrl-N" } ],
+            [ "newfiletemplate", { "mac": "Command-Shift-N|Ctrl-Shift-N", "win": "Ctrl-Shift-N" } ],
+            [ "closeallbutme", { "mac": "Command-Option-W|Option-Ctrl-W", "win": "Ctrl-Alt-W" } ],
+            [ "closealltabs", { "mac": "Command-Shift-W|Option-Shift-W", "win": "Ctrl-Shift-W" } ],
+            [ "closetab", { "mac": "Command-W|Option-W", "win": "Ctrl-W" } ],
+            [ "closepane", { "mac": "Command-Ctrl-W", "win": "Ctrl-Option-W" } ],
+            [ "nextpane", { "mac": "Command-ESC|Option-ESC", "win": "Ctrl-ESC" } ],
+            [ "previouspane", { "mac": "Command-Shift-ESC|Option-Shift-ESC", "win": "Ctrl-Shift-ESC" } ],
+            [ "openterminal", { "mac": "Command-T|Option-T", "win": "Alt-T" } ],
+            [ "gototableft", { "mac": "Command-Shift-[|Command-[", "win": "Ctrl-Alt-[" } ],
+            [ "gototabright", { "mac": "Command-Shift-]|Command-]", "win": "Ctrl-Alt-]" } ]
         ];
         
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
             // When the UI is loaded, show the window
-            c9.once("ready", function(){
+            c9.once("ready", function() {
                 // Set commands
                 overrides.forEach(function(item) {
                     commands.setDefault(item[0], item[1]);
@@ -67,11 +67,11 @@ define(function(require, exports, module) {
                 
             }, plugin);
             
-            c9.on("quit", function(){
+            c9.on("quit", function() {
                 win.removeAllListeners();
             });
             
-            tabs.once("ready", function(){
+            tabs.once("ready", function() {
                 // Parse argv
                 if (win.options) {
                     var path = win.options.filePath;
@@ -145,7 +145,7 @@ define(function(require, exports, module) {
                 }
             });
             
-            tree.once("draw", function(){
+            tree.once("draw", function() {
                 // todo click event from tree isn't fired for empty tree
                 tree.tree.container.addEventListener("click", function() {
                     if (favs.favorites.length || tree.tree.provider.visibleItems.length)
@@ -165,11 +165,11 @@ define(function(require, exports, module) {
             // Preview
             preview.settingsMenu.append(new C9MenuItem({ 
                 caption: "Show Dev Tools", 
-                onclick: function(){
+                onclick: function() {
                     var previewTab = tabs.focussedTab;
                     var previewEditor = previewTab.editor;
                     
-                    var reload = function (iframe){
+                    var reload = function (iframe) {
                         win.once("devtools-opened", function wait(url) {
                             devtools.iframe.src = url;
                         });
@@ -185,7 +185,7 @@ define(function(require, exports, module) {
                         console.clear();
                         console = { fake: true };
                         console.clear = console.log = console.warn = 
-                        console.error = function(){};
+                        console.error = function() {};
                     }
                     
                     if (!devtools) {
@@ -215,14 +215,14 @@ define(function(require, exports, module) {
                         deviframe.style.height = "100%";
                         deviframe.style.border = "0";
                         
-                        deviframe.addEventListener("load", function(){
-                            function wait(){
-                                setTimeout(function(){
+                        deviframe.addEventListener("load", function() {
+                            function wait() {
+                                setTimeout(function() {
                                     var doc = deviframe.contentWindow.document;
                                     var btn = doc.querySelector(".close-button");
                                     if (!btn) return wait();
                                     
-                                    btn.addEventListener("click", function(){
+                                    btn.addEventListener("click", function() {
                                         devtools.pane.hide();
                                     });
                                 }, 10);
@@ -231,7 +231,7 @@ define(function(require, exports, module) {
                         });
                         
                         // Update url when session switches or navigates is loaded
-                        var update = function(e){
+                        var update = function(e) {
                             var session = e.session || e.doc.getSession();
                             if (devtools.pane.visible)
                                 reload(session.iframe);
@@ -265,8 +265,8 @@ define(function(require, exports, module) {
             });
             
             // Add undo redo support for html elements
-            var ta = {"INPUT":1, "TEXTAREA":1, "SELECT":1, "PRE": 1};
-            document.addEventListener("focusin", function(e){
+            var ta = { "INPUT": 1, "TEXTAREA": 1, "SELECT": 1, "PRE": 1 };
+            document.addEventListener("focusin", function(e) {
                 var html = e.target;
                 
                 if (html.contentEditable || ta[html.tagName]) {
@@ -279,14 +279,14 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function focusWindow(){
+        function focusWindow() {
             // To support all platforms, we need to call both show and focus
             win.show();
             win.focus();
         }
 
         
-        function installMode(){
+        function installMode() {
             focusWindow();
         }
         
@@ -296,7 +296,7 @@ define(function(require, exports, module) {
         }
         
         function clearCookies(domain) {
-            win.cookies.getAll(domain ? {domain: domain} : {}, function(cookies) {
+            win.cookies.getAll(domain ? { domain: domain } : {}, function(cookies) {
                 cookies.forEach(function(c) {
                     win.cookies.remove({
                         url: "http" + (c.secure ? "s" : "") + "://" + c.domain + c.path,
@@ -308,16 +308,16 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             loaded = false;
         });
         

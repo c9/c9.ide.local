@@ -38,7 +38,7 @@ define(function(require, exports, module) {
         var installPath = options.installPath.replace(/^~/, c9.home);
         
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
@@ -53,7 +53,7 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function checkForUpdates(){
+        function checkForUpdates() {
             if (!windowManager.isPrimaryWindow(window))
                 return;
             
@@ -83,7 +83,7 @@ define(function(require, exports, module) {
             
             var updateDir = join(installPath, "updates");
             var updateFile = join(updateDir, date);
-            console.log('updateFile: '+updateFile);
+            console.log('updateFile: ' + updateFile);
             
             // check if already downloaded
             fs.exists(updateFile, function(exists) {
@@ -94,17 +94,17 @@ define(function(require, exports, module) {
                     return decompress(date, updateFile);
                 }
                 
-                var cmdDlUpdate = "(curl " + url +".sig -o '" + updateFile + ".sig' --post301 --post302 --create-dirs &&"
-                        + "curl " + url +" -o '" + updateFile + "' --post301 --post302 --create-dirs) || "
+                var cmdDlUpdate = "(curl " + url + ".sig -o '" + updateFile + ".sig' --post301 --post302 --create-dirs &&"
+                        + "curl " + url + " -o '" + updateFile + "' --post301 --post302 --create-dirs) || "
                         + "(wget " + url + ".sig -P '" + updateDir + "' && "
                         + "wget " + url + " -P '" + updateDir + "')";
                 console.log("cmdDlUpdate: " + cmdDlUpdate);
                 proc.execFile("bash", {
-                    args : [
+                    args: [
                         "-c",
                         cmdDlUpdate
                     ],
-                }, function(err, stdout, stderr){
+                }, function(err, stdout, stderr) {
                     if (err) {
                         showAlert(
                             "Unable to download update",
@@ -123,13 +123,13 @@ define(function(require, exports, module) {
         }
         
         function decompress(date, target) {
-            fs.rmdir(installPath + "/updates/app.nw", { recursive: true }, function(){
+            fs.rmdir(installPath + "/updates/app.nw", { recursive: true }, function() {
                 proc.execFile("tar", {
                     args: ["-zxf", basename(target)],
                     cwd: dirname(target)
                 }, function(err, stdout, stderr) {
                     if (err) {
-                        fs.unlink(target, function(){});
+                        fs.unlink(target, function() {});
                         return;
                     }
                 
@@ -146,7 +146,7 @@ define(function(require, exports, module) {
             if (typeof document === "undefined")
                 return;
             
-            layout.flagUpdate(function(){
+            layout.flagUpdate(function() {
                 showUpdatePopup(date);
             });
         }
@@ -155,10 +155,10 @@ define(function(require, exports, module) {
             showConfirm("Cloud9 needs to be updated", 
                 "Update Available", 
                 "There is an update available of Cloud9. ", 
-                function(){
+                function() {
                     restart();
                 }, 
-                function(){
+                function() {
                     // Do nothing
                 },
                 {
@@ -168,7 +168,7 @@ define(function(require, exports, module) {
         }
         
         //@TODO needs to be platform specific
-        function getC9Path(){
+        function getC9Path() {
             return options.path + "/bin/c9";
         }
         
@@ -203,9 +203,9 @@ define(function(require, exports, module) {
                 appRoot = path.substr(0, path.lastIndexOf("/"));
             }
             
-            fs.readFile(script, "utf8",function(e, scriptContent) {
+            fs.readFile(script, "utf8", function(e, scriptContent) {
                 // replace $R1 - $R5 in the bash script by 
-                var url = PROTOCOL + "://" + HOST + ":" + PORT + "/nw/" + c9.platform + "/"
+                var url = PROTOCOL + "://" + HOST + ":" + PORT + "/nw/" + c9.platform + "/";
                 var args = [script, appRoot, appPath, updateRoot, date, nodeBin, url];
                 scriptContent = scriptContent.replace(/\$R(\d)/g, function(_, i) {
                     return args[i];
@@ -237,7 +237,7 @@ define(function(require, exports, module) {
             });
         }
         
-        function restart(){
+        function restart() {
             // nativeRequire('nw.gui').Window.get().reloadIgnoringCache(); 
             // todo this doesn't work
             proc.spawn(getC9Path(), {
@@ -253,16 +253,16 @@ define(function(require, exports, module) {
 
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             loaded = false;
         });
         

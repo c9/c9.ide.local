@@ -41,7 +41,7 @@ define(function(require, exports, module) {
             auth.on("logout", function() {
                 settings.saveToCloud.user = false;
                 
-                emit("change", { user: {fullname: "Logged Out", email: ""} });
+                emit("change", { user: { fullname: "Logged Out", email: "" }});
                 fs.exists(settingDir + "/profile.settings", function(exists) {
                     if (exists)
                         fs.unlink(settingDir + "/profile.settings", function() {});
@@ -55,15 +55,15 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function initSettings(){
+        function initSettings() {
             // Send change events to all windows
-            settings.on("change:user", function(e){
+            settings.on("change:user", function(e) {
                 if (e && e.userData != "userSettings")
                     windowManager.signalToAll("updateUserSettings", { data: e.data });
             });
             
             // Listen for changes for this window
-            window.win.on("updateUserSettings", function(e){
+            window.win.on("updateUserSettings", function(e) {
                 settings.update("user", e.data, "userSettings");
             });
         }
@@ -97,7 +97,7 @@ define(function(require, exports, module) {
                 authorizeCopy();
                 
                 if (!c9.hosted && !loadedUserSettings) {
-                    updateUserSettings(function(){
+                    updateUserSettings(function() {
                         loadedUserSettings = true;
                     });
                 }
@@ -120,10 +120,10 @@ define(function(require, exports, module) {
             });
         }
         
-        function updateUserSettings(callback){
+        function updateUserSettings(callback) {
             api.settings.get("user", {}, function(err, userSettings) {
                 try { userSettings = JSON.parse(userSettings); }
-                catch(e){ 
+                catch (e) { 
                     console.error("Could not read user settings: ", e); 
                     return;
                 }
@@ -185,13 +185,13 @@ define(function(require, exports, module) {
             if (!callback) return user;
             if (user && user.id != ANONYMOUS) 
                 return callback(null, user);
-            plugin.once("change", function(e){ callback(null, e.user); });
+            plugin.once("change", function(e) { callback(null, e.user); });
         }
         
         function getWorkspace(callback) {
             if (!callback) return project;
             if (project) return callback(null, user);
-            plugin.once("change", function(e){ callback(null, e.workspace); });
+            plugin.once("change", function(e) { callback(null, e.workspace); });
         }
         
         function getLoginCookie(cb) {
@@ -222,10 +222,10 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             loaded = false;
         });
         
@@ -239,8 +239,8 @@ define(function(require, exports, module) {
          *     oldpath  {String} description
          **/
         plugin.freezePublicAPI({
-            get settings(){ throw new Error("Not Allowed"); },
-            set settings(v){ settings = v; initSettings(); },
+            get settings() { throw new Error("Not Allowed"); },
+            set settings(v) { settings = v; initSettings(); },
             
             /**
              * Returns the logged in user.

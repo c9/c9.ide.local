@@ -36,7 +36,7 @@ define(function(require, exports, module) {
         // var emit = plugin.getEmitter();
         
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
@@ -60,7 +60,7 @@ define(function(require, exports, module) {
             
             commands.addCommand({
                 name: "closeEmptyWindow",
-                bindKey: {win: "ctrl-w", mac: "cmd-w"},
+                bindKey: { win: "ctrl-w", mac: "cmd-w" },
                 exec: function () { win.close(); },
                 isAvailable: function() {
                     return tabManager.getTabs().filter(function(t) {
@@ -80,7 +80,7 @@ define(function(require, exports, module) {
             
             // projects menu
             menus.addItemByPath("Cloud9/Recent Windows/", new ui.menu({
-                "onprop.visible" : function(e) {
+                "onprop.visible": function(e) {
                     if (e.value) {
                         windowManager.getRecentWindows(function(err, recentWindows) {
                             recentWindows = recentWindows.sort(function(a, b) {
@@ -99,14 +99,14 @@ define(function(require, exports, module) {
                                 if (!x.isOpen && !dividerAdded) {
                                     dividerAdded = true;
                                     menus.addItemByPath("Cloud9/Recent Windows/~", 
-                                        new ui.divider(), c+=100, plugin);
+                                        new ui.divider(), c += 100, plugin);
                                 }
                                 addMenuItem("Cloud9/Recent Windows/", x, c += 100);
                             });
                         });
                     }
                 },
-                "onitemclick" : function(e) {
+                "onitemclick": function(e) {
                     var options = e.value;
                     options.focus = true;
                     server.openWindow(options, showProgress());
@@ -121,7 +121,7 @@ define(function(require, exports, module) {
                     "onprop.visible": function(e) {
                         if (e.value) updateC9Projects("");
                     },
-                    "onitemclick" : function(e) {
+                    "onitemclick": function(e) {
                         var options = e.relatedNode.value;
                         if (options) {
                             options.focus = true;
@@ -134,7 +134,7 @@ define(function(require, exports, module) {
                     "onprop.visible": function(e) {
                         if (e.value) updateC9Projects("/shared");
                     },
-                    "onitemclick" : function(e) {
+                    "onitemclick": function(e) {
                         var options = e.relatedNode.value;
                         if (options) {
                             options.focus = true;
@@ -161,7 +161,7 @@ define(function(require, exports, module) {
                         
                         if (err || !projects) {
                             menus.addItemByPath(menuName + "Error while loading workspace list", 
-                                new ui.item({disabled: true}), c, plugin);
+                                new ui.item({ disabled: true }), c, plugin);
                             return;
                         }
                         
@@ -189,12 +189,12 @@ define(function(require, exports, module) {
             
             function addMenuItem(menu, value, c) {
                 menus.addItemByPath(menu + menus.escape(value.name),
-                    new ui.item({value: value}), c || 0, plugin);
+                    new ui.item({ value: value }), c || 0, plugin);
             }
             
             function addDisabled(name, path) {
                 menus.addItemByPath(name + path, 
-                    new ui.item({disabled: true}), 0, plugin);
+                    new ui.item({ disabled: true }), 0, plugin);
             }
             
             function updateFavorites() {
@@ -242,16 +242,16 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             loaded = false;
         });
         

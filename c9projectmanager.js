@@ -24,7 +24,7 @@ define(function(require, exports, module) {
         var updating = {};
         
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
@@ -43,7 +43,7 @@ define(function(require, exports, module) {
                     "onprop.visible": function(e) {
                         if (e.value) updateC9Projects("");
                     },
-                    "onitemclick" : function(e) {
+                    "onitemclick": function(e) {
                         var options = e.relatedNode.value;
                         if (options) {
                             window.open("/" + options.name);
@@ -55,7 +55,7 @@ define(function(require, exports, module) {
                     "onprop.visible": function(e) {
                         if (e.value) updateC9Projects("/shared");
                     },
-                    "onitemclick" : function(e) {
+                    "onitemclick": function(e) {
                         var options = e.relatedNode.value;
                         if (options) {
                             window.open("/" + options.name);
@@ -89,7 +89,7 @@ define(function(require, exports, module) {
                         
                         if (err || !projects) {
                             menus.addItemByPath(menuName + "Error while loading workspace list", 
-                                new ui.item({disabled: true}), c, plugin);
+                                new ui.item({ disabled: true }), c, plugin);
                             return;
                         }
                         
@@ -122,12 +122,12 @@ define(function(require, exports, module) {
             
             function addMenuItem(menu, value, c) {
                 menus.addItemByPath(menu + menus.escape(value.name),
-                    new ui.item({value: value}), c || 0, plugin);
+                    new ui.item({ value: value }), c || 0, plugin);
             }
             
             function addDisabled(name, path) {
                 menus.addItemByPath(name + path, 
-                    new ui.item({disabled: true}), 0, plugin);
+                    new ui.item({ disabled: true }), 0, plugin);
             }
         }
         
@@ -136,16 +136,16 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             loaded = false;
             updating = {};
         });

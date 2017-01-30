@@ -28,27 +28,27 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "open",
                 hint: "open a file or folder",
-                exec: function(){ open(); }
+                exec: function() { open(); }
             }, plugin);
             
             menus.addItemByPath("File/Open...", new apf.item({ 
-                command : "open" 
+                command: "open" 
             }), 400, plugin);
         }
         
         /***** Methods *****/
         
-        function open(){
+        function open() {
             var input = document.createElement("input");
             input.type = "file";
             input.multiple = true;
             
-            function handler(path, i, err, stat){
+            function handler(path, i, err, stat) {
                 if (stat.mime.match(/(folder|directory)$/)) {
                     favorites.addFavorite(path);
                 }
                 else {
-                    tabManager.openFile(path, i === 0, function(){});
+                    tabManager.openFile(path, i === 0, function() {});
                 }
             }
             

@@ -55,14 +55,14 @@ define(function(require, exports, module) {
         // var emit = plugin.getEmitter();
         
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
             prefs.add({
-                "General" : {
-                    "User Interface" : {
-                        "Use Native Menus (restart required)" : {
+                "General": {
+                    "User Interface": {
+                        "Use Native Menus (restart required)": {
                             type: "checkbox",
                             path: "user/local/@nativeMenus",
                             position: 50
@@ -71,7 +71,7 @@ define(function(require, exports, module) {
                 }
             }, plugin);
             
-            settings.on("read", function(){
+            settings.on("read", function() {
                 settings.setDefaults("user/local", [["nativeMenus", true]]);
                 
                 init();
@@ -79,7 +79,7 @@ define(function(require, exports, module) {
         }
         
         var inited;
-        function init(){
+        function init() {
             if (inited) return;
             inited = true;
             
@@ -264,13 +264,13 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function findMenuItem(name){
+        function findMenuItem(name) {
             var item = menus.get(name).item;
             if (!item) {
                 var p = name.split("/");
                 var f = p.pop();
                 var parent = menus.get(p.join("/")).menu;
-                parent.childNodes.some(function(node){
+                parent.childNodes.some(function(node) {
                     if (node.caption == f) {
                         item = node;
                         return true;
@@ -280,7 +280,7 @@ define(function(require, exports, module) {
             return item;
         }
         
-        function createMenuItem(e){
+        function createMenuItem(e) {
             var item = e.item;
             
             if (e.parent.native && (item.localName == "item" 
@@ -341,16 +341,16 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             loaded = false;
         });
         

@@ -21,7 +21,7 @@ define(function(require, exports, module) {
         
         /***** Methods *****/
         
-        function clear(){
+        function clear() {
             getClipboard().clear();
         }
         
@@ -41,16 +41,16 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             clipboard = false;
         });
         
@@ -60,8 +60,8 @@ define(function(require, exports, module) {
          * Clipboard Provider Using the node-webkit interface
          **/
         plugin.freezePublicAPI({
-            wrap: function(){},
-            unwrap: function(){},
+            wrap: function() {},
+            unwrap: function() {},
             
             /**
              * Clears the clipboard

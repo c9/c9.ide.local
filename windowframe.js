@@ -36,7 +36,7 @@ define(function(require, exports, module) {
         // var emit = plugin.getEmitter();
         
         var loaded = false;
-        function load(){
+        function load() {
             if (loaded) return false;
             loaded = true;
             
@@ -44,7 +44,7 @@ define(function(require, exports, module) {
             setNativeTitle();
             
             // When the UI is loaded, show the window
-            c9.once("ready", function(){
+            c9.once("ready", function() {
                 // Check Window Location
                 validateWindowGeometry();
             }, plugin);
@@ -59,7 +59,7 @@ define(function(require, exports, module) {
             }), 2000100, plugin);
 
             menus.addItemByPath("Window/Developer Tools", new ui.item({
-                onclick: function(){
+                onclick: function() {
                     win.showDevTools();
                 }
             }), 2000000, plugin);
@@ -67,7 +67,7 @@ define(function(require, exports, module) {
             menus.addItemByPath("View/~", new ui.divider(), 800, plugin);
             
             var itemFullscreen = new ui.item({
-                isAvailable: function(){
+                isAvailable: function() {
                     itemFullscreen.setAttribute("caption", 
                         win.isFullscreen 
                             ? "Leave Full Screen" 
@@ -94,7 +94,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "fallback",
                 bindKey: { mac: "Command-W", win: "Ctrl-F4" },
-                isAvailable: function(){
+                isAvailable: function() {
                     return true;
                 },
                 exec: function() {
@@ -105,7 +105,7 @@ define(function(require, exports, module) {
             commands.addCommand({
                 name: "toggleFullscreen",
                 exec: function() {
-                    setTimeout(function(){
+                    setTimeout(function() {
                         win.isFullscreen 
                             ? win.leaveFullscreen()
                             : win.enterFullscreen(); 
@@ -124,13 +124,13 @@ define(function(require, exports, module) {
                         "Cloud9 will preserve your entire state. "
                             + "Even unsaved files or changes will still "
                             + "be available the next time you start cloud9.",
-                        function(){ // yes
+                        function() { // yes
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
                             
                             acceptQuit();
                         },
-                        function(){ // no
+                        function() { // no
                             settings.set("user/general/@confirmexit", 
                                 !question.dontAsk);
                             
@@ -175,7 +175,7 @@ define(function(require, exports, module) {
             }
 
             // Settings
-            settings.on("read", function(){
+            settings.on("read", function() {
                 settings.setDefaults("user/local", [
                     ["tray", "false"]
                 ]);
@@ -183,7 +183,7 @@ define(function(require, exports, module) {
                     toggleTray(true);
             }, plugin);
 
-            settings.on("user/local", function(){
+            settings.on("user/local", function() {
                 if (Boolean(tray) !== settings.getBool("user/local/@tray"))
                     toggleTray(!tray);
                 if (nativeTitle !== settings.getBool("user/local/@nativeTitle"))
@@ -210,19 +210,19 @@ define(function(require, exports, module) {
             // }, plugin);
             
             // Window
-            win.on("minimize", function(){
+            win.on("minimize", function() {
                 win.isMinimized = true;
                 settings.set("state/local/window/@minimized", true);
             });
-            win.on("restore", function(){
+            win.on("restore", function() {
                 win.isMinimized = false;
                 settings.set("state/local/window/@minimized", false);
             });
-            win.on("maximize", function(){
+            win.on("maximize", function() {
                 win.isMaximized = true;
                 settings.set("state/local/window/@maximized", true);
             });
-            win.on("unmaximize", function(){
+            win.on("unmaximize", function() {
                 win.isMaximized = false;
                 settings.set("state/local/window/@maximized", false);
             });
@@ -264,13 +264,13 @@ define(function(require, exports, module) {
                 var menu = new Menu();
                 menu.append(new MenuItem({ 
                     label: 'Visit c9.io', 
-                    click: function(){
+                    click: function() {
                         window.open("http://c9.io");
                     }
                 }));
                 menu.append(new MenuItem({ 
                     label: 'Show Developer Tools', 
-                    click: function(){
+                    click: function() {
                         win.showDevTools();
                     }
                 }));
@@ -324,40 +324,40 @@ define(function(require, exports, module) {
             // Maximize
             var fullscreenbtn = titlebar.appendChild(document.createElement("div"));
             fullscreenbtn.className = "fullscreen";
-            fullscreenbtn.addEventListener("click", function(){
+            fullscreenbtn.addEventListener("click", function() {
                 win.enterFullscreen();
             });
             
             // Buttons
             var closebtn = titlebar.appendChild(document.createElement("div"));
             closebtn.className = "closebtn";
-            closebtn.addEventListener("click", function(){
+            closebtn.addEventListener("click", function() {
                 win.close();
             });
             var minbtn = titlebar.appendChild(document.createElement("div"));
             minbtn.className = "minbtn";
-            minbtn.addEventListener("click", function(){
+            minbtn.addEventListener("click", function() {
                 win.minimize();
             });
             var maxbtn = titlebar.appendChild(document.createElement("div"));
             maxbtn.className = "maxbtn";
-            maxbtn.addEventListener("click", function(){
+            maxbtn.addEventListener("click", function() {
                 isMaximized && !apf.isMac
                     ? win.unmaximize()
                     : win.maximize();
             });
             
-            win.on("blur", function(){
+            win.on("blur", function() {
                 titlebar.className = titlebar.className.replace(/ focus/g, "");
             });
-            win.on("focus", function(){
+            win.on("focus", function() {
                 titlebar.className += " focus";
             });
-            win.on("maximize", function(){
+            win.on("maximize", function() {
                 titlebar.className += " maximized";
                 isMaximized = true;
             });
-            win.on("unmaximize", function(){
+            win.on("unmaximize", function() {
                 titlebar.className = titlebar.className.replace(/ maximized/g, "");
                 isMaximized = false;
             });
@@ -372,19 +372,19 @@ define(function(require, exports, module) {
             // Temporary Hack - need resolution event
             setInterval(checkScreen, 2000);
             
-            function checkScreen(){
+            function checkScreen() {
                 var s = lastScreen;
                 lastScreen = util.extend({}, screen);
                 if (!util.isEqual(s, lastScreen))
                     validateWindowGeometry(true);
             }
 
-            win.on("leave-fullscreen", function(){
+            win.on("leave-fullscreen", function() {
                 layout.getElement("root").setAttribute("anchors", titleHeight + " 0 0 0");
                 titlebar.style.display = "block";
                 document.body.classList.remove("fullscreen");
             });
-            var enterFullscreen = function(){
+            var enterFullscreen = function() {
                 layout.getElement("root").setAttribute("anchors", "0 0 0 0");
                 titlebar.style.display = "none";
                 document.body.classList.add("fullscreen");
@@ -398,7 +398,7 @@ define(function(require, exports, module) {
             menubar.style.webkitUserSelect = "none";
         }
         
-        function focusWindow(){
+        function focusWindow() {
             // To support all platforms, we need to call both show and focus
             win.show();
             win.focus();
@@ -467,16 +467,16 @@ define(function(require, exports, module) {
         
         /***** Lifecycle *****/
         
-        plugin.on("load", function(){
+        plugin.on("load", function() {
             load();
         });
-        plugin.on("enable", function(){
+        plugin.on("enable", function() {
             
         });
-        plugin.on("disable", function(){
+        plugin.on("disable", function() {
             
         });
-        plugin.on("unload", function(){
+        plugin.on("unload", function() {
             toggleTray(false);
 
             loaded = false;
